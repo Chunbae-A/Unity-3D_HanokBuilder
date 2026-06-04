@@ -104,3 +104,8 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# HanokBuilder — 3D game assets (FBX, Prefab binaries)
+# Add your own FBX/Prefab to Assets/HanokBuilder/Resources/HanokAssets/ locally
+Assets/HanokBuilder/Resources/HanokAssets/*.fbx
+Assets/HanokBuilder/Resources/HanokAssets/*.FBX
