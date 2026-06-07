@@ -36,9 +36,9 @@ public class HanokCameraController : MonoBehaviour
     ViewPreset _preset = ViewPreset.Perspective;
     Vector2    _prevMouse;
 
-    const float DEF_PITCH = 28f;
+    const float DEF_PITCH = 18f;
     const float DEF_YAW   = -40f;
-    const float DEF_DIST  = 20f;
+    const float DEF_DIST  = 22f;
 
     // ── 외부 접근 ────────────────────────────────────────
     public ViewPreset CurrentPreset => _preset;

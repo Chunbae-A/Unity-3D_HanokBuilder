@@ -36,6 +36,9 @@ public partial class HanokUIManager : MonoBehaviour
     Vector3 _dragOffset;
     Plane   _dragPlane;
 
+    // ── 회전 기즈모 ──────────────────────────────────────
+    HanokRotationGizmo _rotGizmo;
+
     // ── 라이트 테마 색상 팔레트 ───────────────────────────
     static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out Color c); return c; }
 
@@ -87,6 +90,9 @@ public partial class HanokUIManager : MonoBehaviour
             Camera.main.GetComponent<HanokCameraController>() == null)
             Camera.main.gameObject.AddComponent<HanokCameraController>();
 
+        // 회전 기즈모 생성
+        _rotGizmo = gameObject.AddComponent<HanokRotationGizmo>();
+
         BuildUI();
         LoadAssets();
         StartCoroutine(ForceLayout());
@@ -116,6 +122,16 @@ public partial class HanokUIManager : MonoBehaviour
     {
         currentTool = tool;
         RefreshToolBtns();
+        SyncGizmo();
+    }
+
+    void SyncGizmo()
+    {
+        if (_rotGizmo == null) return;
+        if (currentTool == EditTool.Rotate && selectedObject != null)
+            _rotGizmo.Attach(selectedObject);
+        else
+            _rotGizmo.Detach();
     }
 
     void RefreshToolBtns()
@@ -231,6 +247,7 @@ public partial class HanokUIManager : MonoBehaviour
 
         RefreshInfoPanel();
         if (obj != null) ForceSyncTransform();
+        SyncGizmo();
     }
 
     void RefreshInfoPanel()
@@ -432,23 +449,24 @@ public partial class HanokUIManager : MonoBehaviour
         }
 
         // ═══════════════════════════════════════════════════
-        // ROTATE 모드: 수평 드래그 → Y축 회전
+        // ROTATE 모드: 기즈모(X/Y/Z 링) 드래그 또는 오브젝트 클릭→선택
         // ═══════════════════════════════════════════════════
         if (currentTool == EditTool.Rotate)
         {
+            // 기즈모가 마우스를 소비 중이면 UIManager는 처리 안 함
+            if (_rotGizmo != null && _rotGizmo.IsConsuming)
+                return;
+
+            // 오브젝트 클릭으로 선택 (빈 공간 클릭은 선택 유지)
             if (mouse.leftButton.wasPressedThisFrame && !overUI)
             {
-                _isDragging = false;
                 var ray = Camera.main.ScreenPointToRay((Vector3)mp);
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     var sa = hit.collider.GetComponent<SelectableAsset>();
-                    if (sa != null) { SelectObject(sa.Root); _isDragging = true; }
+                    if (sa != null) SelectObject(sa.Root);
                 }
             }
-            if (mouse.leftButton.isPressed && _isDragging && selectedObject != null)
-                selectedObject.transform.Rotate(0f, mDelta.x * 0.6f, 0f, Space.World);
-            if (mouse.leftButton.wasReleasedThisFrame) _isDragging = false;
             return;
         }
 
