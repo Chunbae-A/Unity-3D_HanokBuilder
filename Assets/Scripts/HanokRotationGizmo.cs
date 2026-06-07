@@ -229,25 +229,24 @@ public class HanokRotationGizmo : MonoBehaviour
 
     static float RingRadius(GameObject obj)
     {
-        // 카메라 거리 기반 — FBX 스케일과 무관하게 화면상 일정한 크기 유지
         if (Camera.main == null) return 1.0f;
 
-        float dist = Vector3.Distance(Camera.main.transform.position, VisualCenter(obj));
-        float r    = Mathf.Clamp(dist * 0.15f, 0.8f, 6f);
+        Vector3 center = VisualCenter(obj);
+        float   dist   = Vector3.Distance(Camera.main.transform.position, center);
 
-        // 시각 크기가 링보다 크면 링을 키움 (3m 상한 — 비정상 bounds 차단)
         var rs = obj.GetComponentsInChildren<Renderer>();
-        if (rs.Length > 0)
-        {
-            var b = rs[0].bounds;
-            foreach (var rv in rs) b.Encapsulate(rv.bounds);
-            Vector3 p      = obj.transform.position;
-            float   halfXZ = Mathf.Clamp(Mathf.Max(b.size.x, b.size.z) * 0.5f, 0.3f, 4f);
-            float   halfY  = Mathf.Clamp(b.size.y * 0.5f, 0.3f, 4f);
-            float   safeExt = Mathf.Max(halfXZ, halfY);
-            r = Mathf.Max(r, Mathf.Clamp(safeExt, 0.4f, 3f));
-        }
+        if (rs.Length == 0)
+            return Mathf.Clamp(dist * 0.06f, 0.3f, 2f);
 
-        return r;
+        var b = rs[0].bounds;
+        foreach (var rv in rs) b.Encapsulate(rv.bounds);
+        float ext = Mathf.Max(b.size.x, b.size.y, b.size.z);
+
+        // ── 정상 bounds: 에셋 크기에 비례해 링 자동 조정 ──────────────────
+        if (ext <= dist * 5f)
+            return Mathf.Clamp(ext * 0.025f, 0.08f, 3f);
+
+        // ── 비정상 bounds (cm-scale FBX) → 카메라 거리 fallback ────────────
+        return Mathf.Clamp(dist * 0.025f, 0.12f, 1.0f);
     }
 }

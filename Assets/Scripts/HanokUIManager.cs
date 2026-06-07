@@ -248,6 +248,12 @@ public partial class HanokUIManager : MonoBehaviour
         RefreshInfoPanel();
         if (obj != null) ForceSyncTransform();
         SyncGizmo();
+
+        // 선택 시 카메라 피벗을 오브젝트 방향으로 부드럽게 이동
+        // (오비트가 선택한 오브젝트 주변으로 자연스럽게 전환됨)
+        if (obj != null)
+            Camera.main?.GetComponent<HanokCameraController>()
+                        ?.ShiftPivotToward(obj.transform.position);
     }
 
     void RefreshInfoPanel()
