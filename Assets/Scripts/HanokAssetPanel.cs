@@ -5,25 +5,80 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// HanokUIManager — 왼쪽 에셋 목록 (partial)
-/// 심플 구조: 탭 → 아이템을 assetContent에 직접 추가 (중첩 레이아웃 없음)
+/// Left asset library panel for HanokUIManager.
+/// Loads prefab entries from Resources/HanokAssets and filters them by folder category.
 /// </summary>
 public partial class HanokUIManager
 {
+    class HanokAssetEntry
+    {
+        public GameObject prefab;
+        public string mainCategory;
+        public string subCategory;
+
+        public HanokAssetEntry(GameObject prefab, string mainCategory, string subCategory)
+        {
+            this.prefab = prefab;
+            this.mainCategory = mainCategory;
+            this.subCategory = subCategory;
+        }
+    }
+
+    struct HanokSubCategory
+    {
+        public string key;
+        public string label;
+        public string path;
+
+        public HanokSubCategory(string key, string label, string path)
+        {
+            this.key = key;
+            this.label = label;
+            this.path = path;
+        }
+    }
+
     Camera _thumbCam;
 
-    static readonly string[] CATEGORIES = { "구조 모듈", "전통 소품", "전통문양" };
+    const string CAT_ALL = "All";
+    const string CAT_COMPLETE = "Complete";
+    const string CAT_PARTS = "Parts";
 
-    int              _curCat  = 0;
-    Button[]         _catBtns;
-    GameObject       _tabsGO;              // 탭 행 참조 (삭제 보호)
-    List<GameObject> _allPrefabs = new();
+    static readonly (string key, string label)[] MAIN_FILTERS =
+    {
+        (CAT_ALL, "전체"),
+        (CAT_COMPLETE, "완성형"),
+        (CAT_PARTS, "부품형"),
+    };
+
+    static readonly HanokSubCategory[] PART_FILTERS =
+    {
+        new HanokSubCategory(CAT_ALL, "전체", ""),
+        new HanokSubCategory("Beam", "보", "Beam"),
+        new HanokSubCategory("Dancheong", "단청", "Dancheong"),
+        new HanokSubCategory("Decoration", "장식", "Decoration"),
+        new HanokSubCategory("Door", "문", "Door"),
+        new HanokSubCategory("Floor", "바닥", "Floor"),
+        new HanokSubCategory("Handrail", "난간", "Handrail"),
+        new HanokSubCategory("Maru", "마루", "Maru"),
+        new HanokSubCategory("Natural", "자연", "Natural"),
+        new HanokSubCategory("Roof", "지붕", "Roof"),
+        new HanokSubCategory("Wall", "벽체", "Wall"),
+        new HanokSubCategory("Wood", "목재", "Wood"),
+    };
+
+    string _selectedMain = CAT_ALL;
+    string _selectedSub = CAT_ALL;
+    Button[] _mainFilterBtns;
+    Button[] _partFilterBtns;
+    GameObject _mainFilterGO;
+    GameObject _partFilterGO;
+    readonly List<HanokAssetEntry> _assetEntries = new List<HanokAssetEntry>();
 
     const float CELL_W = 76f;
     const float CELL_H = 88f;
-    const int   COLS   = 3;
+    const int COLS = 3;
 
-    // ── 에셋 로드 ─────────────────────────────────────────
     void LoadAssets()
     {
         if (assetContent == null)
@@ -32,141 +87,275 @@ public partial class HanokUIManager
             return;
         }
 
-        _tabsGO = BuildCategoryTabs(assetContent);
+        BuildCategoryTabs(assetContent);
+        LoadCategory($"{ASSET_PATH}/Complete", CAT_COMPLETE, CAT_ALL);
 
-        var raw = Resources.LoadAll(ASSET_PATH);
-        foreach (var o in raw)
-            if (o is GameObject g) _allPrefabs.Add(g);
-        _allPrefabs.Sort((a, b) =>
-            string.Compare(a.name, b.name, System.StringComparison.OrdinalIgnoreCase));
+        foreach (var cat in PART_FILTERS)
+        {
+            if (cat.key == CAT_ALL) continue;
+            LoadCategory($"{ASSET_PATH}/Parts/{cat.path}", CAT_PARTS, cat.key);
+        }
 
-        Debug.Log($"[HanokBuilder] {_allPrefabs.Count}개 에셋 로드");
+        _assetEntries.Sort((a, b) =>
+            string.Compare(a.prefab.name, b.prefab.name, System.StringComparison.OrdinalIgnoreCase));
+
+        Debug.Log($"[HanokBuilder] {_assetEntries.Count} assets loaded");
         RefreshAssetList();
     }
 
-    // ── 카테고리 탭 ───────────────────────────────────────
-    // 반환: 탭 행 GameObject (삭제 시 보호용)
-    GameObject BuildCategoryTabs(Transform parent)
+    void LoadCategory(string resourcePath, string mainCategory, string subCategory)
     {
-        var tabRow = new GameObject("Tabs");
-        tabRow.transform.SetParent(parent, false);
-        var le = tabRow.AddComponent<LayoutElement>();
-        le.preferredHeight = 36; le.flexibleWidth = 1;
-        tabRow.AddComponent<Image>().color = Hex("#E8E4DC");
-        var hlg = tabRow.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 0;
+        var raw = Resources.LoadAll(resourcePath);
+        foreach (var o in raw)
+        {
+            if (o is GameObject g)
+                _assetEntries.Add(new HanokAssetEntry(g, mainCategory, subCategory));
+        }
+    }
+
+    void BuildCategoryTabs(Transform parent)
+    {
+        _mainFilterGO = BuildFilterRow(parent, "MainFilters", 36f);
+        _mainFilterBtns = new Button[MAIN_FILTERS.Length];
+        for (int i = 0; i < MAIN_FILTERS.Length; i++)
+        {
+            var filter = MAIN_FILTERS[i];
+            var key = filter.key;
+            _mainFilterBtns[i] = MakeFilterButton(_mainFilterGO.transform, filter.label,
+                () => ShowMainCategory(key));
+        }
+
+        _partFilterGO = BuildFilterGrid(parent, "PartFilters", 88f);
+        _partFilterBtns = new Button[PART_FILTERS.Length];
+        for (int i = 0; i < PART_FILTERS.Length; i++)
+        {
+            var filter = PART_FILTERS[i];
+            var key = filter.key;
+            _partFilterBtns[i] = MakeFilterButton(_partFilterGO.transform, filter.label,
+                () => ShowPartCategory(key));
+        }
+
+        UpdateTabColors();
+    }
+
+    GameObject BuildFilterRow(Transform parent, string name, float height)
+    {
+        var row = new GameObject(name);
+        row.transform.SetParent(parent, false);
+        row.AddComponent<RectTransform>();
+        var le = row.AddComponent<LayoutElement>();
+        le.preferredHeight = height;
+        le.flexibleWidth = 1;
+        row.AddComponent<Image>().color = Hex("#E8E4DC");
+
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 4;
+        hlg.padding = new RectOffset(8, 8, 4, 4);
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = true;
 
-        _catBtns = new Button[CATEGORIES.Length];
-        for (int i = 0; i < CATEGORIES.Length; i++)
-        {
-            int idx = i;
-            var go = new GameObject("Cat_" + i);
-            go.transform.SetParent(tabRow.transform, false);
-            go.AddComponent<RectTransform>();
-            var img = go.AddComponent<Image>();
-            img.color = (i == 0) ? NAVY : Hex("#E8E4DC");
-            var btn = go.AddComponent<Button>();
-            btn.targetGraphic = img;
-            var cs = btn.colors;
-            cs.highlightedColor = Hex("#D0CCC4");
-            btn.colors = cs;
-            btn.onClick.AddListener(() => ShowCategory(idx));
-            _catBtns[i] = btn;
-
-            var tgo = new GameObject("T");
-            tgo.transform.SetParent(go.transform, false);
-            var tRT = tgo.AddComponent<RectTransform>();
-            tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-            tRT.offsetMin = tRT.offsetMax = Vector2.zero;
-            var t = tgo.AddComponent<TextMeshProUGUI>();
-            t.text = CATEGORIES[i]; t.fontSize = 10;
-            t.color = (i == 0) ? Color.white : TEXT_SUB;
-            t.alignment = TextAlignmentOptions.Center;
-            KorFont(t);
-        }
-        return tabRow;
+        return row;
     }
 
-    // ── 카테고리 전환 ─────────────────────────────────────
-    void ShowCategory(int idx)
+    GameObject BuildFilterGrid(Transform parent, string name, float height)
     {
-        _curCat = idx;
+        var grid = new GameObject(name);
+        grid.transform.SetParent(parent, false);
+        grid.AddComponent<RectTransform>();
+
+        var le = grid.AddComponent<LayoutElement>();
+        le.preferredHeight = height;
+        le.flexibleWidth = 1;
+
+        grid.AddComponent<Image>().color = Hex("#E8E4DC");
+
+        var glg = grid.AddComponent<GridLayoutGroup>();
+        glg.cellSize = new Vector2(60f, 24f);
+        glg.spacing = new Vector2(4f, 4f);
+        glg.padding = new RectOffset(8, 8, 6, 6);
+        glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        glg.constraintCount = 4;
+
+        return grid;
+    }
+
+    Button MakeFilterButton(Transform parent, string label, System.Action onClick)
+    {
+        var go = new GameObject("Filter_" + label);
+        go.transform.SetParent(parent, false);
+        go.AddComponent<RectTransform>();
+
+        var img = go.AddComponent<Image>();
+        img.color = BTN_GHOST;
+
+        var btn = go.AddComponent<Button>();
+        btn.targetGraphic = img;
+        var cs = btn.colors;
+        cs.highlightedColor = Hex("#D0CCC4");
+        cs.pressedColor = NAVY_LIGHT;
+        btn.colors = cs;
+        btn.onClick.AddListener(() => onClick?.Invoke());
+
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero;
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = Vector2.zero;
+        tRT.offsetMax = Vector2.zero;
+
+        var t = tgo.AddComponent<TextMeshProUGUI>();
+        t.text = label;
+        t.fontSize = 9;
+        t.color = TEXT_SUB;
+        t.alignment = TextAlignmentOptions.Center;
+        KorFont(t);
+
+        return btn;
+    }
+
+    void ShowMainCategory(string key)
+    {
+        _selectedMain = key;
+        _selectedSub = CAT_ALL;
+        UpdateTabColors();
+        RefreshAssetList();
+    }
+
+    void ShowPartCategory(string key)
+    {
+        _selectedMain = CAT_PARTS;
+        _selectedSub = key;
         UpdateTabColors();
         RefreshAssetList();
     }
 
     void UpdateTabColors()
     {
-        if (_catBtns == null) return;
-        for (int i = 0; i < _catBtns.Length; i++)
+        if (_mainFilterBtns != null)
         {
-            _catBtns[i].GetComponent<Image>().color =
-                (i == _curCat) ? NAVY : Hex("#E8E4DC");
-            var txt = _catBtns[i].GetComponentInChildren<TMP_Text>();
-            if (txt) txt.color = (i == _curCat) ? Color.white : TEXT_SUB;
+            for (int i = 0; i < _mainFilterBtns.Length; i++)
+                SetFilterButtonState(_mainFilterBtns[i], MAIN_FILTERS[i].key == _selectedMain);
+        }
+
+        bool showParts = _selectedMain == CAT_PARTS;
+        if (_partFilterGO != null)
+            _partFilterGO.SetActive(showParts);
+
+        if (_partFilterBtns != null)
+        {
+            for (int i = 0; i < _partFilterBtns.Length; i++)
+                SetFilterButtonState(_partFilterBtns[i], PART_FILTERS[i].key == _selectedSub);
         }
     }
 
-    // ── 에셋 목록 갱신 ────────────────────────────────────
-    // 탭 이외의 자식을 즉시(DestroyImmediate) 삭제 후 재생성
+    void SetFilterButtonState(Button btn, bool active)
+    {
+        if (btn == null) return;
+        btn.GetComponent<Image>().color = active ? NAVY : BTN_GHOST;
+
+        var txt = btn.GetComponentInChildren<TMP_Text>();
+        if (txt != null)
+            txt.color = active ? Color.white : TEXT_SUB;
+    }
+
     void RefreshAssetList()
     {
         if (assetContent == null) return;
 
-        // 탭 제외한 기존 아이템 즉시 삭제 (Destroy는 프레임 끝 처리라 레이아웃 혼선)
         var children = new List<GameObject>();
         foreach (Transform ch in assetContent)
-            if (ch.gameObject != _tabsGO) children.Add(ch.gameObject);
-        foreach (var ch in children) DestroyImmediate(ch);
+        {
+            if (ch.gameObject != _mainFilterGO && ch.gameObject != _partFilterGO)
+                children.Add(ch.gameObject);
+        }
+        foreach (var ch in children)
+            DestroyImmediate(ch);
 
-        if (_allPrefabs.Count == 0) { AddEmptyMsg(); return; }
+        var filtered = GetFilteredAssets();
+        if (filtered.Count == 0)
+        {
+            AddEmptyMsg();
+            return;
+        }
 
-        // 현재 카테고리명 (서브카테고리 필터링은 향후 구현)
-        AddSectionLabel(CATEGORIES[_curCat]);
+        AddSectionLabel(GetCurrentCategoryLabel());
 
-        // 3열 그리드 행 구성
-        for (int i = 0; i < _allPrefabs.Count; i += COLS)
+        for (int i = 0; i < filtered.Count; i += COLS)
         {
             var row = new GameObject("Row");
             row.transform.SetParent(assetContent, false);
-
-            // RectTransform 먼저 추가 → LayoutElement 추가
             row.AddComponent<RectTransform>();
+
             var rle = row.AddComponent<LayoutElement>();
             rle.preferredHeight = CELL_H + 4f;
-            rle.flexibleWidth   = 1;
+            rle.flexibleWidth = 1;
+
             row.AddComponent<Image>().color = Color.clear;
+
             var hlg = row.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 4;
             hlg.padding = new RectOffset(8, 8, 2, 2);
             hlg.childForceExpandHeight = true;
-            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandWidth = true;
 
             for (int j = 0; j < COLS; j++)
             {
                 int pi = i + j;
-                if (pi < _allPrefabs.Count)
+                if (pi < filtered.Count)
                 {
-                    var cap    = _allPrefabs[pi];
-                    var rawImg = MakeGridCell(row.transform, cap.name, () => Spawn(cap));
-                    StartCoroutine(CaptureThumbnail(cap, rawImg));
+                    var prefab = filtered[pi].prefab;
+                    var rawImg = MakeGridCell(row.transform, prefab.name, () => Spawn(prefab));
+                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
                 }
                 else
                 {
-                    // 빈 칸 (3열 정렬 맞춤)
                     var blank = new GameObject("Blank");
                     blank.transform.SetParent(row.transform, false);
                     blank.AddComponent<RectTransform>();
-                    blank.AddComponent<LayoutElement>().preferredWidth = CELL_W;
+                    var blankLE = blank.AddComponent<LayoutElement>();
+                    blankLE.preferredWidth = CELL_W;
+                    blankLE.flexibleWidth = 1;
                     blank.AddComponent<Image>().color = Color.clear;
                 }
             }
         }
 
-        // 레이아웃 강제 재계산
         StartCoroutine(RebuildNext());
+    }
+
+    List<HanokAssetEntry> GetFilteredAssets()
+    {
+        var result = new List<HanokAssetEntry>();
+        foreach (var asset in _assetEntries)
+        {
+            if (_selectedMain != CAT_ALL && asset.mainCategory != _selectedMain)
+                continue;
+
+            if (_selectedMain == CAT_PARTS &&
+                _selectedSub != CAT_ALL &&
+                asset.subCategory != _selectedSub)
+                continue;
+
+            result.Add(asset);
+        }
+
+        return result;
+    }
+
+    string GetCurrentCategoryLabel()
+    {
+        if (_selectedMain == CAT_ALL)
+            return "전체";
+
+        if (_selectedMain == CAT_COMPLETE)
+            return "완성형";
+
+        foreach (var filter in PART_FILTERS)
+            if (filter.key == _selectedSub)
+                return "부품형 / " + filter.label;
+
+        return "부품형";
     }
 
     IEnumerator RebuildNext()
@@ -182,16 +371,27 @@ public partial class HanokUIManager
         var go = new GameObject("SecLbl");
         go.transform.SetParent(assetContent, false);
         go.AddComponent<RectTransform>();
+
         var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = 28; le.flexibleWidth = 1;
+        le.preferredHeight = 28;
+        le.flexibleWidth = 1;
+
         go.AddComponent<Image>().color = Hex("#E4E0D8");
-        var tgo = new GameObject("T"); tgo.transform.SetParent(go.transform, false);
+
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
         var tRT = tgo.AddComponent<RectTransform>();
-        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(12, 0); tRT.offsetMax = Vector2.zero;
+        tRT.anchorMin = Vector2.zero;
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(12, 0);
+        tRT.offsetMax = Vector2.zero;
+
         var t = tgo.AddComponent<TextMeshProUGUI>();
-        t.text = text; t.fontSize = 9; t.fontStyle = FontStyles.Bold;
-        t.color = TEXT_SUB; t.alignment = TextAlignmentOptions.Left;
+        t.text = text;
+        t.fontSize = 9;
+        t.fontStyle = FontStyles.Bold;
+        t.color = TEXT_SUB;
+        t.alignment = TextAlignmentOptions.Left;
         KorFont(t);
     }
 
@@ -200,53 +400,69 @@ public partial class HanokUIManager
         var go = new GameObject("Empty");
         go.transform.SetParent(assetContent, false);
         go.AddComponent<RectTransform>();
+
         var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = 100; le.flexibleWidth = 1;
+        le.preferredHeight = 100;
+        le.flexibleWidth = 1;
+
         var t = go.AddComponent<TextMeshProUGUI>();
         t.text = "Resources/HanokAssets\n폴더에 Prefab을 넣으세요";
-        t.fontSize = 10; t.color = TEXT_SUB;
+        t.fontSize = 10;
+        t.color = TEXT_SUB;
         t.alignment = TextAlignmentOptions.Center;
         KorFont(t);
     }
 
-    // ── 그리드 셀 ─────────────────────────────────────────
     RawImage MakeGridCell(Transform parent, string label, System.Action onClick)
     {
         var go = new GameObject("Cell");
         go.transform.SetParent(parent, false);
         go.AddComponent<RectTransform>();
+
         var le = go.AddComponent<LayoutElement>();
-        le.preferredWidth = CELL_W; le.preferredHeight = CELL_H;
+        le.preferredWidth = CELL_W;
+        le.preferredHeight = CELL_H;
+        le.flexibleWidth = 1;
+
         var img = go.AddComponent<Image>();
         img.color = BG_CARD;
+
         var outline = go.AddComponent<Outline>();
-        outline.effectColor = BORDER; outline.effectDistance = new Vector2(1, -1);
+        outline.effectColor = BORDER;
+        outline.effectDistance = new Vector2(1, -1);
+
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor      = BG_CARD;
+        cs.normalColor = BG_CARD;
         cs.highlightedColor = Hex("#E4E0D8");
-        cs.pressedColor     = Hex("#D4D0C8");
+        cs.pressedColor = Hex("#D4D0C8");
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
-        // 썸네일 (상단 72%)
         var thumb = new GameObject("Thumb");
         thumb.transform.SetParent(go.transform, false);
         var tRT = thumb.AddComponent<RectTransform>();
-        tRT.anchorMin = new Vector2(0, 0.26f); tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(3, 0); tRT.offsetMax = new Vector2(-3, -3);
+        tRT.anchorMin = new Vector2(0, 0.26f);
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(3, 0);
+        tRT.offsetMax = new Vector2(-3, -3);
+
         var raw = thumb.AddComponent<RawImage>();
         raw.color = Hex("#D8D4CC");
 
-        // 이름 라벨 (하단 26%)
         var ngo = new GameObject("Name");
         ngo.transform.SetParent(go.transform, false);
         var nRT = ngo.AddComponent<RectTransform>();
-        nRT.anchorMin = Vector2.zero; nRT.anchorMax = new Vector2(1, 0.26f);
-        nRT.offsetMin = new Vector2(2, 2); nRT.offsetMax = new Vector2(-2, 0);
+        nRT.anchorMin = Vector2.zero;
+        nRT.anchorMax = new Vector2(1, 0.26f);
+        nRT.offsetMin = new Vector2(2, 2);
+        nRT.offsetMax = new Vector2(-2, 0);
+
         var t = ngo.AddComponent<TextMeshProUGUI>();
-        t.text = label; t.fontSize = 8; t.color = TEXT_MAIN;
+        t.text = label;
+        t.fontSize = 8;
+        t.color = TEXT_MAIN;
         t.alignment = TextAlignmentOptions.Center;
         t.overflowMode = TextOverflowModes.Ellipsis;
         t.enableWordWrapping = false;
@@ -255,7 +471,6 @@ public partial class HanokUIManager
         return raw;
     }
 
-    // ── RenderTexture 썸네일 ──────────────────────────────
     IEnumerator CaptureThumbnail(GameObject prefab, RawImage target)
     {
         yield return null;
@@ -268,41 +483,91 @@ public partial class HanokUIManager
         SetLayerAll(inst, THUMB_LAYER);
 
         var rends = inst.GetComponentsInChildren<Renderer>();
-        Bounds bounds;
-        if (rends.Length > 0)
-        {
-            bounds = rends[0].bounds;
-            for (int i = 1; i < rends.Length; i++) bounds.Encapsulate(rends[i].bounds);
-        }
-        else bounds = new Bounds(inst.transform.position, Vector3.one * 2f);
+        var bounds = GetRendererBounds(rends, inst.transform.position);
+        FitThumbnailCamera(bounds);
 
-        float dist = Mathf.Max(bounds.size.magnitude * 1.4f, 0.5f);
-        _thumbCam.transform.position =
-            bounds.center + new Vector3(1f, 0.8f, -1f).normalized * dist;
-        _thumbCam.transform.LookAt(bounds.center);
-
-        var rt = new RenderTexture(96, 96, 24, RenderTextureFormat.ARGB32);
+        var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
         _thumbCam.targetTexture = rt;
         _thumbCam.Render();
         _thumbCam.targetTexture = null;
 
-        if (target != null) { target.texture = rt; target.color = Color.white; }
+        if (target != null)
+        {
+            target.texture = rt;
+            target.color = Color.white;
+        }
+
+        inst.SetActive(false);
         Destroy(inst);
+    }
+
+    Bounds GetRendererBounds(Renderer[] rends, Vector3 fallbackCenter)
+    {
+        if (rends.Length == 0)
+            return new Bounds(fallbackCenter, Vector3.one * 2f);
+
+        var bounds = rends[0].bounds;
+        for (int i = 1; i < rends.Length; i++)
+            bounds.Encapsulate(rends[i].bounds);
+
+        return bounds;
+    }
+
+    void FitThumbnailCamera(Bounds bounds)
+    {
+        Vector3 viewDir = new Vector3(1f, 0.75f, -1f).normalized;
+        Quaternion viewRot = Quaternion.LookRotation(-viewDir, Vector3.up);
+        Quaternion invRot = Quaternion.Inverse(viewRot);
+
+        Vector3 ext = bounds.extents;
+        Vector3 cen = bounds.center;
+        float maxX = 0f;
+        float maxY = 0f;
+        float maxZ = 0f;
+
+        for (int x = -1; x <= 1; x += 2)
+        for (int y = -1; y <= 1; y += 2)
+        for (int z = -1; z <= 1; z += 2)
+        {
+            Vector3 corner = cen + Vector3.Scale(ext, new Vector3(x, y, z));
+            Vector3 local = invRot * (corner - cen);
+            maxX = Mathf.Max(maxX, Mathf.Abs(local.x));
+            maxY = Mathf.Max(maxY, Mathf.Abs(local.y));
+            maxZ = Mathf.Max(maxZ, Mathf.Abs(local.z));
+        }
+
+        float padding = 1.18f;
+        float aspect = 1f;
+        _thumbCam.orthographicSize = Mathf.Max(maxY, maxX / aspect, 0.5f) * padding;
+        _thumbCam.transform.rotation = viewRot;
+        _thumbCam.transform.position = cen + viewDir * Mathf.Max(maxZ + 10f, 10f);
+        _thumbCam.nearClipPlane = 0.01f;
+        _thumbCam.farClipPlane = Mathf.Max(maxZ + 30f, 50f);
     }
 
     void EnsureThumbCam()
     {
         if (_thumbCam != null) return;
+
         var go = new GameObject("_HanokThumbCam");
         go.hideFlags = HideFlags.HideAndDontSave;
+
         _thumbCam = go.AddComponent<Camera>();
         _thumbCam.enabled = false;
         _thumbCam.clearFlags = CameraClearFlags.SolidColor;
         _thumbCam.backgroundColor = Hex("#E8E4DC");
-        _thumbCam.fieldOfView = 35f;
-        _thumbCam.nearClipPlane = 0.1f;
-        _thumbCam.farClipPlane = 20000f;
+        _thumbCam.orthographic = true;
+        _thumbCam.nearClipPlane = 0.01f;
+        _thumbCam.farClipPlane = 100f;
         _thumbCam.cullingMask = 1 << THUMB_LAYER;
+
+        var lightGO = new GameObject("ThumbnailLight");
+        lightGO.transform.SetParent(go.transform, false);
+        lightGO.transform.localRotation = Quaternion.Euler(45f, -35f, 0f);
+        var light = lightGO.AddComponent<Light>();
+        light.type = LightType.Directional;
+        light.intensity = 1.8f;
+        light.cullingMask = 1 << THUMB_LAYER;
     }
 
     static void SetLayerAll(GameObject root, int layer)

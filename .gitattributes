@@ -1,5 +1,5 @@
 # Unity Smart Merge
-*.unity merge=unityyamlmerge eol=lf
+*.unity filter=lfs diff=lfs merge=lfs -text
 *.prefab merge=unityyamlmerge eol=lf
 *.mat merge=unityyamlmerge eol=lf
 *.asset merge=unityyamlmerge eol=lf
