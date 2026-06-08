@@ -5,25 +5,60 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// HanokUIManager — 왼쪽 에셋 목록 (partial)
-/// 심플 구조: 탭 → 아이템을 assetContent에 직접 추가 (중첩 레이아웃 없음)
+/// Left asset library panel for HanokUIManager.
+/// Loads prefab entries from Resources/HanokAssets and filters them by HanokAssetTags categories.
 /// </summary>
 public partial class HanokUIManager
 {
-    Camera _thumbCam;
+    // ── 데이터 모델 ──────────────────────────────────────
+    // prefab 한 개 + 그 prefab에 태깅된 카테고리 목록을 묶어 보관
+    class HanokAssetEntry
+    {
+        public GameObject prefab;
+        public HanokAssetCategory[] categories;
 
-    static readonly string[] CATEGORIES = { "구조 모듈", "전통 소품", "전통문양" };
+        public HanokAssetEntry(GameObject prefab, HanokAssetCategory[] categories)
+        {
+            this.prefab = prefab;
+            this.categories = categories;
+        }
+    }
 
-    int              _curCat  = 0;
-    Button[]         _catBtns;
-    GameObject       _tabsGO;              // 탭 행 참조 (삭제 보호)
-    List<GameObject> _allPrefabs = new();
+    // ── 상태 필드 ────────────────────────────────────────
+    Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
 
+    const string LABEL_ALL = "전체";
+
+    // 카테고리 정의 (Resources/HanokCategories에서 로드한 SO들을 분류해 보관)
+    readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
+    readonly Dictionary<HanokAssetCategory, List<HanokAssetCategory>> _childCategories =
+        new Dictionary<HanokAssetCategory, List<HanokAssetCategory>>();
+
+    // 검색
+    const float SEARCH_DEBOUNCE = 0.25f;
+    TMP_InputField searchInput;
+    string _searchQuery = "";          // 실제로 필터링에 적용된 검색어
+    string _pendingSearchQuery = "";   // 입력창에 마지막으로 들어온 값 (디바운스 비교용)
+    Coroutine _searchDebounce;
+
+    // 카테고리 필터 선택 상태 + 탭 버튼 UI 참조
+    HanokAssetCategory _selectedMain;
+    HanokAssetCategory _selectedSub;
+    HanokAssetCategory[] _mainFilterCats;
+    HanokAssetCategory[] _subFilterCats = System.Array.Empty<HanokAssetCategory>();
+    Button[] _mainFilterBtns;
+    Button[] _subFilterBtns = System.Array.Empty<Button>();
+    GameObject _mainFilterGO;
+    GameObject _subFilterGO;
+
+    // 로드된 에셋 목록 + 그리드 레이아웃 상수
+    readonly List<HanokAssetEntry> _assetEntries = new List<HanokAssetEntry>();
     const float CELL_W = 76f;
     const float CELL_H = 88f;
-    const int   COLS   = 3;
+    const int COLS = 3;
 
-    // ── 에셋 로드 ─────────────────────────────────────────
+    // ── 에셋 로딩 ────────────────────────────────────────
+    // Resources/HanokAssets를 한 번에 스캔해 HanokAssetTags가 붙은 prefab만 라이브러리로 채택
     void LoadAssets()
     {
         if (assetContent == null)
@@ -32,141 +67,346 @@ public partial class HanokUIManager
             return;
         }
 
-        _tabsGO = BuildCategoryTabs(assetContent);
+        BuildCategoryTabs(assetContent);
 
-        var raw = Resources.LoadAll(ASSET_PATH);
-        foreach (var o in raw)
-            if (o is GameObject g) _allPrefabs.Add(g);
-        _allPrefabs.Sort((a, b) =>
-            string.Compare(a.name, b.name, System.StringComparison.OrdinalIgnoreCase));
+        _assetEntries.Clear();
+        var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
+        foreach (var prefab in raw)
+        {
+            var tags = prefab.GetComponent<HanokAssetTags>();
+            if (tags == null || tags.categories == null || tags.categories.Length == 0)
+                continue;
 
-        Debug.Log($"[HanokBuilder] {_allPrefabs.Count}개 에셋 로드");
+            _assetEntries.Add(new HanokAssetEntry(prefab, tags.categories));
+        }
+
+        _assetEntries.Sort((a, b) =>
+            string.Compare(a.prefab.name, b.prefab.name, System.StringComparison.OrdinalIgnoreCase));
+
+        Debug.Log($"[HanokBuilder] {_assetEntries.Count} assets loaded");
         RefreshAssetList();
     }
 
-    // ── 카테고리 탭 ───────────────────────────────────────
-    // 반환: 탭 행 GameObject (삭제 시 보호용)
-    GameObject BuildCategoryTabs(Transform parent)
+    // ── 카테고리 정의 로딩 ───────────────────────────────
+    // HanokAssetCategory SO들을 읽어 parent==null은 메인, 나머지는 부모별 서브 목록으로 분류·정렬
+    void LoadCategoryDefinitions()
     {
-        var tabRow = new GameObject("Tabs");
-        tabRow.transform.SetParent(parent, false);
-        var le = tabRow.AddComponent<LayoutElement>();
-        le.preferredHeight = 36; le.flexibleWidth = 1;
-        tabRow.AddComponent<Image>().color = Hex("#E8E4DC");
-        var hlg = tabRow.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 0;
+        _mainCategories.Clear();
+        _childCategories.Clear();
+
+        var raw = Resources.LoadAll<HanokAssetCategory>(CATEGORY_PATH);
+        foreach (var cat in raw)
+        {
+            if (cat.parent == null)
+            {
+                _mainCategories.Add(cat);
+                continue;
+            }
+
+            if (!_childCategories.TryGetValue(cat.parent, out var children))
+            {
+                children = new List<HanokAssetCategory>();
+                _childCategories[cat.parent] = children;
+            }
+            children.Add(cat);
+        }
+
+        _mainCategories.Sort((a, b) => a.order.CompareTo(b.order));
+        foreach (var children in _childCategories.Values)
+            children.Sort((a, b) => a.order.CompareTo(b.order));
+    }
+
+    // ── 카테고리 탭 UI 구성 ──────────────────────────────
+    // 로드된 카테고리 SO들로 "전체" + 메인 필터 행을 동적 생성하고, 서브 필터 그리드 자리를 마련
+    void BuildCategoryTabs(Transform parent)
+    {
+        LoadCategoryDefinitions();
+
+        _mainFilterGO = BuildFilterRow(parent, "MainFilters", 36f);
+        _mainFilterCats = new HanokAssetCategory[_mainCategories.Count + 1];
+        _mainCategories.CopyTo(_mainFilterCats, 1);
+
+        _mainFilterBtns = new Button[_mainFilterCats.Length];
+        for (int i = 0; i < _mainFilterCats.Length; i++)
+        {
+            var cat = _mainFilterCats[i];
+            _mainFilterBtns[i] = MakeFilterButton(_mainFilterGO.transform, cat == null ? LABEL_ALL : cat.label,
+                () => SelectMainCategory(cat));
+        }
+
+        _subFilterGO = BuildFilterGrid(parent, "SubFilters", 88f);
+        _subFilterGO.SetActive(false);
+
+        UpdateTabColors();
+    }
+
+    // 선택된 메인 카테고리의 자식 목록으로 서브 필터 버튼들을 다시 그림 (자식이 없으면 그리드 숨김)
+    void RebuildSubFilters(HanokAssetCategory main)
+    {
+        foreach (Transform child in _subFilterGO.transform)
+            DestroyImmediate(child.gameObject);
+
+        if (main == null || !_childCategories.TryGetValue(main, out var children) || children.Count == 0)
+        {
+            _subFilterCats = System.Array.Empty<HanokAssetCategory>();
+            _subFilterBtns = System.Array.Empty<Button>();
+            _subFilterGO.SetActive(false);
+            return;
+        }
+
+        _subFilterCats = new HanokAssetCategory[children.Count + 1];
+        children.CopyTo(_subFilterCats, 1);
+
+        _subFilterBtns = new Button[_subFilterCats.Length];
+        for (int i = 0; i < _subFilterCats.Length; i++)
+        {
+            var cat = _subFilterCats[i];
+            _subFilterBtns[i] = MakeFilterButton(_subFilterGO.transform, cat == null ? LABEL_ALL : cat.label,
+                () => SelectSubCategory(cat));
+        }
+
+        _subFilterGO.SetActive(true);
+    }
+
+    GameObject BuildFilterRow(Transform parent, string name, float height)
+    {
+        var row = new GameObject(name);
+        row.transform.SetParent(parent, false);
+        row.AddComponent<RectTransform>();
+        var le = row.AddComponent<LayoutElement>();
+        le.preferredHeight = height;
+        le.flexibleWidth = 1;
+        row.AddComponent<Image>().color = Hex("#E8E4DC");
+
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 4;
+        hlg.padding = new RectOffset(8, 8, 4, 4);
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = true;
 
-        _catBtns = new Button[CATEGORIES.Length];
-        for (int i = 0; i < CATEGORIES.Length; i++)
-        {
-            int idx = i;
-            var go = new GameObject("Cat_" + i);
-            go.transform.SetParent(tabRow.transform, false);
-            go.AddComponent<RectTransform>();
-            var img = go.AddComponent<Image>();
-            img.color = (i == 0) ? NAVY : Hex("#E8E4DC");
-            var btn = go.AddComponent<Button>();
-            btn.targetGraphic = img;
-            var cs = btn.colors;
-            cs.highlightedColor = Hex("#D0CCC4");
-            btn.colors = cs;
-            btn.onClick.AddListener(() => ShowCategory(idx));
-            _catBtns[i] = btn;
-
-            var tgo = new GameObject("T");
-            tgo.transform.SetParent(go.transform, false);
-            var tRT = tgo.AddComponent<RectTransform>();
-            tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-            tRT.offsetMin = tRT.offsetMax = Vector2.zero;
-            var t = tgo.AddComponent<TextMeshProUGUI>();
-            t.text = CATEGORIES[i]; t.fontSize = 10;
-            t.color = (i == 0) ? Color.white : TEXT_SUB;
-            t.alignment = TextAlignmentOptions.Center;
-            KorFont(t);
-        }
-        return tabRow;
+        return row;
     }
 
-    // ── 카테고리 전환 ─────────────────────────────────────
-    void ShowCategory(int idx)
+    GameObject BuildFilterGrid(Transform parent, string name, float height)
     {
-        _curCat = idx;
+        var grid = new GameObject(name);
+        grid.transform.SetParent(parent, false);
+        grid.AddComponent<RectTransform>();
+
+        var le = grid.AddComponent<LayoutElement>();
+        le.preferredHeight = height;
+        le.flexibleWidth = 1;
+
+        grid.AddComponent<Image>().color = Hex("#E8E4DC");
+
+        var glg = grid.AddComponent<GridLayoutGroup>();
+        glg.cellSize = new Vector2(60f, 24f);
+        glg.spacing = new Vector2(4f, 4f);
+        glg.padding = new RectOffset(8, 8, 6, 6);
+        glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        glg.constraintCount = 4;
+
+        return grid;
+    }
+
+    Button MakeFilterButton(Transform parent, string label, System.Action onClick)
+    {
+        var go = new GameObject("Filter_" + label);
+        go.transform.SetParent(parent, false);
+        go.AddComponent<RectTransform>();
+
+        var img = go.AddComponent<Image>();
+        img.color = BTN_GHOST;
+
+        var btn = go.AddComponent<Button>();
+        btn.targetGraphic = img;
+        var cs = btn.colors;
+        cs.highlightedColor = Hex("#D0CCC4");
+        cs.pressedColor = NAVY_LIGHT;
+        btn.colors = cs;
+        btn.onClick.AddListener(() => onClick?.Invoke());
+
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero;
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = Vector2.zero;
+        tRT.offsetMax = Vector2.zero;
+
+        var t = tgo.AddComponent<TextMeshProUGUI>();
+        t.text = label;
+        t.fontSize = 9;
+        t.color = TEXT_SUB;
+        t.alignment = TextAlignmentOptions.Center;
+        KorFont(t);
+
+        return btn;
+    }
+
+    // ── 검색 ─────────────────────────────────────────────
+    // 입력값이 실제로 바뀐 경우에만 디바운스 타이머를 (재)시작 — 중복 입력 이벤트로 인한 새로고침 폭주 방지
+    void OnSearchChanged(string value)
+    {
+        string trimmed = value.Trim();
+        if (trimmed == _pendingSearchQuery) return;
+        _pendingSearchQuery = trimmed;
+
+        if (_searchDebounce != null) StopCoroutine(_searchDebounce);
+        _searchDebounce = StartCoroutine(ApplySearchAfterDelay(trimmed));
+    }
+
+    // 타이핑이 멈추고 SEARCH_DEBOUNCE초가 지나야 실제로 검색어를 적용하고 목록을 한 번만 새로고침
+    IEnumerator ApplySearchAfterDelay(string query)
+    {
+        yield return new WaitForSeconds(SEARCH_DEBOUNCE);
+        _searchDebounce = null;
+
+        if (_searchQuery == query) yield break;
+        _searchQuery = query;
+        RefreshAssetList();
+    }
+
+    // ── 필터 선택 ────────────────────────────────────────
+    // 메인 카테고리를 바꾸면 서브 선택은 초기화하고 서브 필터 그리드를 재구성
+    void SelectMainCategory(HanokAssetCategory cat)
+    {
+        _selectedMain = cat;
+        _selectedSub = null;
+        RebuildSubFilters(cat);
+        UpdateTabColors();
+        RefreshAssetList();
+    }
+
+    void SelectSubCategory(HanokAssetCategory cat)
+    {
+        _selectedSub = cat;
         UpdateTabColors();
         RefreshAssetList();
     }
 
     void UpdateTabColors()
     {
-        if (_catBtns == null) return;
-        for (int i = 0; i < _catBtns.Length; i++)
-        {
-            _catBtns[i].GetComponent<Image>().color =
-                (i == _curCat) ? NAVY : Hex("#E8E4DC");
-            var txt = _catBtns[i].GetComponentInChildren<TMP_Text>();
-            if (txt) txt.color = (i == _curCat) ? Color.white : TEXT_SUB;
-        }
+        for (int i = 0; i < _mainFilterBtns.Length; i++)
+            SetFilterButtonState(_mainFilterBtns[i], _mainFilterCats[i] == _selectedMain);
+
+        for (int i = 0; i < _subFilterBtns.Length; i++)
+            SetFilterButtonState(_subFilterBtns[i], _subFilterCats[i] == _selectedSub);
     }
 
-    // ── 에셋 목록 갱신 ────────────────────────────────────
-    // 탭 이외의 자식을 즉시(DestroyImmediate) 삭제 후 재생성
+    void SetFilterButtonState(Button btn, bool active)
+    {
+        if (btn == null) return;
+        btn.GetComponent<Image>().color = active ? NAVY : BTN_GHOST;
+
+        var txt = btn.GetComponentInChildren<TMP_Text>();
+        if (txt != null)
+            txt.color = active ? Color.white : TEXT_SUB;
+    }
+
+    // ── 목록 렌더링 ──────────────────────────────────────
+    // 필터 행을 제외한 기존 그리드를 비우고, 현재 필터·검색 조건에 맞는 에셋들로 다시 채움
     void RefreshAssetList()
     {
         if (assetContent == null) return;
 
-        // 탭 제외한 기존 아이템 즉시 삭제 (Destroy는 프레임 끝 처리라 레이아웃 혼선)
         var children = new List<GameObject>();
         foreach (Transform ch in assetContent)
-            if (ch.gameObject != _tabsGO) children.Add(ch.gameObject);
-        foreach (var ch in children) DestroyImmediate(ch);
+        {
+            if (ch.gameObject != _mainFilterGO && ch.gameObject != _subFilterGO)
+                children.Add(ch.gameObject);
+        }
+        foreach (var ch in children)
+            DestroyImmediate(ch);
 
-        if (_allPrefabs.Count == 0) { AddEmptyMsg(); return; }
+        var filtered = GetFilteredAssets();
+        if (filtered.Count == 0)
+        {
+            AddEmptyMsg();
+            return;
+        }
 
-        // 현재 카테고리명 (서브카테고리 필터링은 향후 구현)
-        AddSectionLabel(CATEGORIES[_curCat]);
+        AddSectionLabel(GetCurrentCategoryLabel());
 
-        // 3열 그리드 행 구성
-        for (int i = 0; i < _allPrefabs.Count; i += COLS)
+        for (int i = 0; i < filtered.Count; i += COLS)
         {
             var row = new GameObject("Row");
             row.transform.SetParent(assetContent, false);
-
-            // RectTransform 먼저 추가 → LayoutElement 추가
             row.AddComponent<RectTransform>();
+
             var rle = row.AddComponent<LayoutElement>();
             rle.preferredHeight = CELL_H + 4f;
-            rle.flexibleWidth   = 1;
+            rle.flexibleWidth = 1;
+
             row.AddComponent<Image>().color = Color.clear;
+
             var hlg = row.AddComponent<HorizontalLayoutGroup>();
             hlg.spacing = 4;
             hlg.padding = new RectOffset(8, 8, 2, 2);
             hlg.childForceExpandHeight = true;
-            hlg.childForceExpandWidth  = false;
+            hlg.childForceExpandWidth = true;
 
             for (int j = 0; j < COLS; j++)
             {
                 int pi = i + j;
-                if (pi < _allPrefabs.Count)
+                if (pi < filtered.Count)
                 {
-                    var cap    = _allPrefabs[pi];
-                    var rawImg = MakeGridCell(row.transform, cap.name, () => Spawn(cap));
-                    StartCoroutine(CaptureThumbnail(cap, rawImg));
+                    var prefab = filtered[pi].prefab;
+                    var rawImg = MakeGridCell(row.transform, prefab.name, () => Spawn(prefab));
+                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
                 }
                 else
                 {
-                    // 빈 칸 (3열 정렬 맞춤)
                     var blank = new GameObject("Blank");
                     blank.transform.SetParent(row.transform, false);
                     blank.AddComponent<RectTransform>();
-                    blank.AddComponent<LayoutElement>().preferredWidth = CELL_W;
+                    var blankLE = blank.AddComponent<LayoutElement>();
+                    blankLE.preferredWidth = CELL_W;
+                    blankLE.flexibleWidth = 1;
                     blank.AddComponent<Image>().color = Color.clear;
                 }
             }
         }
 
-        // 레이아웃 강제 재계산
         StartCoroutine(RebuildNext());
+    }
+
+    // 선택된 메인/서브 카테고리를 모두 포함하고, 검색어가 이름에 포함되는 에셋만 추려냄 (AND 조건)
+    List<HanokAssetEntry> GetFilteredAssets()
+    {
+        var result = new List<HanokAssetEntry>();
+        foreach (var asset in _assetEntries)
+        {
+            if (_selectedMain != null && System.Array.IndexOf(asset.categories, _selectedMain) < 0)
+                continue;
+
+            if (_selectedSub != null && System.Array.IndexOf(asset.categories, _selectedSub) < 0)
+                continue;
+
+            if (_searchQuery.Length > 0 &&
+                asset.prefab.name.IndexOf(_searchQuery, System.StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+
+            result.Add(asset);
+        }
+
+        return result;
+    }
+
+    string GetCurrentCategoryLabel()
+    {
+        string label;
+        if (_selectedMain == null)
+            label = LABEL_ALL;
+        else if (_selectedSub == null)
+            label = _selectedMain.label;
+        else
+            label = $"{_selectedMain.label} / {_selectedSub.label}";
+
+        if (_searchQuery.Length > 0)
+            label += $" · '{_searchQuery}' 검색결과";
+
+        return label;
     }
 
     IEnumerator RebuildNext()
@@ -182,16 +422,27 @@ public partial class HanokUIManager
         var go = new GameObject("SecLbl");
         go.transform.SetParent(assetContent, false);
         go.AddComponent<RectTransform>();
+
         var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = 28; le.flexibleWidth = 1;
+        le.preferredHeight = 28;
+        le.flexibleWidth = 1;
+
         go.AddComponent<Image>().color = Hex("#E4E0D8");
-        var tgo = new GameObject("T"); tgo.transform.SetParent(go.transform, false);
+
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
         var tRT = tgo.AddComponent<RectTransform>();
-        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(12, 0); tRT.offsetMax = Vector2.zero;
+        tRT.anchorMin = Vector2.zero;
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(12, 0);
+        tRT.offsetMax = Vector2.zero;
+
         var t = tgo.AddComponent<TextMeshProUGUI>();
-        t.text = text; t.fontSize = 9; t.fontStyle = FontStyles.Bold;
-        t.color = TEXT_SUB; t.alignment = TextAlignmentOptions.Left;
+        t.text = text;
+        t.fontSize = 9;
+        t.fontStyle = FontStyles.Bold;
+        t.color = TEXT_SUB;
+        t.alignment = TextAlignmentOptions.Left;
         KorFont(t);
     }
 
@@ -200,53 +451,71 @@ public partial class HanokUIManager
         var go = new GameObject("Empty");
         go.transform.SetParent(assetContent, false);
         go.AddComponent<RectTransform>();
+
         var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = 100; le.flexibleWidth = 1;
+        le.preferredHeight = 100;
+        le.flexibleWidth = 1;
+
         var t = go.AddComponent<TextMeshProUGUI>();
-        t.text = "Resources/HanokAssets\n폴더에 Prefab을 넣으세요";
-        t.fontSize = 10; t.color = TEXT_SUB;
+        t.text = _searchQuery.Length > 0
+            ? $"'{_searchQuery}'에 대한 검색 결과가 없습니다"
+            : "Resources/HanokAssets\n폴더에 Prefab을 넣으세요";
+        t.fontSize = 10;
+        t.color = TEXT_SUB;
         t.alignment = TextAlignmentOptions.Center;
         KorFont(t);
     }
 
-    // ── 그리드 셀 ─────────────────────────────────────────
     RawImage MakeGridCell(Transform parent, string label, System.Action onClick)
     {
         var go = new GameObject("Cell");
         go.transform.SetParent(parent, false);
         go.AddComponent<RectTransform>();
+
         var le = go.AddComponent<LayoutElement>();
-        le.preferredWidth = CELL_W; le.preferredHeight = CELL_H;
+        le.preferredWidth = CELL_W;
+        le.preferredHeight = CELL_H;
+        le.flexibleWidth = 1;
+
         var img = go.AddComponent<Image>();
         img.color = BG_CARD;
+
         var outline = go.AddComponent<Outline>();
-        outline.effectColor = BORDER; outline.effectDistance = new Vector2(1, -1);
+        outline.effectColor = BORDER;
+        outline.effectDistance = new Vector2(1, -1);
+
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor      = BG_CARD;
+        cs.normalColor = BG_CARD;
         cs.highlightedColor = Hex("#E4E0D8");
-        cs.pressedColor     = Hex("#D4D0C8");
+        cs.pressedColor = Hex("#D4D0C8");
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
-        // 썸네일 (상단 72%)
         var thumb = new GameObject("Thumb");
         thumb.transform.SetParent(go.transform, false);
         var tRT = thumb.AddComponent<RectTransform>();
-        tRT.anchorMin = new Vector2(0, 0.26f); tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(3, 0); tRT.offsetMax = new Vector2(-3, -3);
+        tRT.anchorMin = new Vector2(0, 0.26f);
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(3, 0);
+        tRT.offsetMax = new Vector2(-3, -3);
+
         var raw = thumb.AddComponent<RawImage>();
         raw.color = Hex("#D8D4CC");
 
-        // 이름 라벨 (하단 26%)
         var ngo = new GameObject("Name");
         ngo.transform.SetParent(go.transform, false);
         var nRT = ngo.AddComponent<RectTransform>();
-        nRT.anchorMin = Vector2.zero; nRT.anchorMax = new Vector2(1, 0.26f);
-        nRT.offsetMin = new Vector2(2, 2); nRT.offsetMax = new Vector2(-2, 0);
+        nRT.anchorMin = Vector2.zero;
+        nRT.anchorMax = new Vector2(1, 0.26f);
+        nRT.offsetMin = new Vector2(2, 2);
+        nRT.offsetMax = new Vector2(-2, 0);
+
         var t = ngo.AddComponent<TextMeshProUGUI>();
-        t.text = label; t.fontSize = 8; t.color = TEXT_MAIN;
+        t.text = label;
+        t.fontSize = 8;
+        t.color = TEXT_MAIN;
         t.alignment = TextAlignmentOptions.Center;
         t.overflowMode = TextOverflowModes.Ellipsis;
         t.enableWordWrapping = false;
@@ -255,7 +524,8 @@ public partial class HanokUIManager
         return raw;
     }
 
-    // ── RenderTexture 썸네일 ──────────────────────────────
+    // ── 썸네일 캡처 ──────────────────────────────────────
+    // 카메라 시야 밖 먼 곳에 prefab을 임시 인스턴스화해 전용 카메라로 찍은 뒤 RenderTexture로 표시
     IEnumerator CaptureThumbnail(GameObject prefab, RawImage target)
     {
         yield return null;
@@ -268,41 +538,91 @@ public partial class HanokUIManager
         SetLayerAll(inst, THUMB_LAYER);
 
         var rends = inst.GetComponentsInChildren<Renderer>();
-        Bounds bounds;
-        if (rends.Length > 0)
-        {
-            bounds = rends[0].bounds;
-            for (int i = 1; i < rends.Length; i++) bounds.Encapsulate(rends[i].bounds);
-        }
-        else bounds = new Bounds(inst.transform.position, Vector3.one * 2f);
+        var bounds = GetRendererBounds(rends, inst.transform.position);
+        FitThumbnailCamera(bounds);
 
-        float dist = Mathf.Max(bounds.size.magnitude * 1.4f, 0.5f);
-        _thumbCam.transform.position =
-            bounds.center + new Vector3(1f, 0.8f, -1f).normalized * dist;
-        _thumbCam.transform.LookAt(bounds.center);
-
-        var rt = new RenderTexture(96, 96, 24, RenderTextureFormat.ARGB32);
+        var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
         _thumbCam.targetTexture = rt;
         _thumbCam.Render();
         _thumbCam.targetTexture = null;
 
-        if (target != null) { target.texture = rt; target.color = Color.white; }
+        if (target != null)
+        {
+            target.texture = rt;
+            target.color = Color.white;
+        }
+
+        inst.SetActive(false);
         Destroy(inst);
+    }
+
+    Bounds GetRendererBounds(Renderer[] rends, Vector3 fallbackCenter)
+    {
+        if (rends.Length == 0)
+            return new Bounds(fallbackCenter, Vector3.one * 2f);
+
+        var bounds = rends[0].bounds;
+        for (int i = 1; i < rends.Length; i++)
+            bounds.Encapsulate(rends[i].bounds);
+
+        return bounds;
+    }
+
+    void FitThumbnailCamera(Bounds bounds)
+    {
+        Vector3 viewDir = new Vector3(1f, 0.75f, -1f).normalized;
+        Quaternion viewRot = Quaternion.LookRotation(-viewDir, Vector3.up);
+        Quaternion invRot = Quaternion.Inverse(viewRot);
+
+        Vector3 ext = bounds.extents;
+        Vector3 cen = bounds.center;
+        float maxX = 0f;
+        float maxY = 0f;
+        float maxZ = 0f;
+
+        for (int x = -1; x <= 1; x += 2)
+        for (int y = -1; y <= 1; y += 2)
+        for (int z = -1; z <= 1; z += 2)
+        {
+            Vector3 corner = cen + Vector3.Scale(ext, new Vector3(x, y, z));
+            Vector3 local = invRot * (corner - cen);
+            maxX = Mathf.Max(maxX, Mathf.Abs(local.x));
+            maxY = Mathf.Max(maxY, Mathf.Abs(local.y));
+            maxZ = Mathf.Max(maxZ, Mathf.Abs(local.z));
+        }
+
+        float padding = 1.18f;
+        float aspect = 1f;
+        _thumbCam.orthographicSize = Mathf.Max(maxY, maxX / aspect, 0.5f) * padding;
+        _thumbCam.transform.rotation = viewRot;
+        _thumbCam.transform.position = cen + viewDir * Mathf.Max(maxZ + 10f, 10f);
+        _thumbCam.nearClipPlane = 0.01f;
+        _thumbCam.farClipPlane = Mathf.Max(maxZ + 30f, 50f);
     }
 
     void EnsureThumbCam()
     {
         if (_thumbCam != null) return;
+
         var go = new GameObject("_HanokThumbCam");
         go.hideFlags = HideFlags.HideAndDontSave;
+
         _thumbCam = go.AddComponent<Camera>();
         _thumbCam.enabled = false;
         _thumbCam.clearFlags = CameraClearFlags.SolidColor;
         _thumbCam.backgroundColor = Hex("#E8E4DC");
-        _thumbCam.fieldOfView = 35f;
-        _thumbCam.nearClipPlane = 0.1f;
-        _thumbCam.farClipPlane = 20000f;
+        _thumbCam.orthographic = true;
+        _thumbCam.nearClipPlane = 0.01f;
+        _thumbCam.farClipPlane = 100f;
         _thumbCam.cullingMask = 1 << THUMB_LAYER;
+
+        var lightGO = new GameObject("ThumbnailLight");
+        lightGO.transform.SetParent(go.transform, false);
+        lightGO.transform.localRotation = Quaternion.Euler(45f, -35f, 0f);
+        var light = lightGO.AddComponent<Light>();
+        light.type = LightType.Directional;
+        light.intensity = 1.8f;
+        light.cullingMask = 1 << THUMB_LAYER;
     }
 
     static void SetLayerAll(GameObject root, int layer)
