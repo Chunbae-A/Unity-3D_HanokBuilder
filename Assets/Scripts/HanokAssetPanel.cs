@@ -10,6 +10,8 @@ using TMPro;
 /// </summary>
 public partial class HanokUIManager
 {
+    // ── 데이터 모델 ──────────────────────────────────────
+    // prefab 한 개 + 그 prefab에 태깅된 카테고리 목록을 묶어 보관
     class HanokAssetEntry
     {
         public GameObject prefab;
@@ -22,21 +24,24 @@ public partial class HanokUIManager
         }
     }
 
-    Camera _thumbCam;
+    // ── 상태 필드 ────────────────────────────────────────
+    Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
 
     const string LABEL_ALL = "전체";
 
+    // 카테고리 정의 (Resources/HanokCategories에서 로드한 SO들을 분류해 보관)
     readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
     readonly Dictionary<HanokAssetCategory, List<HanokAssetCategory>> _childCategories =
         new Dictionary<HanokAssetCategory, List<HanokAssetCategory>>();
 
+    // 검색
     const float SEARCH_DEBOUNCE = 0.25f;
-
     TMP_InputField searchInput;
-    string _searchQuery = "";
-    string _pendingSearchQuery = "";
+    string _searchQuery = "";          // 실제로 필터링에 적용된 검색어
+    string _pendingSearchQuery = "";   // 입력창에 마지막으로 들어온 값 (디바운스 비교용)
     Coroutine _searchDebounce;
 
+    // 카테고리 필터 선택 상태 + 탭 버튼 UI 참조
     HanokAssetCategory _selectedMain;
     HanokAssetCategory _selectedSub;
     HanokAssetCategory[] _mainFilterCats;
@@ -45,12 +50,15 @@ public partial class HanokUIManager
     Button[] _subFilterBtns = System.Array.Empty<Button>();
     GameObject _mainFilterGO;
     GameObject _subFilterGO;
-    readonly List<HanokAssetEntry> _assetEntries = new List<HanokAssetEntry>();
 
+    // 로드된 에셋 목록 + 그리드 레이아웃 상수
+    readonly List<HanokAssetEntry> _assetEntries = new List<HanokAssetEntry>();
     const float CELL_W = 76f;
     const float CELL_H = 88f;
     const int COLS = 3;
 
+    // ── 에셋 로딩 ────────────────────────────────────────
+    // Resources/HanokAssets를 한 번에 스캔해 HanokAssetTags가 붙은 prefab만 라이브러리로 채택
     void LoadAssets()
     {
         if (assetContent == null)
@@ -79,6 +87,8 @@ public partial class HanokUIManager
         RefreshAssetList();
     }
 
+    // ── 카테고리 정의 로딩 ───────────────────────────────
+    // HanokAssetCategory SO들을 읽어 parent==null은 메인, 나머지는 부모별 서브 목록으로 분류·정렬
     void LoadCategoryDefinitions()
     {
         _mainCategories.Clear();
@@ -106,6 +116,8 @@ public partial class HanokUIManager
             children.Sort((a, b) => a.order.CompareTo(b.order));
     }
 
+    // ── 카테고리 탭 UI 구성 ──────────────────────────────
+    // 로드된 카테고리 SO들로 "전체" + 메인 필터 행을 동적 생성하고, 서브 필터 그리드 자리를 마련
     void BuildCategoryTabs(Transform parent)
     {
         LoadCategoryDefinitions();
@@ -128,6 +140,7 @@ public partial class HanokUIManager
         UpdateTabColors();
     }
 
+    // 선택된 메인 카테고리의 자식 목록으로 서브 필터 버튼들을 다시 그림 (자식이 없으면 그리드 숨김)
     void RebuildSubFilters(HanokAssetCategory main)
     {
         foreach (Transform child in _subFilterGO.transform)
@@ -231,6 +244,8 @@ public partial class HanokUIManager
         return btn;
     }
 
+    // ── 검색 ─────────────────────────────────────────────
+    // 입력값이 실제로 바뀐 경우에만 디바운스 타이머를 (재)시작 — 중복 입력 이벤트로 인한 새로고침 폭주 방지
     void OnSearchChanged(string value)
     {
         string trimmed = value.Trim();
@@ -241,6 +256,7 @@ public partial class HanokUIManager
         _searchDebounce = StartCoroutine(ApplySearchAfterDelay(trimmed));
     }
 
+    // 타이핑이 멈추고 SEARCH_DEBOUNCE초가 지나야 실제로 검색어를 적용하고 목록을 한 번만 새로고침
     IEnumerator ApplySearchAfterDelay(string query)
     {
         yield return new WaitForSeconds(SEARCH_DEBOUNCE);
@@ -251,6 +267,8 @@ public partial class HanokUIManager
         RefreshAssetList();
     }
 
+    // ── 필터 선택 ────────────────────────────────────────
+    // 메인 카테고리를 바꾸면 서브 선택은 초기화하고 서브 필터 그리드를 재구성
     void SelectMainCategory(HanokAssetCategory cat)
     {
         _selectedMain = cat;
@@ -286,6 +304,8 @@ public partial class HanokUIManager
             txt.color = active ? Color.white : TEXT_SUB;
     }
 
+    // ── 목록 렌더링 ──────────────────────────────────────
+    // 필터 행을 제외한 기존 그리드를 비우고, 현재 필터·검색 조건에 맞는 에셋들로 다시 채움
     void RefreshAssetList()
     {
         if (assetContent == null) return;
@@ -351,6 +371,7 @@ public partial class HanokUIManager
         StartCoroutine(RebuildNext());
     }
 
+    // 선택된 메인/서브 카테고리를 모두 포함하고, 검색어가 이름에 포함되는 에셋만 추려냄 (AND 조건)
     List<HanokAssetEntry> GetFilteredAssets()
     {
         var result = new List<HanokAssetEntry>();
@@ -503,6 +524,8 @@ public partial class HanokUIManager
         return raw;
     }
 
+    // ── 썸네일 캡처 ──────────────────────────────────────
+    // 카메라 시야 밖 먼 곳에 prefab을 임시 인스턴스화해 전용 카메라로 찍은 뒤 RenderTexture로 표시
     IEnumerator CaptureThumbnail(GameObject prefab, RawImage target)
     {
         yield return null;
