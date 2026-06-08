@@ -6,73 +6,45 @@ using TMPro;
 
 /// <summary>
 /// Left asset library panel for HanokUIManager.
-/// Loads prefab entries from Resources/HanokAssets and filters them by folder category.
+/// Loads prefab entries from Resources/HanokAssets and filters them by HanokAssetTags categories.
 /// </summary>
 public partial class HanokUIManager
 {
     class HanokAssetEntry
     {
         public GameObject prefab;
-        public string mainCategory;
-        public string subCategory;
+        public HanokAssetCategory[] categories;
 
-        public HanokAssetEntry(GameObject prefab, string mainCategory, string subCategory)
+        public HanokAssetEntry(GameObject prefab, HanokAssetCategory[] categories)
         {
             this.prefab = prefab;
-            this.mainCategory = mainCategory;
-            this.subCategory = subCategory;
-        }
-    }
-
-    struct HanokSubCategory
-    {
-        public string key;
-        public string label;
-        public string path;
-
-        public HanokSubCategory(string key, string label, string path)
-        {
-            this.key = key;
-            this.label = label;
-            this.path = path;
+            this.categories = categories;
         }
     }
 
     Camera _thumbCam;
 
-    const string CAT_ALL = "All";
-    const string CAT_COMPLETE = "Complete";
-    const string CAT_PARTS = "Parts";
+    const string LABEL_ALL = "전체";
 
-    static readonly (string key, string label)[] MAIN_FILTERS =
-    {
-        (CAT_ALL, "전체"),
-        (CAT_COMPLETE, "완성형"),
-        (CAT_PARTS, "부품형"),
-    };
+    readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
+    readonly Dictionary<HanokAssetCategory, List<HanokAssetCategory>> _childCategories =
+        new Dictionary<HanokAssetCategory, List<HanokAssetCategory>>();
 
-    static readonly HanokSubCategory[] PART_FILTERS =
-    {
-        new HanokSubCategory(CAT_ALL, "전체", ""),
-        new HanokSubCategory("Beam", "보", "Beam"),
-        new HanokSubCategory("Dancheong", "단청", "Dancheong"),
-        new HanokSubCategory("Decoration", "장식", "Decoration"),
-        new HanokSubCategory("Door", "문", "Door"),
-        new HanokSubCategory("Floor", "바닥", "Floor"),
-        new HanokSubCategory("Handrail", "난간", "Handrail"),
-        new HanokSubCategory("Maru", "마루", "Maru"),
-        new HanokSubCategory("Natural", "자연", "Natural"),
-        new HanokSubCategory("Roof", "지붕", "Roof"),
-        new HanokSubCategory("Wall", "벽체", "Wall"),
-        new HanokSubCategory("Wood", "목재", "Wood"),
-    };
+    const float SEARCH_DEBOUNCE = 0.25f;
 
-    string _selectedMain = CAT_ALL;
-    string _selectedSub = CAT_ALL;
+    TMP_InputField searchInput;
+    string _searchQuery = "";
+    string _pendingSearchQuery = "";
+    Coroutine _searchDebounce;
+
+    HanokAssetCategory _selectedMain;
+    HanokAssetCategory _selectedSub;
+    HanokAssetCategory[] _mainFilterCats;
+    HanokAssetCategory[] _subFilterCats = System.Array.Empty<HanokAssetCategory>();
     Button[] _mainFilterBtns;
-    Button[] _partFilterBtns;
+    Button[] _subFilterBtns = System.Array.Empty<Button>();
     GameObject _mainFilterGO;
-    GameObject _partFilterGO;
+    GameObject _subFilterGO;
     readonly List<HanokAssetEntry> _assetEntries = new List<HanokAssetEntry>();
 
     const float CELL_W = 76f;
@@ -88,12 +60,16 @@ public partial class HanokUIManager
         }
 
         BuildCategoryTabs(assetContent);
-        LoadCategory($"{ASSET_PATH}/Complete", CAT_COMPLETE, CAT_ALL);
 
-        foreach (var cat in PART_FILTERS)
+        _assetEntries.Clear();
+        var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
+        foreach (var prefab in raw)
         {
-            if (cat.key == CAT_ALL) continue;
-            LoadCategory($"{ASSET_PATH}/Parts/{cat.path}", CAT_PARTS, cat.key);
+            var tags = prefab.GetComponent<HanokAssetTags>();
+            if (tags == null || tags.categories == null || tags.categories.Length == 0)
+                continue;
+
+            _assetEntries.Add(new HanokAssetEntry(prefab, tags.categories));
         }
 
         _assetEntries.Sort((a, b) =>
@@ -103,39 +79,80 @@ public partial class HanokUIManager
         RefreshAssetList();
     }
 
-    void LoadCategory(string resourcePath, string mainCategory, string subCategory)
+    void LoadCategoryDefinitions()
     {
-        var raw = Resources.LoadAll(resourcePath);
-        foreach (var o in raw)
+        _mainCategories.Clear();
+        _childCategories.Clear();
+
+        var raw = Resources.LoadAll<HanokAssetCategory>(CATEGORY_PATH);
+        foreach (var cat in raw)
         {
-            if (o is GameObject g)
-                _assetEntries.Add(new HanokAssetEntry(g, mainCategory, subCategory));
+            if (cat.parent == null)
+            {
+                _mainCategories.Add(cat);
+                continue;
+            }
+
+            if (!_childCategories.TryGetValue(cat.parent, out var children))
+            {
+                children = new List<HanokAssetCategory>();
+                _childCategories[cat.parent] = children;
+            }
+            children.Add(cat);
         }
+
+        _mainCategories.Sort((a, b) => a.order.CompareTo(b.order));
+        foreach (var children in _childCategories.Values)
+            children.Sort((a, b) => a.order.CompareTo(b.order));
     }
 
     void BuildCategoryTabs(Transform parent)
     {
+        LoadCategoryDefinitions();
+
         _mainFilterGO = BuildFilterRow(parent, "MainFilters", 36f);
-        _mainFilterBtns = new Button[MAIN_FILTERS.Length];
-        for (int i = 0; i < MAIN_FILTERS.Length; i++)
+        _mainFilterCats = new HanokAssetCategory[_mainCategories.Count + 1];
+        _mainCategories.CopyTo(_mainFilterCats, 1);
+
+        _mainFilterBtns = new Button[_mainFilterCats.Length];
+        for (int i = 0; i < _mainFilterCats.Length; i++)
         {
-            var filter = MAIN_FILTERS[i];
-            var key = filter.key;
-            _mainFilterBtns[i] = MakeFilterButton(_mainFilterGO.transform, filter.label,
-                () => ShowMainCategory(key));
+            var cat = _mainFilterCats[i];
+            _mainFilterBtns[i] = MakeFilterButton(_mainFilterGO.transform, cat == null ? LABEL_ALL : cat.label,
+                () => SelectMainCategory(cat));
         }
 
-        _partFilterGO = BuildFilterGrid(parent, "PartFilters", 88f);
-        _partFilterBtns = new Button[PART_FILTERS.Length];
-        for (int i = 0; i < PART_FILTERS.Length; i++)
-        {
-            var filter = PART_FILTERS[i];
-            var key = filter.key;
-            _partFilterBtns[i] = MakeFilterButton(_partFilterGO.transform, filter.label,
-                () => ShowPartCategory(key));
-        }
+        _subFilterGO = BuildFilterGrid(parent, "SubFilters", 88f);
+        _subFilterGO.SetActive(false);
 
         UpdateTabColors();
+    }
+
+    void RebuildSubFilters(HanokAssetCategory main)
+    {
+        foreach (Transform child in _subFilterGO.transform)
+            DestroyImmediate(child.gameObject);
+
+        if (main == null || !_childCategories.TryGetValue(main, out var children) || children.Count == 0)
+        {
+            _subFilterCats = System.Array.Empty<HanokAssetCategory>();
+            _subFilterBtns = System.Array.Empty<Button>();
+            _subFilterGO.SetActive(false);
+            return;
+        }
+
+        _subFilterCats = new HanokAssetCategory[children.Count + 1];
+        children.CopyTo(_subFilterCats, 1);
+
+        _subFilterBtns = new Button[_subFilterCats.Length];
+        for (int i = 0; i < _subFilterCats.Length; i++)
+        {
+            var cat = _subFilterCats[i];
+            _subFilterBtns[i] = MakeFilterButton(_subFilterGO.transform, cat == null ? LABEL_ALL : cat.label,
+                () => SelectSubCategory(cat));
+        }
+
+        _subFilterGO.SetActive(true);
     }
 
     GameObject BuildFilterRow(Transform parent, string name, float height)
@@ -214,39 +231,49 @@ public partial class HanokUIManager
         return btn;
     }
 
-    void ShowMainCategory(string key)
+    void OnSearchChanged(string value)
     {
-        _selectedMain = key;
-        _selectedSub = CAT_ALL;
+        string trimmed = value.Trim();
+        if (trimmed == _pendingSearchQuery) return;
+        _pendingSearchQuery = trimmed;
+
+        if (_searchDebounce != null) StopCoroutine(_searchDebounce);
+        _searchDebounce = StartCoroutine(ApplySearchAfterDelay(trimmed));
+    }
+
+    IEnumerator ApplySearchAfterDelay(string query)
+    {
+        yield return new WaitForSeconds(SEARCH_DEBOUNCE);
+        _searchDebounce = null;
+
+        if (_searchQuery == query) yield break;
+        _searchQuery = query;
+        RefreshAssetList();
+    }
+
+    void SelectMainCategory(HanokAssetCategory cat)
+    {
+        _selectedMain = cat;
+        _selectedSub = null;
+        RebuildSubFilters(cat);
         UpdateTabColors();
         RefreshAssetList();
     }
 
-    void ShowPartCategory(string key)
+    void SelectSubCategory(HanokAssetCategory cat)
     {
-        _selectedMain = CAT_PARTS;
-        _selectedSub = key;
+        _selectedSub = cat;
         UpdateTabColors();
         RefreshAssetList();
     }
 
     void UpdateTabColors()
     {
-        if (_mainFilterBtns != null)
-        {
-            for (int i = 0; i < _mainFilterBtns.Length; i++)
-                SetFilterButtonState(_mainFilterBtns[i], MAIN_FILTERS[i].key == _selectedMain);
-        }
+        for (int i = 0; i < _mainFilterBtns.Length; i++)
+            SetFilterButtonState(_mainFilterBtns[i], _mainFilterCats[i] == _selectedMain);
 
-        bool showParts = _selectedMain == CAT_PARTS;
-        if (_partFilterGO != null)
-            _partFilterGO.SetActive(showParts);
-
-        if (_partFilterBtns != null)
-        {
-            for (int i = 0; i < _partFilterBtns.Length; i++)
-                SetFilterButtonState(_partFilterBtns[i], PART_FILTERS[i].key == _selectedSub);
-        }
+        for (int i = 0; i < _subFilterBtns.Length; i++)
+            SetFilterButtonState(_subFilterBtns[i], _subFilterCats[i] == _selectedSub);
     }
 
     void SetFilterButtonState(Button btn, bool active)
@@ -266,7 +293,7 @@ public partial class HanokUIManager
         var children = new List<GameObject>();
         foreach (Transform ch in assetContent)
         {
-            if (ch.gameObject != _mainFilterGO && ch.gameObject != _partFilterGO)
+            if (ch.gameObject != _mainFilterGO && ch.gameObject != _subFilterGO)
                 children.Add(ch.gameObject);
         }
         foreach (var ch in children)
@@ -329,12 +356,14 @@ public partial class HanokUIManager
         var result = new List<HanokAssetEntry>();
         foreach (var asset in _assetEntries)
         {
-            if (_selectedMain != CAT_ALL && asset.mainCategory != _selectedMain)
+            if (_selectedMain != null && System.Array.IndexOf(asset.categories, _selectedMain) < 0)
                 continue;
 
-            if (_selectedMain == CAT_PARTS &&
-                _selectedSub != CAT_ALL &&
-                asset.subCategory != _selectedSub)
+            if (_selectedSub != null && System.Array.IndexOf(asset.categories, _selectedSub) < 0)
+                continue;
+
+            if (_searchQuery.Length > 0 &&
+                asset.prefab.name.IndexOf(_searchQuery, System.StringComparison.OrdinalIgnoreCase) < 0)
                 continue;
 
             result.Add(asset);
@@ -345,17 +374,18 @@ public partial class HanokUIManager
 
     string GetCurrentCategoryLabel()
     {
-        if (_selectedMain == CAT_ALL)
-            return "전체";
+        string label;
+        if (_selectedMain == null)
+            label = LABEL_ALL;
+        else if (_selectedSub == null)
+            label = _selectedMain.label;
+        else
+            label = $"{_selectedMain.label} / {_selectedSub.label}";
 
-        if (_selectedMain == CAT_COMPLETE)
-            return "완성형";
+        if (_searchQuery.Length > 0)
+            label += $" · '{_searchQuery}' 검색결과";
 
-        foreach (var filter in PART_FILTERS)
-            if (filter.key == _selectedSub)
-                return "부품형 / " + filter.label;
-
-        return "부품형";
+        return label;
     }
 
     IEnumerator RebuildNext()
@@ -406,7 +436,9 @@ public partial class HanokUIManager
         le.flexibleWidth = 1;
 
         var t = go.AddComponent<TextMeshProUGUI>();
-        t.text = "Resources/HanokAssets\n폴더에 Prefab을 넣으세요";
+        t.text = _searchQuery.Length > 0
+            ? $"'{_searchQuery}'에 대한 검색 결과가 없습니다"
+            : "Resources/HanokAssets\n폴더에 Prefab을 넣으세요";
         t.fontSize = 10;
         t.color = TEXT_SUB;
         t.alignment = TextAlignmentOptions.Center;
