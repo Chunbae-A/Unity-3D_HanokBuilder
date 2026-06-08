@@ -29,6 +29,16 @@ public partial class HanokUIManager : MonoBehaviour
     Transform      assetContent;
     Button[]       toolBtns;
 
+    // ── 드래그 상태 ──────────────────────────────────────
+    bool    _isDragging;
+    bool    _pendingDrag;
+    Vector2 _dragStartMouse;
+    Vector3 _dragOffset;
+    Plane   _dragPlane;
+
+    // ── 회전 기즈모 ──────────────────────────────────────
+    HanokRotationGizmo _rotGizmo;
+
     // ── 라이트 테마 색상 팔레트 ───────────────────────────
     static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out Color c); return c; }
 
@@ -62,9 +72,8 @@ public partial class HanokUIManager : MonoBehaviour
     static readonly Color COL_Y = Hex("#27AE60");
     static readonly Color COL_Z = Hex("#2980B9");
 
-    const string ASSET_PATH    = "HanokAssets";
-    const string CATEGORY_PATH = "HanokCategories";
-    const int    THUMB_LAYER   = 31;
+    const string ASSET_PATH  = "HanokAssets";
+    const int    THUMB_LAYER = 31;
 
     // ── 생명주기 ──────────────────────────────────────────
     void Start()
@@ -73,10 +82,16 @@ public partial class HanokUIManager : MonoBehaviour
             koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF")
                       ?? Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
 
+        // 씬 환경 초기화 (바닥·조명·카메라 배경)
+        HanokSceneSetup.Setup();
+
         // 카메라 컨트롤러 자동 추가
         if (Camera.main != null &&
             Camera.main.GetComponent<HanokCameraController>() == null)
             Camera.main.gameObject.AddComponent<HanokCameraController>();
+
+        // 회전 기즈모 생성
+        _rotGizmo = gameObject.AddComponent<HanokRotationGizmo>();
 
         BuildUI();
         LoadAssets();
@@ -87,6 +102,7 @@ public partial class HanokUIManager : MonoBehaviour
     {
         SyncTransformInputs();
         HandleViewportClick();
+        HandleKeyboardShortcuts();
     }
 
     void OnDestroy()
@@ -106,6 +122,16 @@ public partial class HanokUIManager : MonoBehaviour
     {
         currentTool = tool;
         RefreshToolBtns();
+        SyncGizmo();
+    }
+
+    void SyncGizmo()
+    {
+        if (_rotGizmo == null) return;
+        if (currentTool == EditTool.Rotate && selectedObject != null)
+            _rotGizmo.Attach(selectedObject);
+        else
+            _rotGizmo.Detach();
     }
 
     void RefreshToolBtns()
@@ -123,7 +149,7 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
-        var obj = Instantiate(prefab, GetSpawnPos(), Quaternion.identity);
+        var obj = Instantiate(prefab, Vector3.zero, Quaternion.identity);
         obj.name = prefab.name;
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
@@ -131,20 +157,47 @@ public partial class HanokUIManager : MonoBehaviour
             obj.transform.localScale = Vector3.one;
 
         EnsureCollider(obj);
+
+        // 바닥 위에 올바르게 배치 (피벗이 중심인 모델 대응)
+        obj.transform.position = GetSpawnPos();
+        PlaceOnFloor(obj);
+
         AttachSelectable(obj);
         SelectObject(obj);
 
-        // 배치 즉시 카메라 포커스
+        // 배치 즉시 스무스 카메라 포커스
         var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
-        camCtrl?.FocusSelected();
+        camCtrl?.FocusObject(obj);
+    }
+
+    // 모델 바닥면이 Y=0(바닥 평면) 위에 오도록 위치 보정
+    void PlaceOnFloor(GameObject obj)
+    {
+        var rends = obj.GetComponentsInChildren<Renderer>();
+        if (rends.Length == 0) return;
+        var b = rends[0].bounds;
+        foreach (var r in rends) b.Encapsulate(r.bounds);
+        float offset = obj.transform.position.y - b.min.y;
+        obj.transform.position += Vector3.up * offset;
     }
 
     Vector3 GetSpawnPos()
     {
+        // 카메라가 현재 바라보는 피벗 XZ 위치에 배치 → 항상 화면 중앙에 나타남
+        var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
+        if (camCtrl != null)
+        {
+            var pivot = camCtrl.Pivot;
+            // 피벗 위에서 아래로 레이캐스트해 바닥면 정확히 찍기
+            var ray = new Ray(pivot + Vector3.up * 50f, Vector3.down);
+            if (Physics.Raycast(ray, out RaycastHit h, 200f))
+                return h.point;
+            return new Vector3(pivot.x, 0f, pivot.z);
+        }
         if (Camera.main == null) return Vector3.zero;
-        var ray = Camera.main.ScreenPointToRay(
+        var r2 = Camera.main.ScreenPointToRay(
             new Vector3(Screen.width * .5f, Screen.height * .5f));
-        if (Physics.Raycast(ray, out RaycastHit hit, 500f)) return hit.point;
+        if (Physics.Raycast(r2, out RaycastHit hit2, 500f)) return hit2.point;
         var p = Camera.main.transform.position + Camera.main.transform.forward * 10f;
         p.y = 0f; return p;
     }
@@ -194,6 +247,13 @@ public partial class HanokUIManager : MonoBehaviour
 
         RefreshInfoPanel();
         if (obj != null) ForceSyncTransform();
+        SyncGizmo();
+
+        // 선택 시 카메라 피벗을 오브젝트 방향으로 부드럽게 이동
+        // (오비트가 선택한 오브젝트 주변으로 자연스럽게 전환됨)
+        if (obj != null)
+            Camera.main?.GetComponent<HanokCameraController>()
+                        ?.ShiftPivotToward(obj.transform.position);
     }
 
     void RefreshInfoPanel()
@@ -299,32 +359,182 @@ public partial class HanokUIManager : MonoBehaviour
         RefreshInfoPanel();
     }
 
-    // ── 뷰포트 클릭 ──────────────────────────────────────
+    // ── 뷰포트 클릭 / 드래그 ─────────────────────────────
     void HandleViewportClick()
     {
         var mouse = Mouse.current;
-        if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
-        var es = UnityEngine.EventSystems.EventSystem.current;
-        if (es != null && es.IsPointerOverGameObject()) return;
-        if (Camera.main == null) return;
+        if (mouse == null || Camera.main == null) return;
 
-        if (currentTool == EditTool.Delete)
+        bool overUI = UnityEngine.EventSystems.EventSystem.current != null &&
+                      UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+
+        Vector2 mp    = mouse.position.ReadValue();
+        Vector2 mDelta = mouse.delta.ReadValue();
+
+        // ═══════════════════════════════════════════════════
+        // SELECT 모드: 클릭=선택, 클릭+드래그=자유 이동
+        // ═══════════════════════════════════════════════════
+        if (currentTool == EditTool.Select)
         {
-            var ray2 = Camera.main.ScreenPointToRay((Vector3)mouse.position.ReadValue());
-            if (Physics.Raycast(ray2, out RaycastHit h2, 1000f))
+            if (mouse.leftButton.wasPressedThisFrame && !overUI)
             {
-                var sa2 = h2.collider.GetComponent<SelectableAsset>();
-                if (sa2 != null) { SelectObject(sa2.Root); DeleteSelected(); }
+                _isDragging  = false;
+                _pendingDrag = false;
+                var ray = Camera.main.ScreenPointToRay((Vector3)mp);
+                if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
+                {
+                    var sa = hit.collider.GetComponent<SelectableAsset>();
+                    if (sa != null)
+                    {
+                        SelectObject(sa.Root);
+                        // 드래그 대기 상태로 전환 (5px 이상 움직이면 드래그 시작)
+                        _pendingDrag    = true;
+                        _dragStartMouse = mp;
+                        _dragPlane      = MakeDragPlane(sa.Root.transform.position);
+                        if (_dragPlane.Raycast(ray, out float e))
+                            _dragOffset = sa.Root.transform.position - ray.GetPoint(e);
+                        else _dragOffset = Vector3.zero;
+                    }
+                    else ClearSelection();
+                }
+                else ClearSelection();
+            }
+
+            // 드래그 시작 판정 (5px 임계값)
+            if (_pendingDrag && !_isDragging && mouse.leftButton.isPressed &&
+                Vector2.Distance(mp, _dragStartMouse) > 5f)
+            {
+                _isDragging  = true;
+                _pendingDrag = false;
+            }
+
+            // 드래그 적용
+            if (_isDragging && selectedObject != null && mouse.leftButton.isPressed)
+            {
+                var ray = Camera.main.ScreenPointToRay((Vector3)mp);
+                if (_dragPlane.Raycast(ray, out float e))
+                    selectedObject.transform.position = ray.GetPoint(e) + _dragOffset;
+            }
+
+            if (mouse.leftButton.wasReleasedThisFrame)
+            { _isDragging = false; _pendingDrag = false; }
+            return;
+        }
+
+        // ═══════════════════════════════════════════════════
+        // MOVE 모드: 오브젝트 클릭→드래그 이동 (뷰 인식 평면)
+        // ═══════════════════════════════════════════════════
+        if (currentTool == EditTool.Move)
+        {
+            if (mouse.leftButton.wasPressedThisFrame && !overUI)
+            {
+                _isDragging = false;
+                var ray = Camera.main.ScreenPointToRay((Vector3)mp);
+                if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
+                {
+                    var sa = hit.collider.GetComponent<SelectableAsset>();
+                    if (sa != null)
+                    {
+                        SelectObject(sa.Root);
+                        _isDragging = true;
+                        _dragPlane  = MakeDragPlane(sa.Root.transform.position);
+                        if (_dragPlane.Raycast(ray, out float e))
+                            _dragOffset = sa.Root.transform.position - ray.GetPoint(e);
+                        else _dragOffset = Vector3.zero;
+                    }
+                }
+            }
+            if (mouse.leftButton.isPressed && _isDragging && selectedObject != null)
+            {
+                var ray = Camera.main.ScreenPointToRay((Vector3)mp);
+                if (_dragPlane.Raycast(ray, out float e))
+                    selectedObject.transform.position = ray.GetPoint(e) + _dragOffset;
+            }
+            if (mouse.leftButton.wasReleasedThisFrame) _isDragging = false;
+            return;
+        }
+
+        // ═══════════════════════════════════════════════════
+        // ROTATE 모드: 기즈모(X/Y/Z 링) 드래그 또는 오브젝트 클릭→선택
+        // ═══════════════════════════════════════════════════
+        if (currentTool == EditTool.Rotate)
+        {
+            // 기즈모가 마우스를 소비 중이면 UIManager는 처리 안 함
+            if (_rotGizmo != null && _rotGizmo.IsConsuming)
+                return;
+
+            // 오브젝트 클릭으로 선택 (빈 공간 클릭은 선택 유지)
+            if (mouse.leftButton.wasPressedThisFrame && !overUI)
+            {
+                var ray = Camera.main.ScreenPointToRay((Vector3)mp);
+                if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
+                {
+                    var sa = hit.collider.GetComponent<SelectableAsset>();
+                    if (sa != null) SelectObject(sa.Root);
+                }
             }
             return;
         }
 
-        var ray = Camera.main.ScreenPointToRay((Vector3)mouse.position.ReadValue());
-        if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
+        // ═══════════════════════════════════════════════════
+        // DELETE 모드: 좌클릭 즉시 삭제
+        // ═══════════════════════════════════════════════════
+        if (currentTool == EditTool.Delete)
         {
-            var sa = hit.collider.GetComponent<SelectableAsset>();
-            if (sa != null) SelectObject(sa.Root);
+            if (!mouse.leftButton.wasPressedThisFrame || overUI) return;
+            var ray = Camera.main.ScreenPointToRay((Vector3)mp);
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
+            {
+                var sa = hit.collider.GetComponent<SelectableAsset>();
+                if (sa != null) { SelectObject(sa.Root); DeleteSelected(); }
+            }
         }
+    }
+
+    // 현재 카메라 뷰에 맞는 드래그 평면을 반환
+    // Top/3D → XZ 수평면 | Front/Back → XY 수직면 | Right/Left → ZY 수직면
+    Plane MakeDragPlane(Vector3 objPos)
+    {
+        var cam = Camera.main?.GetComponent<HanokCameraController>();
+        if (cam == null) return new Plane(Vector3.up, objPos);
+
+        switch (cam.CurrentPreset)
+        {
+            case HanokCameraController.ViewPreset.Front:
+            case HanokCameraController.ViewPreset.Back:
+                return new Plane(Vector3.forward, objPos); // XY 평면
+
+            case HanokCameraController.ViewPreset.Right:
+            case HanokCameraController.ViewPreset.Left:
+                return new Plane(Vector3.right, objPos);   // ZY 평면
+
+            default: // Perspective, Top
+                return new Plane(Vector3.up, objPos);      // XZ 평면
+        }
+    }
+
+    // ── 키보드 단축키 ─────────────────────────────────────
+    void HandleKeyboardShortcuts()
+    {
+        var kb = Keyboard.current;
+        if (kb == null || AnyInputFocused()) return;
+
+        if (kb.digit1Key.wasPressedThisFrame) SetTool(EditTool.Select);
+        if (kb.digit2Key.wasPressedThisFrame) SetTool(EditTool.Move);
+        if (kb.digit3Key.wasPressedThisFrame) SetTool(EditTool.Rotate);
+        if (kb.digit4Key.wasPressedThisFrame) SetTool(EditTool.Delete);
+        if (kb.deleteKey.wasPressedThisFrame || kb.backspaceKey.wasPressedThisFrame)
+            DeleteSelected();
+        if (kb.escapeKey.wasPressedThisFrame)
+        { ClearSelection(); SetTool(EditTool.Select); }
+        if (kb.homeKey.wasPressedThisFrame)
+            Camera.main?.GetComponent<HanokCameraController>()?.ResetView();
+    }
+
+    bool AnyInputFocused()
+    {
+        var sel = UnityEngine.EventSystems.EventSystem.current?.currentSelectedGameObject;
+        return sel != null && sel.GetComponent<TMPro.TMP_InputField>() != null;
     }
 
     // ── 유틸 ─────────────────────────────────────────────
