@@ -72,7 +72,9 @@ public partial class HanokUIManager : MonoBehaviour
     static readonly Color COL_Y = Hex("#27AE60");
     static readonly Color COL_Z = Hex("#2980B9");
 
-    const string ASSET_PATH  = "HanokAssets";
+    const string ASSET_PATH     = "HanokAssets";
+    const string CATEGORY_PATH  = "HanokCategories";
+    const string ASSETINFO_PATH = "HanokAssetInfo";
     const int    THUMB_LAYER = 31;
 
     // ── 생명주기 ──────────────────────────────────────────

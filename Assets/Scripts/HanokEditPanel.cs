@@ -41,7 +41,7 @@ public partial class HanokUIManager
         infoNameText.color = TEXT_HINT;
         infoNameText.alignment = TextAlignmentOptions.Left;
         infoNameText.overflowMode = TextOverflowModes.Ellipsis;
-        infoNameText.enableWordWrapping = false;
+        infoNameText.textWrappingMode = TextWrappingModes.NoWrap;
         KorFont(infoNameText);
 
         Spacer(content, 8);
@@ -174,7 +174,7 @@ public partial class HanokUIManager
         vt.text = defaultVal; vt.fontSize = 10;
         vt.color = TEXT_MAIN; vt.alignment = TextAlignmentOptions.Left;
         vt.overflowMode = TextOverflowModes.Ellipsis;
-        vt.enableWordWrapping = false;
+        vt.textWrappingMode = TextWrappingModes.NoWrap;
         KorFont(vt);
 
         return vt;

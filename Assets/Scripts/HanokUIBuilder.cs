@@ -64,25 +64,51 @@ public partial class HanokUIManager
         tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-12, 0);
         title.alignment = TextAlignmentOptions.Left;
 
-        // 검색창
+        // 검색창 — 실제 입력 가능한 TMP_InputField로 구성
         var searchBar = NewRT(panel, "SearchBar");
         searchBar.anchorMin = new Vector2(0, 1); searchBar.anchorMax = new Vector2(1, 1);
         searchBar.pivot = new Vector2(0.5f, 1);
         searchBar.offsetMin = new Vector2(10, -100); searchBar.offsetMax = new Vector2(-10, -60);
-        searchBar.GetComponent<Image>().color = BG_INPUT;
+        var sbImg = searchBar.GetComponent<Image>();
+        sbImg.color = BG_INPUT;
         AddRoundOutline(searchBar, BORDER);
 
-        // 검색 플레이스홀더 — NewRT 대신 순수 TextMeshProUGUI 자식으로 생성
-        // (NewRT 는 Image를 추가하므로 같은 GO에 TMP 추가 불가)
-        var sText = new GameObject("SText");
-        sText.transform.SetParent(searchBar, false);
-        var sRT = sText.AddComponent<RectTransform>();
-        sRT.anchorMin = new Vector2(0, 0); sRT.anchorMax = new Vector2(1, 1);
-        sRT.offsetMin = new Vector2(12, 2); sRT.offsetMax = new Vector2(-8, -2);
-        var ph = sText.AddComponent<TextMeshProUGUI>();
-        ph.text = "검색..."; ph.fontSize = 11; ph.color = TEXT_HINT;
-        ph.alignment = TextAlignmentOptions.Left;
-        KorFont(ph);
+        var area = new GameObject("Area");
+        area.transform.SetParent(searchBar, false);
+        var aRT = area.AddComponent<RectTransform>();
+        aRT.anchorMin = Vector2.zero; aRT.anchorMax = Vector2.one;
+        aRT.offsetMin = new Vector2(12, 2); aRT.offsetMax = new Vector2(-8, -2);
+        area.AddComponent<RectMask2D>();
+
+        var sTextGO = new GameObject("Text");
+        sTextGO.transform.SetParent(area.transform, false);
+        var sTextRT = sTextGO.AddComponent<RectTransform>();
+        sTextRT.anchorMin = Vector2.zero; sTextRT.anchorMax = Vector2.one;
+        sTextRT.offsetMin = sTextRT.offsetMax = Vector2.zero;
+        var sText = sTextGO.AddComponent<TextMeshProUGUI>();
+        sText.fontSize = 11; sText.color = TEXT_MAIN;
+        sText.alignment = TextAlignmentOptions.Left;
+        KorFont(sText);
+
+        var sPhGO = new GameObject("Placeholder");
+        sPhGO.transform.SetParent(area.transform, false);
+        var sPhRT = sPhGO.AddComponent<RectTransform>();
+        sPhRT.anchorMin = Vector2.zero; sPhRT.anchorMax = Vector2.one;
+        sPhRT.offsetMin = sPhRT.offsetMax = Vector2.zero;
+        var sPh = sPhGO.AddComponent<TextMeshProUGUI>();
+        sPh.text = "검색..."; sPh.fontSize = 11; sPh.color = TEXT_HINT;
+        sPh.alignment = TextAlignmentOptions.Left;
+        KorFont(sPh);
+
+        searchInput = searchBar.gameObject.AddComponent<TMP_InputField>();
+        searchInput.targetGraphic = sbImg;
+        searchInput.textViewport  = aRT;
+        searchInput.textComponent = sText;
+        searchInput.placeholder   = sPh;
+        searchInput.contentType   = TMP_InputField.ContentType.Standard;
+        searchInput.caretColor    = NAVY;
+        searchInput.selectionColor = new Color(NAVY.r, NAVY.g, NAVY.b, 0.25f);
+        searchInput.onValueChanged.AddListener(OnSearchChanged);
     }
 
     // ── 오른쪽 헤더 ───────────────────────────────────────
