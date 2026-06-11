@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_Hedgerows
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_Hedgerows
-  displayName: SM_Hedgerows
+  displayName: 산울타리

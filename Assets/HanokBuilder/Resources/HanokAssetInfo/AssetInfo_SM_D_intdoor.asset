@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_D_intdoor
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_D_intdoor
-  displayName: SM_D_intdoor
+  displayName: 실내문

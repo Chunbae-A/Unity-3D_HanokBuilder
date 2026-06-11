@@ -22,12 +22,11 @@ public partial class HanokUIManager : MonoBehaviour
 
     // ── 내부 상태 ─────────────────────────────────────────
     GameObject     selectedObject;
-    TMP_Text       infoNameText;
-    TMP_InputField posX, posY, posZ;
-    TMP_InputField rotX, rotY, rotZ;
-    TMP_InputField scaleF;
     Transform      assetContent;
     Button[]       toolBtns;
+    RectTransform  rightPanelRT;
+    RectTransform  viewSwitcherRT;
+    RectTransform  viewportHintRT;
 
     // ── 드래그 상태 ──────────────────────────────────────
     bool    _isDragging;
@@ -53,24 +52,15 @@ public partial class HanokUIManager : MonoBehaviour
     static readonly Color NAVY       = Hex("#1B3A6B");
     static readonly Color NAVY_LIGHT = Hex("#2C5282");
     static readonly Color FOREST     = Hex("#3D6B4F");
-    static readonly Color GOLD       = Hex("#9A7228");
 
     // 텍스트
-    static readonly Color TEXT_H     = Hex("#1A1A1A");
     static readonly Color TEXT_MAIN  = Hex("#333333");
     static readonly Color TEXT_SUB   = Hex("#888888");
     static readonly Color TEXT_HINT  = Hex("#BBBBBB");
 
     // 버튼
     static readonly Color BTN_PRI    = Hex("#1B3A6B");
-    static readonly Color BTN_SEC    = Hex("#3D6B4F");
-    static readonly Color BTN_DANGER = Hex("#B03030");
     static readonly Color BTN_GHOST  = Hex("#E8E4DC");
-
-    // 축
-    static readonly Color COL_X = Hex("#C0392B");
-    static readonly Color COL_Y = Hex("#27AE60");
-    static readonly Color COL_Z = Hex("#2980B9");
 
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
@@ -78,8 +68,20 @@ public partial class HanokUIManager : MonoBehaviour
     const int    THUMB_LAYER = 31;
 
     // ── 생명주기 ──────────────────────────────────────────
+    // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)
+    // 두 번째 이후 인스턴스는 UI·씬 환경을 다시 만들지 않도록 비활성화한다.
+    static HanokUIManager _activeInstance;
+
     void Start()
     {
+        if (_activeInstance != null && _activeInstance != this)
+        {
+            Debug.LogWarning($"[HanokUIManager] 씬에 중복된 HanokUIManager('{name}')가 있어 비활성화합니다.");
+            enabled = false;
+            return;
+        }
+        _activeInstance = this;
+
         if (koreanFont == null)
             koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF")
                       ?? Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
@@ -102,7 +104,6 @@ public partial class HanokUIManager : MonoBehaviour
 
     void Update()
     {
-        SyncTransformInputs();
         HandleViewportClick();
         HandleKeyboardShortcuts();
     }
@@ -247,8 +248,6 @@ public partial class HanokUIManager : MonoBehaviour
             hl.Show();
         }
 
-        RefreshInfoPanel();
-        if (obj != null) ForceSyncTransform();
         SyncGizmo();
 
         // 선택 시 카메라 피벗을 오브젝트 방향으로 부드럽게 이동
@@ -258,96 +257,11 @@ public partial class HanokUIManager : MonoBehaviour
                         ?.ShiftPivotToward(obj.transform.position);
     }
 
-    void RefreshInfoPanel()
-    {
-        if (infoNameText == null) return;
-        bool has = selectedObject != null;
-        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
-        infoNameText.color = has ? TEXT_H : TEXT_HINT;
-    }
-
-    // ── Transform 동기화 ──────────────────────────────────
-    void SyncTransformInputs()
-    {
-        if (selectedObject == null || posX == null) return;
-        var t = selectedObject.transform;
-        if (!posX.isFocused)  posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
-        if (!posY.isFocused)  posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
-        if (!posZ.isFocused)  posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
-        if (!rotX.isFocused)  rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
-        if (!rotY.isFocused)  rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
-        if (!rotZ.isFocused)  rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
-        if (!scaleF.isFocused) scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
-    }
-
-    void ForceSyncTransform()
-    {
-        if (selectedObject == null || posX == null) return;
-        var t = selectedObject.transform;
-        posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
-        posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
-        posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
-        rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
-        rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
-        rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
-        scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
-    }
-
-    // ── Transform 적용 ───────────────────────────────────
-    public void ApplyPos()
-    {
-        if (!selectedObject) return;
-        selectedObject.transform.position =
-            new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
-    }
-
-    public void ApplyRot()
-    {
-        if (!selectedObject) return;
-        selectedObject.transform.eulerAngles =
-            new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
-    }
-
-    public void ApplyScale()
-    {
-        if (!selectedObject) return;
-        float s = Mathf.Max(0.001f, Pf(scaleF.text));
-        selectedObject.transform.localScale = Vector3.one * s;
-    }
-
-    public void QuickRot(float deg)
-    {
-        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
-    }
-
-    public void ResetRot()
-    {
-        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
-    }
-
-    public void SetScale(float s)
-    {
-        if (!selectedObject) return;
-        selectedObject.transform.localScale = Vector3.one * s;
-        scaleF?.SetTextWithoutNotify(s.ToString("F2"));
-    }
-
-    public void Duplicate()
-    {
-        if (!selectedObject) return;
-        var c = Instantiate(selectedObject);
-        c.name = selectedObject.name + "_복사";
-        c.transform.position += Vector3.right * 2f;
-        AttachSelectable(c);
-        SelectObject(c);
-    }
-
     public void DeleteSelected()
     {
         if (!selectedObject) return;
         Destroy(selectedObject);
         selectedObject = null;
-        RefreshInfoPanel();
     }
 
     public void ClearSelection()
@@ -358,7 +272,6 @@ public partial class HanokUIManager : MonoBehaviour
             if (hl != null) hl.Hide();
         }
         selectedObject = null;
-        RefreshInfoPanel();
     }
 
     // ── 뷰포트 클릭 / 드래그 ─────────────────────────────
@@ -540,12 +453,6 @@ public partial class HanokUIManager : MonoBehaviour
     }
 
     // ── 유틸 ─────────────────────────────────────────────
-    static float Pf(string s) =>
-        float.TryParse(s,
-            System.Globalization.NumberStyles.Float,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out float v) ? v : 0f;
-
     void KorFont(TMP_Text t)  { if (koreanFont) t.font = koreanFont; }
 
     TMP_FontAsset _lat;

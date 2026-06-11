@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_Stair_1
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_Stair_1
-  displayName: SM_Stair_1
+  displayName: 계단_1

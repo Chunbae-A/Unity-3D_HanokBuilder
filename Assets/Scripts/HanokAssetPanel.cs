@@ -553,7 +553,7 @@ public partial class HanokUIManager
         t.alignment = TextAlignmentOptions.Center;
         t.overflowMode = TextOverflowModes.Ellipsis;
         t.textWrappingMode = TextWrappingModes.NoWrap;
-        LatFont(t);
+        if (HasKorean(label)) KorFont(t); else LatFont(t);
 
         return raw;
     }

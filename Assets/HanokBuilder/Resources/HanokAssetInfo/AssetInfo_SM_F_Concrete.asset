@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_F_Concrete
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_F_Concrete
-  displayName: SM_F_Concrete
+  displayName: 콘크리트바닥

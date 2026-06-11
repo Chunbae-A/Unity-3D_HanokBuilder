@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_R_Sign_GH
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_R_Sign_GH
-  displayName: SM_R_Sign_GH
+  displayName: 현판_GH

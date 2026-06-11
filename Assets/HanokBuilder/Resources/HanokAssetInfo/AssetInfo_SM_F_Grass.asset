@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_F_Grass
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_F_Grass
-  displayName: SM_F_Grass
+  displayName: 잔디바닥

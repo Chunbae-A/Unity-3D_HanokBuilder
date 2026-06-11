@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_R_Curtain_1
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_R_Curtain_1
-  displayName: SM_R_Curtain_1
+  displayName: 발(커튼)_1

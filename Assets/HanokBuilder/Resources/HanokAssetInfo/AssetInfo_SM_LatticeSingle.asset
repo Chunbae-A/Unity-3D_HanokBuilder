@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_LatticeSingle
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_LatticeSingle
-  displayName: SM_LatticeSingle
+  displayName: 홑격자벽

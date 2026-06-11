@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_F_Pathway
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_F_Pathway
-  displayName: SM_F_Pathway
+  displayName: 보행로

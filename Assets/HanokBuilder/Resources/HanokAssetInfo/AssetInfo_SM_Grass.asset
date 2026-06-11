@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_Grass
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_Grass
-  displayName: SM_Grass
+  displayName: 풀

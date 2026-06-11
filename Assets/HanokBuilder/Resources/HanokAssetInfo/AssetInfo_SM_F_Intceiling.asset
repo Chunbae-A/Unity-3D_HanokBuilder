@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_F_Intceiling
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_F_Intceiling
-  displayName: SM_F_Intceiling
+  displayName: 실내천장

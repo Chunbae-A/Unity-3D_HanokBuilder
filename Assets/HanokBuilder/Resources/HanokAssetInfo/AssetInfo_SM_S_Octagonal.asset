@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_S_Octagonal
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_S_Octagonal
-  displayName: SM_S_Octagonal
+  displayName: 팔각석

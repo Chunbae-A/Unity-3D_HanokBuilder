@@ -32,7 +32,7 @@ public partial class HanokUIManager
         var lScroll = MakeScroll(leftRT, 104);
         assetContent = lScroll.transform.Find("Viewport/Content");
 
-        // ── 오른쪽 패널 (280px) ───────────────────────────
+        // ── 오른쪽 패널 (280px, AI 버튼으로 토글) ──────────
         var rightRT = NewRT(root, "Right");
         rightRT.anchorMin = new Vector2(1, 0); rightRT.anchorMax = new Vector2(1, 1);
         rightRT.pivot = new Vector2(1, 0.5f);
@@ -41,11 +41,16 @@ public partial class HanokUIManager
         BuildRightHeader(rightRT);
         var rScroll = MakeScroll(rightRT, 56);
         BuildEditPanel(rScroll.transform.Find("Viewport/Content"));
+        rightPanelRT = rightRT;
 
         // ── 가운데 뷰포트 툴바 + 뷰 스위처 + 하단 조작 힌트 ──
         BuildViewportToolbar(root);
         BuildViewSwitcher(root);
         BuildViewportHint(root);
+        BuildAIPromptWidget(root);
+
+        // 기본 상태: 우측 패널 숨김 → 가운데 뷰 영역 확장
+        SetRightPanelVisible(false);
     }
 
     // ── 왼쪽 헤더 (제목 + 검색창) ────────────────────────
@@ -120,11 +125,44 @@ public partial class HanokUIManager
         hdr.offsetMin = new Vector2(0, -56); hdr.offsetMax = Vector2.zero;
         hdr.GetComponent<Image>().color = NAVY;
 
-        var t = MakeLabel(hdr, "문화해설 카드", 13, Color.white, bold: true);
+        var t = MakeLabel(hdr, "AI 에셋 추천", 13, Color.white, bold: true);
         var tRT = t.GetComponent<RectTransform>();
         tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-12, 0);
+        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-44, 0);
         t.alignment = TextAlignmentOptions.Left;
+
+        // 패널 접기 버튼 — 반투명 원형 배경 + 흰색 화살표(▶)
+        // 누르면 패널이 닫히고 우측 하단 AI 토글 버튼이 다시 나타남
+        var foldRT = NewRT(hdr, "FoldBtn");
+        foldRT.anchorMin = new Vector2(1, 0.5f); foldRT.anchorMax = new Vector2(1, 0.5f);
+        foldRT.pivot = new Vector2(1, 0.5f);
+        foldRT.offsetMin = new Vector2(-40, -14); foldRT.offsetMax = new Vector2(-12, 14);
+
+        var foldImg = foldRT.GetComponent<Image>();
+        foldImg.sprite = AICircleSprite();
+        foldImg.type = Image.Type.Simple;
+        foldImg.color = new Color(1, 1, 1, 0.12f);
+
+        var foldBtn = foldRT.gameObject.AddComponent<Button>();
+        foldBtn.targetGraphic = foldImg;
+        var fcs = foldBtn.colors;
+        fcs.normalColor = new Color(1, 1, 1, 0.12f);
+        fcs.highlightedColor = new Color(1, 1, 1, 0.24f);
+        fcs.pressedColor = new Color(1, 1, 1, 0.36f);
+        foldBtn.colors = fcs;
+        foldBtn.onClick.AddListener(() => SetRightPanelVisible(false));
+
+        // 화살표 아이콘 — 버튼 중앙에 작게 배치
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(foldRT, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRT.sizeDelta = new Vector2(11, 11);
+        var arrowImg = arrowGO.AddComponent<Image>();
+        arrowImg.sprite = AITriangleSprite();
+        arrowImg.type = Image.Type.Simple;
+        arrowImg.color = new Color(1, 1, 1, 0.92f);
+        arrowImg.raycastTarget = false;
     }
 
     // ── 뷰포트 툴바 (가운데 왼쪽 플로팅) ─────────────────
@@ -257,6 +295,7 @@ public partial class HanokUIManager
         bar.offsetMax = new Vector2(-284,  -4);
         bar.GetComponent<Image>().color = new Color(1, 1, 1, 0.88f);
         AddRoundOutline(bar, BORDER);
+        viewSwitcherRT = bar;
 
         var hlg = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = 2; hlg.padding = new RectOffset(2, 2, 2, 2);
@@ -326,6 +365,7 @@ public partial class HanokUIManager
         bg.offsetMin = new Vector2(284, 0);
         bg.offsetMax = new Vector2(-284, 22);
         bg.GetComponent<Image>().color = new Color(0.05f, 0.05f, 0.1f, 0.45f);
+        viewportHintRT = bg;
 
         const string HINT =
             "선택모드: 클릭=선택  드래그=이동  |  우클릭: 카메라회전  |  휠: 줌  |  " +
@@ -414,54 +454,6 @@ public partial class HanokUIManager
         return t;
     }
 
-    // InputField 생성
-    TMP_InputField MakeInputField(Transform parent)
-    {
-        var go = new GameObject("IF");
-        go.transform.SetParent(parent, false);
-        go.AddComponent<RectTransform>();
-        var img = go.AddComponent<Image>();
-        img.color = BG_INPUT;
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = BORDER;
-        outline.effectDistance = new Vector2(1, -1);
-
-        var area = new GameObject("A");
-        area.transform.SetParent(go.transform, false);
-        var aRT = area.AddComponent<RectTransform>();
-        aRT.anchorMin = Vector2.zero; aRT.anchorMax = Vector2.one;
-        aRT.offsetMin = new Vector2(6, 1); aRT.offsetMax = new Vector2(-6, -1);
-        area.AddComponent<RectMask2D>();
-
-        var tgo = new GameObject("T");
-        tgo.transform.SetParent(area.transform, false);
-        var tRT = tgo.AddComponent<RectTransform>();
-        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = tRT.offsetMax = Vector2.zero;
-        var t = tgo.AddComponent<TextMeshProUGUI>();
-        t.fontSize = 11; t.color = TEXT_MAIN;
-        LatFont(t);
-
-        var pgo = new GameObject("P");
-        pgo.transform.SetParent(area.transform, false);
-        var pRT = pgo.AddComponent<RectTransform>();
-        pRT.anchorMin = Vector2.zero; pRT.anchorMax = Vector2.one;
-        pRT.offsetMin = pRT.offsetMax = Vector2.zero;
-        var ph = pgo.AddComponent<TextMeshProUGUI>();
-        ph.text = "0.00"; ph.fontSize = 11; ph.color = TEXT_HINT;
-        LatFont(ph);
-
-        var f = go.AddComponent<TMP_InputField>();
-        f.targetGraphic  = img;
-        f.textViewport   = aRT;
-        f.textComponent  = t;
-        f.placeholder    = ph;
-        f.contentType    = TMP_InputField.ContentType.DecimalNumber;
-        f.caretColor     = NAVY;
-        f.selectionColor = new Color(NAVY.r, NAVY.g, NAVY.b, 0.25f);
-        return f;
-    }
-
     void Spacer(Transform p, float h)
     {
         var go = new GameObject("Sp");
@@ -475,16 +467,6 @@ public partial class HanokUIManager
         go.transform.SetParent(p, false);
         go.AddComponent<LayoutElement>().preferredHeight = 1;
         go.AddComponent<Image>().color = col ?? BORDER;
-    }
-
-    Transform RowBox(Transform p, string name, float h, Color? bg = null)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(p, false);
-        var le = go.AddComponent<LayoutElement>();
-        le.preferredHeight = h; le.flexibleWidth = 1;
-        go.AddComponent<Image>().color = bg ?? BG_CARD;
-        return go.transform;
     }
 
     void EnsureEventSystem()

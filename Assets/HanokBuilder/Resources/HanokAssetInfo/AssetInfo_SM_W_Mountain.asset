@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_W_Mountain
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_W_Mountain
-  displayName: SM_W_Mountain
+  displayName: 산벽

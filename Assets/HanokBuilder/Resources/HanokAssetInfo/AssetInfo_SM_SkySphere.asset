@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_SkySphere
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_SkySphere
-  displayName: SM_SkySphere
+  displayName: 하늘

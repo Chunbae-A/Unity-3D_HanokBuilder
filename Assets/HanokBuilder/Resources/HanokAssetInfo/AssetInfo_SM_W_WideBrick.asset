@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_W_WideBrick
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_W_WideBrick
-  displayName: SM_W_WideBrick
+  displayName: 넓은벽돌벽

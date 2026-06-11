@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_Plane
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: Plane
-  displayName: Plane
+  displayName: 바닥(평면)

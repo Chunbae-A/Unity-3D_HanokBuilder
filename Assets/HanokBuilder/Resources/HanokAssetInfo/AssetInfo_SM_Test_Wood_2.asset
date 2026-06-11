@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: AssetInfo_SM_Test_Wood_2
   m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
   assetKey: SM_Test_Wood_2
-  displayName: SM_Test_Wood_2
+  displayName: 테스트_나무_2
