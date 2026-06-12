@@ -15,6 +15,11 @@
 /[Uu]ser[Ss]ettings/
 *.log
 .cladue
+
+# Unity Editor crash/asset recovery data (auto-generated, not project content)
+/Assets/_Recovery/
+/Assets/_Recovery.meta
+
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
 *.blend1.meta
@@ -36,6 +41,9 @@
 
 # Visual Studio cache directory
 .vs/
+
+# VS Code editor settings (personal, not project-wide)
+.vscode/
 
 # Gradle cache directory
 .gradle/
@@ -109,3 +117,9 @@ InitTestScene*.unity*
 # Add your own FBX/Prefab to Assets/HanokBuilder/Resources/HanokAssets/ locally
 Assets/HanokBuilder/Resources/HanokAssets/*.fbx
 Assets/HanokBuilder/Resources/HanokAssets/*.FBX
+
+# HanokBuilder — Claude API key (local-only, do not commit)
+Assets/HanokBuilder/Resources/ClaudeApiConfig.asset
+Assets/HanokBuilder/Resources/ClaudeApiConfig.asset.meta
+Assets/Resources/ClaudeApiConfig.asset
+Assets/Resources/ClaudeApiConfig.asset.meta
