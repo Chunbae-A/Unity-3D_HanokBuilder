@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git lfs *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git rm *)",
+      "Bash(cat >> *)",
+      "Bash(git commit *)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); Get-Command gh -ErrorAction SilentlyContinue | Select-Object Source)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\\\\GitHub CLI\\\\\" -ErrorAction SilentlyContinue; Get-ChildItem \"$env:LOCALAPPDATA\\\\Programs\\\\gh\" -ErrorAction SilentlyContinue; Get-ChildItem \"C:\\\\Users\\\\akkn9\\\\AppData\\\\Local\\\\Programs\" -ErrorAction SilentlyContinue | Select-Object Name)",
+      "PowerShell(winget install --id GitHub.cli --accept-package-agreements --accept-source-agreements 2>&1)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); gh --version)",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); Set-Location \"d:\\\\akkn9\\\\Desktop\\\\3d_kor_unity\\\\a\\\\My project\"; gh auth status 2>&1)",
+      "PowerShell($cred = Get-StoredCredential -Target \"github.com\" -ErrorAction SilentlyContinue; if \\($cred\\) { \"Found: $\\($cred.UserName\\)\" } else { \"Not found via Get-StoredCredential\" })",
+      "PowerShell($env:Path = [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"Machine\"\\) + \";\" + [System.Environment]::GetEnvironmentVariable\\(\"Path\",\"User\"\\); $cmd = [System.Text.Encoding]::Unicode.GetString\\([System.Convert]::FromBase64String\\(\"ZwBpAHQAIABjAHIAZQBkAGUAbgB0AGkAYQBsACAAZgBpAGwAbAAgAC0AaABlAGwAcAA=\"\\)\\); & \"C:\\\\Program Files \\(x86\\)\\\\Git\\\\cmd\\\\git.exe\" credential fill 2>&1)",
+      "Bash(cp \"C:/Windows/Fonts/malgun.ttf\" \"d:/akkn9/Desktop/3d_kor_unity/a/My project/Assets/HanokBuilder/Fonts/MalgunGothic.ttf\" && echo \"done\")",
+      "Bash(Remove-Item \"d:\\\\akkn9\\\\Desktop\\\\3d_kor_unity\\\\a\\\\My project\\\\Assets\\\\HanokBuilder\\\\Editor\\\\1.cs\" -Force)",
+      "Bash(Remove-Item \"d:\\\\akkn9\\\\Desktop\\\\3d_kor_unity\\\\a\\\\My project\\\\Assets\\\\HanokBuilder\\\\Editor\\\\1.cs.meta\" -Force)",
+      "Bash(Write-Host \"삭제 완료\")",
+      "Bash(gh issue *)",
+      "Bash(gh pr *)"
+    ],
+    "additionalDirectories": [
+      "d:\\akkn9\\Desktop\\3d_kor_unity\\a\\My project",
+      "C:\\Windows\\Fonts",
+      "d:\\akkn9\\Desktop\\3d_kor_unity\\a\\My project\\Assets\\HanokBuilder\\Editor"
+    ]
+  }
+}
