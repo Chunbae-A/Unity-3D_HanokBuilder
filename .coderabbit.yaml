@@ -1,0 +1,6 @@
+reviews:
+  path_filters:
+    # 553개 HanokAssetInfo 데이터 자산(ScriptableObject) — 코드 리뷰 대상 아님
+    - "!Assets/HanokBuilder/Resources/HanokAssetInfo/**"
+    # Unity가 자동 생성하는 .meta 파일 — 코드 리뷰 대상 아님
+    - "!**/*.meta"
