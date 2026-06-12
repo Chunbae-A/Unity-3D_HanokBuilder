@@ -21,6 +21,7 @@ public partial class HanokUIManager
         cvs.matchWidthOrHeight  = 0.5f;
         cv.gameObject.AddComponent<GraphicRaycaster>();
         var root = cv.transform;
+        _canvasRT = cv.GetComponent<RectTransform>();
 
         // ── 왼쪽 패널 (280px) ────────────────────────────
         var leftRT = NewRT(root, "Left");
@@ -43,10 +44,14 @@ public partial class HanokUIManager
         BuildEditPanel(rScroll.transform.Find("Viewport/Content"));
         rightPanelRT = rightRT;
 
-        // ── 가운데 뷰포트 툴바 + 뷰 스위처 + 하단 조작 힌트 ──
+        // ── 가운데 뷰포트 툴바 + 배경 선택 + 하단 조작 힌트 + 스케일 핸들 ──
         BuildViewportToolbar(root);
-        BuildViewSwitcher(root);
+        BuildBackgroundSelector(root);
+        BuildViewOrientationBadge(root);
         BuildViewportHint(root);
+        BuildScaleHandle(root);
+        BuildCaptureFlash(root);
+        BuildToast(root);
         BuildAIPromptWidget(root);
 
         // 기본 상태: 우측 패널 숨김 → 가운데 뷰 영역 확장
@@ -170,186 +175,199 @@ public partial class HanokUIManager
     {
         var panel = NewRT(root, "Toolbar");
         panel.anchorMin = new Vector2(0, 0.5f); panel.anchorMax = new Vector2(0, 0.5f);
-        panel.pivot = new Vector2(0, 0.5f);
-        // 높이: 46*4(툴) + 1(구분) + 44(지우기) + 1(구분) + 40(뷰초기화) = 270px
-        panel.offsetMin = new Vector2(288, -135); panel.offsetMax = new Vector2(338, 135);
-        var img = panel.gameObject.GetComponent<Image>();
-        img.color = new Color(1, 1, 1, 0.92f);
-        AddRoundOutline(panel, BORDER);
+        panel.pivot     = new Vector2(0, 0.5f);
+        // 3툴×56 + 3btn×40 + 4div + spacing14 + pad10 = 318px
+        panel.offsetMin = new Vector2(288, -159);
+        panel.offsetMax = new Vector2(346,  159);
+        var panImg = panel.gameObject.GetComponent<Image>();
+        panImg.color = new Color(0.10f, 0.12f, 0.16f, 0.90f);
+        var panOutline = panel.gameObject.AddComponent<Outline>();
+        panOutline.effectColor    = new Color(1f, 1f, 1f, 0.08f);
+        panOutline.effectDistance = new Vector2(1, -1);
 
         var vlg = panel.gameObject.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 2; vlg.padding = new RectOffset(4, 4, 4, 4);
+        vlg.spacing = 2; vlg.padding = new RectOffset(4, 4, 5, 5);
         vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
 
-        // 툴 정의 — 라벨 + 단축키 힌트 (1/2/3/4)
-        var tools = new (string label, string key, EditTool tool)[]
+        // ── 도구 버튼 (이동 / 회전 / 크기 / 삭제) ───────
+        var tools = new (string lbl, string key, EditTool tool)[]
         {
-            ("선택", "1", EditTool.Select),
-            ("이동", "2", EditTool.Move),
-            ("회전", "3", EditTool.Rotate),
+            ("이동", "1", EditTool.Select),
+            ("회전", "2", EditTool.Rotate),
+            ("크기", "3", EditTool.Scale),
             ("삭제", "4", EditTool.Delete),
         };
 
         toolBtns = new Button[tools.Length];
         for (int i = 0; i < tools.Length; i++)
         {
-            int idx = i;
-            var (label, key, tool) = tools[i];
+            var (lbl, key, tool) = tools[i];
+            bool isDel = (tool == EditTool.Delete);
+
             var go = new GameObject("Tool_" + tool);
             go.transform.SetParent(panel, false);
-            var le = go.AddComponent<LayoutElement>();
-            le.preferredHeight = 46; le.flexibleWidth = 1;
+            go.AddComponent<LayoutElement>().preferredHeight = 56;
+
             var btnImg = go.AddComponent<Image>();
-            btnImg.color = (i == 0) ? NAVY : BTN_GHOST;
+            btnImg.color = (i == 0) ? new Color(1f, 1f, 1f, 0.15f) : Color.clear;
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = btnImg;
             var cs = btn.colors;
-            cs.highlightedColor = Hex("#D0CCBF"); cs.pressedColor = NAVY;
+            cs.normalColor      = btnImg.color;
+            cs.highlightedColor = new Color(1f, 1f, 1f, 0.22f);
+            cs.pressedColor     = isDel ? new Color(0.80f, 0.15f, 0.12f, 0.90f)
+                                        : new Color(0.11f, 0.23f, 0.42f, 0.90f);
             btn.colors = cs;
             btn.onClick.AddListener(() => SetTool(tool));
             toolBtns[i] = btn;
 
-            // 메인 라벨
-            var lbl = MakeLabel(go.transform, label, 10,
-                (i == 0) ? Color.white : TEXT_SUB);
-            var lRT = lbl.GetComponent<RectTransform>();
-            lRT.anchorMin = new Vector2(0, 0.35f); lRT.anchorMax = Vector2.one;
-            lRT.offsetMin = lRT.offsetMax = Vector2.zero;
-            lbl.alignment = TextAlignmentOptions.Center;
-            KorFont(lbl);
+            Color iconCol = (i == 0) ? Color.white
+                          : isDel    ? new Color(1f, 0.50f, 0.46f)
+                          :            new Color(1f, 1f, 1f, 0.55f);
+            var ic = MakeLabel(go.transform, lbl, 12f, iconCol, bold: true);
+            var iRT = ic.GetComponent<RectTransform>();
+            iRT.anchorMin = new Vector2(0, 0.44f); iRT.anchorMax = Vector2.one;
+            iRT.offsetMin = iRT.offsetMax = Vector2.zero;
+            ic.alignment = TextAlignmentOptions.Center;
+            KorFont(ic);
 
-            // 단축키 힌트 라벨
-            var hint = MakeLabel(go.transform, "[" + key + "]", 7,
-                (i == 0) ? new Color(1,1,1,0.55f) : TEXT_HINT);
+            var hintCol = (i == 0) ? new Color(1f, 1f, 1f, 0.40f) : new Color(1f, 1f, 1f, 0.22f);
+            var hint = MakeLabel(go.transform, key, 8f, hintCol);
             var hRT = hint.GetComponent<RectTransform>();
-            hRT.anchorMin = Vector2.zero; hRT.anchorMax = new Vector2(1, 0.38f);
+            hRT.anchorMin = Vector2.zero; hRT.anchorMax = new Vector2(1f, 0.46f);
             hRT.offsetMin = hRT.offsetMax = Vector2.zero;
             hint.alignment = TextAlignmentOptions.Center;
             LatFont(hint);
         }
 
-        // 구분선
-        var divGO = new GameObject("Div");
-        divGO.transform.SetParent(panel, false);
-        divGO.AddComponent<LayoutElement>().preferredHeight = 1;
-        divGO.AddComponent<Image>().color = BORDER;
+        // ── 구분선 ───────────────────────────────────────
+        ToolbarDivider(panel);
 
-        // 삭제 버튼 (선택 오브젝트)
-        var delGO = new GameObject("DelBtn");
-        delGO.transform.SetParent(panel, false);
-        var delLE = delGO.AddComponent<LayoutElement>();
-        delLE.preferredHeight = 44; delLE.flexibleWidth = 1;
-        var delImg = delGO.AddComponent<Image>();
-        delImg.color = BTN_GHOST;
-        var delBtn = delGO.AddComponent<Button>();
-        delBtn.targetGraphic = delImg;
-        delBtn.onClick.AddListener(DeleteSelected);
-        var delLbl = MakeLabel(delGO.transform, "지우기\n<size=7>[Del]</size>", 9, TEXT_SUB);
-        var dlRT = delLbl.GetComponent<RectTransform>();
-        dlRT.anchorMin = Vector2.zero; dlRT.anchorMax = Vector2.one;
-        dlRT.offsetMin = dlRT.offsetMax = Vector2.zero;
-        delLbl.alignment = TextAlignmentOptions.Center;
-        KorFont(delLbl);
+        // ── 뷰 초기화 버튼 ───────────────────────────────
+        AddToolbarSmallBtn(panel, "초기화", "H",
+            new Color(1f, 1f, 1f, 0.50f), Color.clear,
+            new Color(1f, 1f, 1f, 0.18f), new Color(1f, 1f, 1f, 0.32f),
+            () => Camera.main?.GetComponent<HanokCameraController>()?.ResetView(),
+            out _);
 
-        // ── 구분선 ──
-        var div2GO = new GameObject("Div2");
-        div2GO.transform.SetParent(panel, false);
-        div2GO.AddComponent<LayoutElement>().preferredHeight = 1;
-        div2GO.AddComponent<Image>().color = BORDER;
+        ToolbarDivider(panel);
 
-        // 뷰 초기화 버튼 (Home)
-        var viewGO = new GameObject("ViewResetBtn");
-        viewGO.transform.SetParent(panel, false);
-        var viewLE = viewGO.AddComponent<LayoutElement>();
-        viewLE.preferredHeight = 40; viewLE.flexibleWidth = 1;
-        var viewImg = viewGO.AddComponent<Image>();
-        viewImg.color = Hex("#EAE6DF");
-        var viewBtn = viewGO.AddComponent<Button>();
-        viewBtn.targetGraphic = viewImg;
-        var vcs = viewBtn.colors;
-        vcs.highlightedColor = Hex("#D8D4CC");
-        vcs.pressedColor     = NAVY_LIGHT;
-        viewBtn.colors = vcs;
-        viewBtn.onClick.AddListener(() =>
-            Camera.main?.GetComponent<HanokCameraController>()?.ResetView());
-
-        var viewLbl = MakeLabel(viewGO.transform, "뷰\n<size=7>[Home]</size>", 9, TEXT_SUB);
-        var vlRT = viewLbl.GetComponent<RectTransform>();
-        vlRT.anchorMin = Vector2.zero; vlRT.anchorMax = Vector2.one;
-        vlRT.offsetMin = vlRT.offsetMax = Vector2.zero;
-        viewLbl.alignment = TextAlignmentOptions.Center;
-        KorFont(viewLbl);
+        // ── 캡처 버튼 ────────────────────────────────────
+        AddToolbarSmallBtn(panel, "캡처", "P",
+            new Color(0.55f, 0.82f, 1.00f, 0.70f), Color.clear,
+            new Color(1f, 1f, 1f, 0.18f), new Color(0.15f, 0.55f, 0.90f, 0.60f),
+            () => TriggerCapture(),
+            out _);
     }
 
-    // ── 뷰 스위처 (뷰포트 우상단) ────────────────────────
-    // 버튼 클릭 시 카메라 뷰 프리셋 전환
-    void BuildViewSwitcher(Transform root)
+    void ToolbarDivider(Transform parent)
     {
-        // 뷰포트 우상단에 고정, 오른쪽 패널 왼쪽 경계에 붙임
-        var bar = NewRT(root, "ViewSwitcher");
-        bar.anchorMin = new Vector2(1f, 1f);
-        bar.anchorMax = new Vector2(1f, 1f);
-        bar.pivot     = new Vector2(1f, 1f);
-        // 너비: 5버튼×46px + 4gap×3px = 242px
-        bar.offsetMin = new Vector2(-522, -36);
-        bar.offsetMax = new Vector2(-284,  -4);
-        bar.GetComponent<Image>().color = new Color(1, 1, 1, 0.88f);
+        var d = new GameObject("Div"); d.transform.SetParent(parent, false);
+        d.AddComponent<LayoutElement>().preferredHeight = 1;
+        d.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.10f);
+    }
+
+    void AddToolbarSmallBtn(Transform parent,
+        string label, string keyHint,
+        Color labelCol, Color normalBg, Color hoverBg, Color pressBg,
+        System.Action onClick, out Image bgImg)
+    {
+        var go = new GameObject("Btn_" + label);
+        go.transform.SetParent(parent, false);
+        go.AddComponent<LayoutElement>().preferredHeight = 40;
+        bgImg = go.AddComponent<Image>(); bgImg.color = normalBg;
+        var btn = go.AddComponent<Button>(); btn.targetGraphic = bgImg;
+        var cs = btn.colors;
+        cs.normalColor = normalBg; cs.highlightedColor = hoverBg; cs.pressedColor = pressBg;
+        btn.colors = cs;
+        btn.onClick.AddListener(() => onClick?.Invoke());
+
+        var ic = MakeLabel(go.transform, label, 9.5f, labelCol, bold: true);
+        var iRT = ic.GetComponent<RectTransform>();
+        iRT.anchorMin = new Vector2(0, 0.44f); iRT.anchorMax = Vector2.one;
+        iRT.offsetMin = iRT.offsetMax = Vector2.zero;
+        ic.alignment  = TextAlignmentOptions.Center;
+        if (HasKorean(label)) KorFont(ic); else LatFont(ic);
+
+        var kh = MakeLabel(go.transform, keyHint, 7.5f, new Color(1f, 1f, 1f, 0.22f));
+        var kRT = kh.GetComponent<RectTransform>();
+        kRT.anchorMin = Vector2.zero; kRT.anchorMax = new Vector2(1f, 0.46f);
+        kRT.offsetMin = kRT.offsetMax = Vector2.zero;
+        kh.alignment  = TextAlignmentOptions.Center;
+        LatFont(kh);
+    }
+
+    // ── 배경 선택기 (뷰포트 상단 중앙) ──────────────────
+    void BuildBackgroundSelector(Transform root)
+    {
+        var bar = NewRT(root, "BgSelector");
+        bar.anchorMin = new Vector2(0.5f, 1f);
+        bar.anchorMax = new Vector2(0.5f, 1f);
+        bar.pivot     = new Vector2(0.5f, 1f);
+        // 4버튼×82px + 3gap×3px + padding6 = 343px, 높이 68px
+        bar.offsetMin = new Vector2(-171, -72);
+        bar.offsetMax = new Vector2( 171,  -4);
+        bar.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.96f);
         AddRoundOutline(bar, BORDER);
         viewSwitcherRT = bar;
 
         var hlg = bar.gameObject.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 2; hlg.padding = new RectOffset(2, 2, 2, 2);
+        hlg.spacing = 3; hlg.padding = new RectOffset(3, 3, 3, 3);
         hlg.childForceExpandWidth = true; hlg.childForceExpandHeight = true;
 
-        // (라벨, 프리셋) 쌍 정의
-        var presets = new (string lbl, HanokCameraController.ViewPreset preset)[]
+        // 이름 / 설명 / 분위기 색
+        var presets = new (string name, string desc, string atmo)[]
         {
-            ("3D",  HanokCameraController.ViewPreset.Perspective),
-            ("위↓", HanokCameraController.ViewPreset.Top),
-            ("앞",  HanokCameraController.ViewPreset.Front),
-            ("뒤",  HanokCameraController.ViewPreset.Back),
-            ("우",  HanokCameraController.ViewPreset.Right),
+            ("한옥 마당", "청명한 낮",   "#8BBCD4"),
+            ("사랑채",   "온화한 빛",   "#C4A050"),
+            ("조선 장터", "흐린 하늘",   "#8A9FB0"),
+            ("전통 정원", "초록 향기",   "#5CA87A"),
         };
 
-        foreach (var (lbl, preset) in presets)
+        _bgBtns = new Button[presets.Length];
+        for (int i = 0; i < presets.Length; i++)
         {
-            var go = new GameObject("VP_" + preset);
+            int ci = i;
+            var (name, desc, atmo) = presets[i];
+            Color atmoCol; ColorUtility.TryParseHtmlString(atmo, out atmoCol);
+
+            var go = new GameObject("BG_" + i);
             go.transform.SetParent(bar, false);
             go.AddComponent<RectTransform>();
             var img = go.AddComponent<Image>();
-            img.color = (preset == HanokCameraController.ViewPreset.Perspective)
-                ? NAVY : BTN_GHOST;
+            img.color = (i == 0) ? NAVY : BTN_GHOST;
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = img;
             var cs = btn.colors;
-            cs.normalColor      = img.color;
-            cs.highlightedColor = Hex("#D0CCBF");
-            cs.pressedColor     = NAVY;
+            cs.highlightedColor = Hex("#D0CCBF"); cs.pressedColor = NAVY;
             btn.colors = cs;
+            btn.onClick.AddListener(() => SelectBgPreset(ci));
+            _bgBtns[i] = btn;
 
-            // 클릭 시 뷰 전환 + 모든 버튼 색 갱신
-            btn.onClick.AddListener(() =>
-            {
-                Camera.main?.GetComponent<HanokCameraController>()?.SetViewPreset(preset);
-                // 버튼 색 갱신 — bar 안의 모든 버튼 순회
-                int idx = 0;
-                foreach (Transform child in bar)
-                {
-                    var ci = child.GetComponent<Image>();
-                    if (ci != null)
-                        ci.color = (presets[idx].preset == preset) ? NAVY : BTN_GHOST;
-                    idx++;
-                }
-            });
+            // 상단 분위기 색 띠 (항상 고정 표시)
+            var strip = new GameObject("Atmo"); strip.transform.SetParent(go.transform, false);
+            var sRT = strip.AddComponent<RectTransform>();
+            sRT.anchorMin = new Vector2(0, 0.82f); sRT.anchorMax = Vector2.one;
+            sRT.offsetMin = sRT.offsetMax = Vector2.zero;
+            strip.AddComponent<Image>().color = new Color(atmoCol.r, atmoCol.g, atmoCol.b, 0.85f);
 
-            var t = MakeLabel(go.transform, lbl, 9,
-                (preset == HanokCameraController.ViewPreset.Perspective)
-                    ? Color.white : TEXT_SUB);
+            // 이름 (중간)
+            var t = MakeLabel(go.transform, name, 10f,
+                (i == 0) ? Color.white : TEXT_MAIN, bold: true);
             var tRT = t.GetComponent<RectTransform>();
-            tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+            tRT.anchorMin = new Vector2(0, 0.36f); tRT.anchorMax = new Vector2(1, 0.82f);
             tRT.offsetMin = tRT.offsetMax = Vector2.zero;
             t.alignment = TextAlignmentOptions.Center;
             KorFont(t);
+
+            // 설명 (하단)
+            var d = MakeLabel(go.transform, desc, 7.5f,
+                (i == 0) ? new Color(1, 1, 1, 0.65f) : TEXT_HINT);
+            var dRT = d.GetComponent<RectTransform>();
+            dRT.anchorMin = Vector2.zero; dRT.anchorMax = new Vector2(1, 0.40f);
+            dRT.offsetMin = new Vector2(2, 2); dRT.offsetMax = new Vector2(-2, 0);
+            d.alignment = TextAlignmentOptions.Center;
+            KorFont(d);
         }
     }
 
@@ -368,8 +386,9 @@ public partial class HanokUIManager
         viewportHintRT = bg;
 
         const string HINT =
-            "선택모드: 클릭=선택  드래그=이동  |  우클릭: 카메라회전  |  휠: 줌  |  " +
-            "중간버튼: 패닝  |  F: 포커스  |  Home: 뷰초기화  |  1선택  2이동  3회전  4삭제";
+            "클릭=선택  드래그=이동  |  우클릭: 카메라회전  |  휠: 줌  |  " +
+            "중간버튼: 패닝  |  F: 포커스  |  H: 뷰초기화  |  Ctrl+Z: Undo  |  Ctrl+D: 복제  |  " +
+            "1이동  2회전  3크기  4삭제";
 
         var t = MakeLabel(bg, HINT, 7.5f, new Color(1f, 1f, 1f, 0.85f));
         var tRT = t.GetComponent<RectTransform>();
@@ -377,6 +396,70 @@ public partial class HanokUIManager
         tRT.offsetMin = new Vector2(8, 0); tRT.offsetMax = new Vector2(-8, 0);
         t.alignment = TextAlignmentOptions.Center;
         KorFont(t);
+    }
+
+    void BuildViewOrientationBadge(Transform root)
+    {
+        var badge = NewRT(root, "ViewBadge");
+        badge.anchorMin = new Vector2(1f, 1f);
+        badge.anchorMax = new Vector2(1f, 1f);
+        badge.pivot     = new Vector2(1f, 1f);
+        badge.offsetMin = new Vector2(-348, -36);
+        badge.offsetMax = new Vector2(-290,  -6);
+        badge.gameObject.GetComponent<Image>().color = new Color(0.10f, 0.12f, 0.16f, 0.82f);
+        var ol = badge.gameObject.AddComponent<Outline>();
+        ol.effectColor = new Color(1f, 1f, 1f, 0.10f); ol.effectDistance = new Vector2(1, -1);
+        var tgo = new GameObject("T"); tgo.transform.SetParent(badge, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(5, 2); tRT.offsetMax = new Vector2(-5, -2);
+        _viewBadgeText = tgo.AddComponent<TextMeshProUGUI>();
+        _viewBadgeText.text = "3D"; _viewBadgeText.fontSize = 9.5f;
+        _viewBadgeText.fontStyle = FontStyles.Bold;
+        _viewBadgeText.color = new Color(1f, 1f, 1f, 0.65f);
+        _viewBadgeText.alignment = TextAlignmentOptions.Center;
+        KorFont(_viewBadgeText);
+    }
+
+    void BuildCaptureFlash(Transform root)
+    {
+        var flash = NewRT(root, "CaptureFlash");
+        flash.anchorMin = Vector2.zero; flash.anchorMax = Vector2.one;
+        flash.offsetMin = flash.offsetMax = Vector2.zero;
+        var img = flash.gameObject.GetComponent<Image>();
+        img.color = new Color(1f, 1f, 1f, 0f);
+        img.raycastTarget = false;
+        _captureFlash = flash.gameObject;
+        _captureFlash.SetActive(false);
+    }
+
+    void BuildToast(Transform root)
+    {
+        var toast = NewRT(root, "Toast");
+        toast.anchorMin = new Vector2(0.5f, 0f);
+        toast.anchorMax = new Vector2(0.5f, 0f);
+        toast.pivot     = new Vector2(0.5f, 0f);
+        toast.offsetMin = new Vector2(-210, 28);
+        toast.offsetMax = new Vector2( 210, 62);
+        var toastImg = toast.gameObject.GetComponent<Image>();
+        toastImg.color = new Color(0.08f, 0.08f, 0.12f, 0f);
+        toastImg.raycastTarget = false;
+        var ol = toast.gameObject.AddComponent<Outline>();
+        ol.effectColor = new Color(1f, 1f, 1f, 0.12f); ol.effectDistance = new Vector2(1, -1);
+        var tgo = new GameObject("T"); tgo.transform.SetParent(toast, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(14, 3); tRT.offsetMax = new Vector2(-14, -3);
+        _toastText = tgo.AddComponent<TextMeshProUGUI>();
+        _toastText.text = ""; _toastText.fontSize = 9.5f;
+        _toastText.color = new Color(1f, 1f, 1f, 0f);
+        _toastText.alignment = TextAlignmentOptions.Center;
+        _toastText.overflowMode = TextOverflowModes.Ellipsis;
+        _toastText.enableWordWrapping = false;
+        _toastText.raycastTarget = false;
+        KorFont(_toastText);
+        _toastGO = toast.gameObject;
+        _toastGO.SetActive(false);
     }
 
     // ── 스크롤뷰 ─────────────────────────────────────────
@@ -469,11 +552,56 @@ public partial class HanokUIManager
         go.AddComponent<Image>().color = col ?? BORDER;
     }
 
+    Transform RowBox(Transform p, string name, float h, Color? bg = null)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(p, false);
+        var le = go.AddComponent<LayoutElement>();
+        le.preferredHeight = h; le.flexibleWidth = 1;
+        go.AddComponent<Image>().color = bg ?? BG_CARD;
+        return go.transform;
+    }
+
+    // ── 뷰포트 스케일 핸들 (선택 오브젝트 위에 플로팅) ────
+    void BuildScaleHandle(Transform root)
+    {
+        var go = new GameObject("ScaleHandle");
+        go.transform.SetParent(root, false);
+        _scaleHandleGO = go;
+
+        _scaleHandleRT = go.AddComponent<RectTransform>();
+        _scaleHandleRT.anchorMin = new Vector2(0.5f, 0.5f);
+        _scaleHandleRT.anchorMax = new Vector2(0.5f, 0.5f);
+        _scaleHandleRT.pivot     = new Vector2(0.5f, 0.0f);
+        _scaleHandleRT.sizeDelta = new Vector2(82f, 26f);
+
+        _scaleHandleImg = go.AddComponent<Image>();
+        _scaleHandleImg.color = new Color(0.10f, 0.62f, 0.92f, 0.95f);
+        var ol = go.AddComponent<Outline>();
+        ol.effectColor    = new Color(1f, 1f, 1f, 0.30f);
+        ol.effectDistance = new Vector2(1f, -1f);
+
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(5f, 3f); tRT.offsetMax = new Vector2(-5f, -3f);
+        _scaleHandleText = tgo.AddComponent<TextMeshProUGUI>();
+        _scaleHandleText.text      = "↔  1.0×";
+        _scaleHandleText.fontSize  = 9f;
+        _scaleHandleText.color     = Color.white;
+        _scaleHandleText.alignment = TextAlignmentOptions.Center;
+        LatFont(_scaleHandleText);
+
+        go.SetActive(false);
+    }
+
     void EnsureEventSystem()
     {
         if (FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() != null) return;
         var es = new GameObject("EventSystem");
         es.AddComponent<UnityEngine.EventSystems.EventSystem>();
-        es.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+        // New Input System(activeInputHandler=1) 환경에서 StandaloneInputModule은 동작 안 함
+        es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
     }
 }

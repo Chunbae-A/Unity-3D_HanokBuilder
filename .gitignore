@@ -14,6 +14,7 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 *.log
+.cladue
 
 # Unity Editor crash/asset recovery data (auto-generated, not project content)
 /Assets/_Recovery/

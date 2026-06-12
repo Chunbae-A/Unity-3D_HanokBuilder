@@ -334,8 +334,11 @@ public partial class HanokUIManager
             if (ch.gameObject != _mainFilterGO && ch.gameObject != _subFilterGO)
                 children.Add(ch.gameObject);
         }
+        // 삭제 전 RenderTexture GPU 메모리 해제
         foreach (var ch in children)
-            DestroyImmediate(ch);
+            foreach (var ri in ch.GetComponentsInChildren<RawImage>())
+                if (ri.texture is RenderTexture oldRt) { oldRt.Release(); Destroy(oldRt); }
+        foreach (var ch in children) DestroyImmediate(ch);
 
         var filtered = GetFilteredAssets();
         if (filtered.Count == 0)
@@ -571,23 +574,70 @@ public partial class HanokUIManager
         inst.hideFlags = HideFlags.HideAndDontSave;
         SetLayerAll(inst, THUMB_LAYER);
 
+        // FBX 재질 색상 보존: 깨진 셰이더를 URP/Lit으로 교체하면서 원본 색상 유지
+        FixMaterialColors(inst);
+
         var rends = inst.GetComponentsInChildren<Renderer>();
         var bounds = GetRendererBounds(rends, inst.transform.position);
         FitThumbnailCamera(bounds);
 
+        // 아이소메트릭 스타일 각도 (약간 옆+위)
+        float dist = Mathf.Max(bounds.size.magnitude * 1.35f, 0.5f);
+        _thumbCam.transform.position =
+            bounds.center + new Vector3(1.1f, 0.85f, -1.05f).normalized * dist;
+        _thumbCam.transform.LookAt(bounds.center);
+
+        // 해상도 128×128 + 4x MSAA (선명도 개선)
         var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
+        rt.antiAliasing = 4;
         _thumbCam.targetTexture = rt;
         _thumbCam.Render();
         _thumbCam.targetTexture = null;
 
-        if (target != null)
-        {
-            target.texture = rt;
-            target.color = Color.white;
-        }
-
-        inst.SetActive(false);
+        if (target != null) { target.texture = rt; target.color = Color.white; }
+        else { rt.Release(); Destroy(rt); }
         Destroy(inst);
+    }
+
+    // FBX 재질 색상 보존 — Standard → URP 변환 시 색상·텍스처 유지
+    static void FixMaterialColors(GameObject obj)
+    {
+        var urpLit = Shader.Find("Universal Render Pipeline/Lit");
+        if (urpLit == null) return;
+
+        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        {
+            bool needFix = false;
+            foreach (var sm in r.sharedMaterials)
+            {
+                if (sm == null) continue;
+                var sn = sm.shader?.name ?? "";
+                if (sn == "Hidden/InternalErrorShader" || sn == "Standard" || sn == "")
+                    needFix = true;
+            }
+            if (!needFix) continue;
+
+            var mats = r.materials;
+            for (int i = 0; i < mats.Length; i++)
+            {
+                var m = mats[i];
+                if (m == null) continue;
+                var sn = m.shader?.name ?? "";
+                if (sn != "Hidden/InternalErrorShader" && sn != "Standard" && sn != "") continue;
+
+                Color col = m.HasProperty("_Color")   ? m.GetColor("_Color")     : Color.white;
+                Texture tx = m.HasProperty("_MainTex") ? m.GetTexture("_MainTex") : null;
+
+                m.shader = urpLit;
+                if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", col);
+                if (m.HasProperty("_Color"))     m.SetColor("_Color",     col);
+                if (tx != null)
+                {
+                    if (m.HasProperty("_BaseMap"))  m.SetTexture("_BaseMap",  tx);
+                    if (m.HasProperty("_MainTex"))  m.SetTexture("_MainTex",  tx);
+                }
+            }
+        }
     }
 
     Bounds GetRendererBounds(Renderer[] rends, Vector3 fallbackCenter)
@@ -606,32 +656,25 @@ public partial class HanokUIManager
     {
         Vector3 viewDir = new Vector3(1f, 0.75f, -1f).normalized;
         Quaternion viewRot = Quaternion.LookRotation(-viewDir, Vector3.up);
-        Quaternion invRot = Quaternion.Inverse(viewRot);
+        Quaternion invRot  = Quaternion.Inverse(viewRot);
 
         Vector3 ext = bounds.extents;
         Vector3 cen = bounds.center;
-        float maxX = 0f;
-        float maxY = 0f;
-        float maxZ = 0f;
+        float maxX = 0f, maxY = 0f, maxZ = 0f;
 
         for (int x = -1; x <= 1; x += 2)
         for (int y = -1; y <= 1; y += 2)
         for (int z = -1; z <= 1; z += 2)
         {
             Vector3 corner = cen + Vector3.Scale(ext, new Vector3(x, y, z));
-            Vector3 local = invRot * (corner - cen);
+            Vector3 local  = invRot * (corner - cen);
             maxX = Mathf.Max(maxX, Mathf.Abs(local.x));
             maxY = Mathf.Max(maxY, Mathf.Abs(local.y));
             maxZ = Mathf.Max(maxZ, Mathf.Abs(local.z));
         }
 
-        float padding = 1.18f;
-        float aspect = 1f;
-        _thumbCam.orthographicSize = Mathf.Max(maxY, maxX / aspect, 0.5f) * padding;
-        _thumbCam.transform.rotation = viewRot;
-        _thumbCam.transform.position = cen + viewDir * Mathf.Max(maxZ + 10f, 10f);
         _thumbCam.nearClipPlane = 0.01f;
-        _thumbCam.farClipPlane = Mathf.Max(maxZ + 30f, 50f);
+        _thumbCam.farClipPlane  = Mathf.Max(maxZ + 30f, 50f);
     }
 
     void EnsureThumbCam()
@@ -639,22 +682,22 @@ public partial class HanokUIManager
         if (_thumbCam != null) return;
 
         var go = new GameObject("_HanokThumbCam");
-        go.hideFlags = HideFlags.HideAndDontSave;
-
-        _thumbCam = go.AddComponent<Camera>();
-        _thumbCam.enabled = false;
-        _thumbCam.clearFlags = CameraClearFlags.SolidColor;
-        _thumbCam.backgroundColor = Hex("#E8E4DC");
-        _thumbCam.orthographic = true;
-        _thumbCam.nearClipPlane = 0.01f;
-        _thumbCam.farClipPlane = 100f;
-        _thumbCam.cullingMask = 1 << THUMB_LAYER;
+        go.hideFlags  = HideFlags.HideAndDontSave;
+        _thumbCam     = go.AddComponent<Camera>();
+        _thumbCam.enabled          = false;
+        _thumbCam.clearFlags       = CameraClearFlags.SolidColor;
+        _thumbCam.backgroundColor  = Hex("#EEE8DC");
+        _thumbCam.fieldOfView      = 28f;
+        _thumbCam.nearClipPlane    = 0.05f;
+        _thumbCam.farClipPlane     = 20000f;
+        _thumbCam.cullingMask      = 1 << THUMB_LAYER;
+        _thumbCam.allowMSAA        = true;
 
         var lightGO = new GameObject("ThumbnailLight");
         lightGO.transform.SetParent(go.transform, false);
         lightGO.transform.localRotation = Quaternion.Euler(45f, -35f, 0f);
         var light = lightGO.AddComponent<Light>();
-        light.type = LightType.Directional;
+        light.type      = LightType.Directional;
         light.intensity = 1.8f;
         light.cullingMask = 1 << THUMB_LAYER;
     }
