@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -17,7 +18,7 @@ public partial class HanokUIManager : MonoBehaviour
     public TMP_FontAsset koreanFont;
 
     // ── 뷰포트 툴 모드 ────────────────────────────────────
-    public enum EditTool { Select, Move, Rotate, Delete }
+    public enum EditTool { Select, Rotate, Scale, Delete }
     EditTool currentTool = EditTool.Select;
 
     // ── 내부 상태 ─────────────────────────────────────────
@@ -28,6 +29,18 @@ public partial class HanokUIManager : MonoBehaviour
     TMP_InputField scaleF;
     Transform      assetContent;
     Button[]       toolBtns;
+    Button[]       _bgBtns;
+
+    // ── 실행 취소 ─────────────────────────────────────────
+    struct UndoEntry
+    {
+        public enum Op { Move, Spawn }
+        public Op op;
+        public GameObject obj;
+        public Vector3 prevPos;
+        public Quaternion prevRot;
+    }
+    System.Collections.Generic.List<UndoEntry> _undoStack = new();
 
     // ── 드래그 상태 ──────────────────────────────────────
     bool    _isDragging;
@@ -36,8 +49,29 @@ public partial class HanokUIManager : MonoBehaviour
     Vector3 _dragOffset;
     Plane   _dragPlane;
 
-    // ── 회전 기즈모 ──────────────────────────────────────
+    // ── 스케일 핸들 (뷰포트 플로팅 위젯) ─────────────────
+    GameObject    _scaleHandleGO;
+    RectTransform _scaleHandleRT;
+    TMP_Text      _scaleHandleText;
+    Image         _scaleHandleImg;
+    RectTransform _canvasRT;
+    bool          _shDragging;
+    Vector2       _shDragPrev;
+    const float   SH_FACTOR = 0.006f;   // px → scale 배율
+
+    // ── 기즈모 ──────────────────────────────────────────
     HanokRotationGizmo _rotGizmo;
+    HanokScaleGizmo    _scaleGizmo;
+
+    // ── 캡처·토스트·뷰 배지·격자 ─────────────────────────
+    GameObject  _captureFlash;
+    GameObject  _toastGO;
+    TMP_Text    _toastText;
+    TMP_Text    _viewBadgeText;
+    Image       _gridBtnImg;
+    bool        _gridVisible  = true;
+    bool        _capturing    = false;
+    Coroutine   _toastRoutine;
 
     // ── 라이트 테마 색상 팔레트 ───────────────────────────
     static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out Color c); return c; }
@@ -82,6 +116,9 @@ public partial class HanokUIManager : MonoBehaviour
             koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF")
                       ?? Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
 
+        // ── 한국어 동적 폰트 초기화 ─────────────────────────────
+        InitKoreanFont();
+
         // 씬 환경 초기화 (바닥·조명·카메라 배경)
         HanokSceneSetup.Setup();
 
@@ -90,10 +127,14 @@ public partial class HanokUIManager : MonoBehaviour
             Camera.main.GetComponent<HanokCameraController>() == null)
             Camera.main.gameObject.AddComponent<HanokCameraController>();
 
-        // 회전 기즈모 생성
-        _rotGizmo = gameObject.AddComponent<HanokRotationGizmo>();
+        // 기즈모 생성
+        _rotGizmo   = gameObject.AddComponent<HanokRotationGizmo>();
+        _scaleGizmo = gameObject.AddComponent<HanokScaleGizmo>();
 
         BuildUI();
+        // 격자 버튼을 초기 활성(ON) 상태 색상으로 동기화
+        if (_gridBtnImg != null)
+            _gridBtnImg.color = new Color(0.25f, 0.75f, 0.50f, 0.35f);
         LoadAssets();
         StartCoroutine(ForceLayout());
     }
@@ -101,13 +142,233 @@ public partial class HanokUIManager : MonoBehaviour
     void Update()
     {
         SyncTransformInputs();
-        HandleViewportClick();
+        HandleViewportScale();
+        HandleScaleHandleDrag();
+        if (!_shDragging) HandleViewportClick();
         HandleKeyboardShortcuts();
+        UpdateScaleHandle();
+        UpdateViewBadge();
+    }
+
+    // ── Ctrl+스크롤 → 선택 오브젝트 크기 조절 ────────────
+    void HandleViewportScale()
+    {
+        if (selectedObject == null) return;
+        var kb = Keyboard.current;
+        if (kb == null || !kb.ctrlKey.isPressed) return;
+        var mouse = Mouse.current;
+        if (mouse == null) return;
+
+        bool overUI = UnityEngine.EventSystems.EventSystem.current != null &&
+                      UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
+        if (overUI) return;
+
+        float scroll = mouse.scroll.ReadValue().y;
+        if (Mathf.Abs(scroll) < 0.01f) return;
+
+        float factor   = scroll > 0 ? 1.12f : (1f / 1.12f);
+        float newScale = Mathf.Clamp(selectedObject.transform.localScale.x * factor, 0.1f, 200f);
+        selectedObject.transform.localScale = Vector3.one * newScale;
+    }
+
+    // ── 스케일 핸들: 위치 갱신 + 호버 효과 ──────────────
+    void UpdateScaleHandle()
+    {
+        if (_scaleHandleGO == null || _canvasRT == null) return;
+        if (selectedObject == null || Camera.main == null)
+        { _scaleHandleGO.SetActive(false); return; }
+
+        _scaleHandleGO.SetActive(true);
+
+        // 오브젝트 바운드 최상단 월드 좌표
+        var rends = selectedObject.GetComponentsInChildren<Renderer>();
+        Vector3 worldTop;
+        if (rends.Length > 0)
+        {
+            var b = rends[0].bounds;
+            foreach (var r in rends) b.Encapsulate(r.bounds);
+            worldTop = new Vector3(b.center.x, b.max.y, b.center.z);
+        }
+        else worldTop = selectedObject.transform.position + Vector3.up * 2f;
+
+        Vector3 sp = Camera.main.WorldToScreenPoint(worldTop);
+        if (sp.z <= 0f) { _scaleHandleGO.SetActive(false); return; }
+
+        // 스크린 좌표 → 캔버스 로컬 좌표
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            _canvasRT, new Vector2(sp.x, sp.y), null, out Vector2 lp);
+        _scaleHandleRT.anchoredPosition = lp + new Vector2(0f, 30f);
+
+        // 호버 색상
+        if (!_shDragging && Mouse.current != null)
+        {
+            bool hov = RectTransformUtility.RectangleContainsScreenPoint(
+                           _scaleHandleRT, Mouse.current.position.ReadValue());
+            _scaleHandleImg.color = hov
+                ? new Color(0.12f, 0.74f, 1.00f, 1.00f)
+                : new Color(0.10f, 0.62f, 0.92f, 0.95f);
+        }
+
+        if (_scaleHandleText != null)
+            _scaleHandleText.text = "↔  " + selectedObject.transform.localScale.x.ToString("F1") + "×";
+    }
+
+    // ── 스케일 핸들: 드래그 처리 ─────────────────────────
+    void HandleScaleHandleDrag()
+    {
+        if (_scaleHandleGO == null || !_scaleHandleGO.activeSelf) return;
+        var mouse = Mouse.current;
+        if (mouse == null) return;
+
+        Vector2 mp = mouse.position.ReadValue();
+
+        if (!_shDragging)
+        {
+            if (mouse.leftButton.wasPressedThisFrame &&
+                RectTransformUtility.RectangleContainsScreenPoint(_scaleHandleRT, mp))
+            {
+                _shDragging = true;
+                _shDragPrev = mp;
+                if (_scaleHandleImg != null)
+                    _scaleHandleImg.color = new Color(0.06f, 0.46f, 0.72f, 1.00f);
+            }
+        }
+        else
+        {
+            if (mouse.leftButton.isPressed && selectedObject != null)
+            {
+                float dx = mp.x - _shDragPrev.x;
+                if (Mathf.Abs(dx) > 0.3f)
+                {
+                    float factor  = 1f + dx * SH_FACTOR;
+                    float newScale = Mathf.Clamp(
+                        selectedObject.transform.localScale.x * factor, 0.1f, 200f);
+                    selectedObject.transform.localScale = Vector3.one * newScale;
+                }
+                _shDragPrev = mp;
+            }
+            else
+            {
+                _shDragging = false;
+                if (_scaleHandleImg != null)
+                    _scaleHandleImg.color = new Color(0.10f, 0.62f, 0.92f, 0.95f);
+            }
+        }
+    }
+
+    // 카메라 컨트롤러에서 Ctrl+스크롤 소비 여부 확인
+    public bool IsScaleScrollConsumed()
+        => selectedObject != null
+        && Keyboard.current != null && Keyboard.current.ctrlKey.isPressed;
+
+    // ── 한국어 폰트 초기화 (다단계 폴백) ────────────────────
+    void InitKoreanFont()
+    {
+        const string KOR_CHARS =
+            "가각간갈감강개거건검게겨결경계고골공과관광교구국군그글기긴길" +
+            "나날남내너네노는닌달당대더도독돌동두드들등라래러로록류르를리린림" +
+            "마막만말매머면명모목무문물미밑바박반발방배백번법별병보볼부분불비빛" +
+            "사산살상새서선설성소속손수술시신심아악안앞애야어에여열오온올와왼" +
+            "요우운원위유은을이익인일입자장재저적전정제조종주중지직질집" +
+            "차찾채처초취층치카타태터통투파판편포표품피" +
+            "하학한할함합해행향허험현형호홈화확환활황회후힘" +
+            "이동회전크기삭제격자캡처초기화저장됨뷰포트모듈라이브러리검색" +
+            "문화해설카드용도시대재질출처배치편집위치복제선택해제" +
+            "정면후면우측좌측한옥마당청명낮사랑채온화빛조선장터흐린하늘" +
+            "전통정원초록향기구조소품문양드래그파란핸들카메줌간버튼패닝포커스" +
+            "부재를하세요기와채담장기단처마용마루행랑솟을대문봐속";
+
+        // 1단계: OS 한국어 폰트 탐색
+        string korName = null;
+        foreach (var n in Font.GetOSInstalledFontNames())
+        {
+            string nl = n.ToLowerInvariant();
+            if (nl.StartsWith("malgun") || nl.Contains("맑은") ||
+                nl.StartsWith("nanum") || nl.Contains("apple sd gothic") ||
+                nl.StartsWith("noto sans cjk"))
+            { korName = n; break; }
+        }
+        Font osFont = korName != null
+            ? Font.CreateDynamicFontFromOSFont(korName, 42)
+            : Font.CreateDynamicFontFromOSFont(new[]{"맑은 고딕","Malgun Gothic","NanumGothic"}, 42);
+        Debug.Log($"[KorFont] korName={korName ?? "NONE"}, osFont={osFont?.name ?? "NULL"}");
+
+        // 2단계: CreateFontAsset 시도 + 실제로 한국어가 그려지는지 검증
+        if (osFont != null)
+        {
+            var dyn = TMP_FontAsset.CreateFontAsset(osFont);
+            if (dyn != null)
+            {
+                // 주요 누락 글자가 실제로 추가되는지 확인 후에만 primary로 사용
+                dyn.TryAddCharacters("구소품양위");
+                if (dyn.HasCharacter('구') && dyn.HasCharacter('위'))
+                {
+                    dyn.name = "KorDynamic";
+                    dyn.TryAddCharacters(KOR_CHARS);
+                    koreanFont = dyn;
+                    Debug.Log("[KorFont] KorDynamic verified OK → primary");
+                    return;
+                }
+                Debug.Log("[KorFont] CreateFontAsset succeeded but Korean rendering failed (FreeType/OS font issue)");
+                // 이 dyn은 사용하지 않음 — 기존 static 폰트가 더 많은 글자를 가짐
+            }
+            else
+            {
+                Debug.Log("[KorFont] CreateFontAsset returned null");
+            }
+        }
+
+        // 3단계: 기존 인스펙터 폰트 유지하며 Dynamic 전환 + 글자 추가
+        // ⚠ ClearFontAssetData 절대 호출 금지 — 기존 baked 글리프 사라짐
+        if (koreanFont == null) { Debug.LogWarning("[KorFont] koreanFont null"); return; }
+
+        koreanFont.atlasPopulationMode = AtlasPopulationMode.Dynamic;
+
+        // 3a: 리플렉션으로 m_SourceFontFile 주입 (osFont가 있으면 TryAddCharacters 성공 가능성↑)
+        if (osFont != null)
+        {
+            foreach (var fname in new[]{"m_SourceFontFile","m_LegacyFontAsset"})
+            {
+                var fi = typeof(TMP_FontAsset).GetField(fname, BindingFlags.Instance|BindingFlags.NonPublic)
+                      ?? typeof(TMP_FontAsset).BaseType?.GetField(fname, BindingFlags.Instance|BindingFlags.NonPublic);
+                if (fi != null && fi.FieldType.IsAssignableFrom(typeof(Font)))
+                { fi.SetValue(koreanFont, osFont); Debug.Log($"[KorFont] Injected {fname}"); break; }
+            }
+        }
+
+        // 3b: FontEngine에 malgun.ttf 직접 로드 시도 (TryAddCharacters 가 이를 활용할 수 있음)
+        try
+        {
+            string fontDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Fonts);
+            string malgunPath = System.IO.Path.Combine(fontDir, "malgun.ttf");
+            if (System.IO.File.Exists(malgunPath))
+            {
+                System.Type feType = null;
+                foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
+                { feType = asm.GetType("UnityEngine.TextCore.Text.FontEngine"); if (feType != null) break; }
+                if (feType != null)
+                {
+                    var loadM = feType.GetMethod("LoadFontFace", BindingFlags.Public|BindingFlags.Static,
+                        null, new System.Type[]{typeof(string),typeof(int)}, null);
+                    if (loadM != null)
+                        Debug.Log($"[KorFont] FontEngine.LoadFontFace({malgunPath}) = {loadM.Invoke(null, new object[]{malgunPath, 42})}");
+                }
+            }
+        }
+        catch (System.Exception ex) { Debug.LogWarning($"[KorFont] FontEngine reflect: {ex.Message}"); }
+
+        // 3c: TryAddCharacters — 실패해도 ClearFontAssetData 호출 안 함
+        bool added = koreanFont.TryAddCharacters(KOR_CHARS);
+        Debug.Log($"[KorFont] TryAddCharacters={added}, finalFont={koreanFont.name}");
     }
 
     void OnDestroy()
     {
         if (_thumbCam != null) Destroy(_thumbCam.gameObject);
+        // 씬 종료 시 남은 썸네일 RenderTexture GPU 메모리 해제
+        if (assetContent != null)
+            foreach (var ri in assetContent.GetComponentsInChildren<RawImage>())
+                if (ri.texture is RenderTexture rt) { rt.Release(); Destroy(rt); }
     }
 
     IEnumerator ForceLayout()
@@ -115,6 +376,25 @@ public partial class HanokUIManager : MonoBehaviour
         yield return null; yield return null;
         foreach (var f in FindObjectsByType<ContentSizeFitter>(FindObjectsSortMode.None))
             LayoutRebuilder.ForceRebuildLayoutImmediate(f.GetComponent<RectTransform>());
+    }
+
+    // ── 배경 프리셋 전환 ──────────────────────────────────
+    public void SelectBgPreset(int idx)
+    {
+        HanokSceneSetup.SetPreset(idx);
+        if (_bgBtns == null) return;
+        for (int i = 0; i < _bgBtns.Length; i++)
+        {
+            bool sel = (i == idx);
+            _bgBtns[i].GetComponent<Image>().color = sel ? NAVY : BTN_GHOST;
+            foreach (var txt in _bgBtns[i].GetComponentsInChildren<TMP_Text>())
+            {
+                bool bold = txt.fontStyle.HasFlag(FontStyles.Bold);
+                txt.color = sel
+                    ? (bold ? Color.white : new Color(1f, 1f, 1f, 0.65f))
+                    : (bold ? TEXT_MAIN   : TEXT_HINT);
+            }
+        }
     }
 
     // ── 툴 전환 ───────────────────────────────────────────
@@ -127,11 +407,24 @@ public partial class HanokUIManager : MonoBehaviour
 
     void SyncGizmo()
     {
-        if (_rotGizmo == null) return;
-        if (currentTool == EditTool.Rotate && selectedObject != null)
-            _rotGizmo.Attach(selectedObject);
-        else
-            _rotGizmo.Detach();
+        // 회전 기즈모 — Rotate 도구일 때만
+        if (_rotGizmo != null)
+        {
+            _rotGizmo.onDragEnd = PlaceOnFloor; // 회전 후 바닥 자동 스냅
+            if (currentTool == EditTool.Rotate && selectedObject != null)
+                _rotGizmo.Attach(selectedObject);
+            else
+                _rotGizmo.Detach();
+        }
+        // 스케일 기즈모 — Select 도구 + 오브젝트 선택 시
+        if (_scaleGizmo != null)
+        {
+            _scaleGizmo.onDragEnd = PlaceOnFloor; // 크기 변경 후 바닥 자동 스냅
+            if (currentTool == EditTool.Scale && selectedObject != null)
+                _scaleGizmo.Attach(selectedObject);
+            else
+                _scaleGizmo.Detach();
+        }
     }
 
     void RefreshToolBtns()
@@ -139,10 +432,31 @@ public partial class HanokUIManager : MonoBehaviour
         if (toolBtns == null) return;
         for (int i = 0; i < toolBtns.Length; i++)
         {
-            var img = toolBtns[i].GetComponent<Image>();
-            img.color = (i == (int)currentTool) ? NAVY : BTN_GHOST;
-            var txt = toolBtns[i].GetComponentInChildren<TMP_Text>();
-            if (txt) txt.color = (i == (int)currentTool) ? Color.white : TEXT_SUB;
+            bool active = (i == (int)currentTool);
+            var  tool   = (EditTool)i;
+            bool isDel  = (tool == EditTool.Delete);
+
+            // 다크 패널 기반 버튼 색상
+            toolBtns[i].GetComponent<Image>().color =
+                active ? new Color(1f, 1f, 1f, 0.15f) : Color.clear;
+
+            var texts = toolBtns[i].GetComponentsInChildren<TMP_Text>();
+            foreach (var txt in texts)
+            {
+                bool isIcon = txt.fontSize >= 10f; // 메인라벨(12) vs 단축키힌트(8) 구분
+                if (active)
+                {
+                    txt.color = isIcon
+                        ? (isDel ? new Color(1f, 0.55f, 0.52f) : Color.white)
+                        : new Color(1f, 1f, 1f, 0.55f);
+                }
+                else
+                {
+                    txt.color = isIcon
+                        ? (isDel ? new Color(1f, 0.50f, 0.46f) : new Color(1f, 1f, 1f, 0.35f))
+                        : new Color(1f, 1f, 1f, 0.18f);
+                }
+            }
         }
     }
 
@@ -156,50 +470,88 @@ public partial class HanokUIManager : MonoBehaviour
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
 
-        EnsureCollider(obj);
+        // 뷰포트 기본 배치 스케일 3배
+        obj.transform.localScale *= 3f;
 
-        // 바닥 위에 올바르게 배치 (피벗이 중심인 모델 대응)
+        OptimizeRenderers(obj);
+
+        // 화면 중앙 서피스에 배치 → 바닥 위 정렬 → 그 후 콜라이더 계산
         obj.transform.position = GetSpawnPos();
         PlaceOnFloor(obj);
+        EnsureCollider(obj);
 
         AttachSelectable(obj);
+        PushUndoSpawn(obj);
         SelectObject(obj);
 
-        // 배치 즉시 스무스 카메라 포커스
         var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
         camCtrl?.FocusObject(obj);
     }
 
     // 모델 바닥면이 Y=0(바닥 평면) 위에 오도록 위치 보정
-    void PlaceOnFloor(GameObject obj)
+    // 회전·크기 변경 후에도 항상 정확히 바닥에 붙음
+    public void PlaceOnFloor(GameObject obj)
     {
         var rends = obj.GetComponentsInChildren<Renderer>();
         if (rends.Length == 0) return;
         var b = rends[0].bounds;
         foreach (var r in rends) b.Encapsulate(r.bounds);
-        float offset = obj.transform.position.y - b.min.y;
-        obj.transform.position += Vector3.up * offset;
+        // b.min.y 가 음수면 올리고, 양수면 내려서 바닥(Y=0)에 정확히 맞춤
+        obj.transform.position += Vector3.up * (-b.min.y);
     }
 
     Vector3 GetSpawnPos()
     {
-        // 카메라가 현재 바라보는 피벗 XZ 위치에 배치 → 항상 화면 중앙에 나타남
-        var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
-        if (camCtrl != null)
-        {
-            var pivot = camCtrl.Pivot;
-            // 피벗 위에서 아래로 레이캐스트해 바닥면 정확히 찍기
-            var ray = new Ray(pivot + Vector3.up * 50f, Vector3.down);
-            if (Physics.Raycast(ray, out RaycastHit h, 200f))
-                return h.point;
-            return new Vector3(pivot.x, 0f, pivot.z);
-        }
         if (Camera.main == null) return Vector3.zero;
-        var r2 = Camera.main.ScreenPointToRay(
-            new Vector3(Screen.width * .5f, Screen.height * .5f));
-        if (Physics.Raycast(r2, out RaycastHit hit2, 500f)) return hit2.point;
-        var p = Camera.main.transform.position + Camera.main.transform.forward * 10f;
-        p.y = 0f; return p;
+        // 화면 정중앙 레이캐스트 — 씬 어디든 정확히 배치
+        var ray = Camera.main.ScreenPointToRay(
+            new Vector3(Screen.width * .5f, Screen.height * .5f, 0));
+        if (Physics.Raycast(ray, out RaycastHit hit, 500f))
+            return hit.point;
+        // 폴백: 카메라 전방 10m XZ 평면
+        var pt = Camera.main.transform.position + Camera.main.transform.forward * 10f;
+        pt.y = 0f;
+        return pt;
+    }
+
+    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존
+    void OptimizeRenderers(GameObject obj)
+    {
+        var urpLit = Shader.Find("Universal Render Pipeline/Lit");
+
+        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        {
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+            r.receiveShadows    = true;
+
+            if (urpLit == null) continue;
+
+            // sharedMaterials 로 깨진 셰이더 여부만 확인 (인스턴스 미생성)
+            bool needFix = false;
+            foreach (var sm in r.sharedMaterials)
+            {
+                if (sm == null) continue;
+                var sn = sm.shader?.name ?? "";
+                if (sn == "Hidden/InternalErrorShader" || sn == "")
+                { needFix = true; break; }
+            }
+            if (!needFix) continue;
+
+            // r.materials → 인스턴스 생성 (원본 프리팹 재질 보호)
+            foreach (var m in r.materials)
+            {
+                if (m == null) continue;
+                var sn = m.shader?.name ?? "";
+                if (sn != "Hidden/InternalErrorShader" && sn != "") continue;
+                Color   col = m.HasProperty("_Color")   ? m.GetColor("_Color")     : Color.white;
+                Texture tx  = m.HasProperty("_MainTex") ? m.GetTexture("_MainTex") : null;
+                m.shader = urpLit;
+                if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", col);
+                if (m.HasProperty("_Color"))     m.SetColor("_Color",     col);
+                if (tx != null && m.HasProperty("_BaseMap")) m.SetTexture("_BaseMap", tx);
+                if (tx != null && m.HasProperty("_MainTex")) m.SetTexture("_MainTex", tx);
+            }
+        }
     }
 
     void EnsureCollider(GameObject obj)
@@ -245,12 +597,24 @@ public partial class HanokUIManager : MonoBehaviour
             hl.Show();
         }
 
+        // 바닥 아래로 박힌 오브젝트 자동 보정 (b.min.y < 0 이면 올려서 바닥에 정렬)
+        if (obj != null)
+        {
+            var rends = obj.GetComponentsInChildren<Renderer>();
+            if (rends.Length > 0)
+            {
+                var b = rends[0].bounds;
+                foreach (var r in rends) b.Encapsulate(r.bounds);
+                if (b.min.y < -0.02f)          // 명확히 바닥 아래로 박혀 있을 때만
+                    obj.transform.position += Vector3.up * (-b.min.y);
+            }
+        }
+
         RefreshInfoPanel();
         if (obj != null) ForceSyncTransform();
         SyncGizmo();
 
         // 선택 시 카메라 피벗을 오브젝트 방향으로 부드럽게 이동
-        // (오비트가 선택한 오브젝트 주변으로 자연스럽게 전환됨)
         if (obj != null)
             Camera.main?.GetComponent<HanokCameraController>()
                         ?.ShiftPivotToward(obj.transform.position);
@@ -346,6 +710,7 @@ public partial class HanokUIManager : MonoBehaviour
         Destroy(selectedObject);
         selectedObject = null;
         RefreshInfoPanel();
+        SyncGizmo(); // Rotate 모드 기즈모 즉시 해제
     }
 
     public void ClearSelection()
@@ -357,6 +722,7 @@ public partial class HanokUIManager : MonoBehaviour
         }
         selectedObject = null;
         RefreshInfoPanel();
+        SyncGizmo();
     }
 
     // ── 뷰포트 클릭 / 드래그 ─────────────────────────────
@@ -368,11 +734,10 @@ public partial class HanokUIManager : MonoBehaviour
         bool overUI = UnityEngine.EventSystems.EventSystem.current != null &&
                       UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject();
 
-        Vector2 mp    = mouse.position.ReadValue();
-        Vector2 mDelta = mouse.delta.ReadValue();
+        Vector2 mp = mouse.position.ReadValue();
 
         // ═══════════════════════════════════════════════════
-        // SELECT 모드: 클릭=선택, 클릭+드래그=자유 이동
+        // SELECT 모드: 클릭=선택, 클릭+드래그=서피스 스냅 이동
         // ═══════════════════════════════════════════════════
         if (currentTool == EditTool.Select)
         {
@@ -387,7 +752,6 @@ public partial class HanokUIManager : MonoBehaviour
                     if (sa != null)
                     {
                         SelectObject(sa.Root);
-                        // 드래그 대기 상태로 전환 (5px 이상 움직이면 드래그 시작)
                         _pendingDrag    = true;
                         _dragStartMouse = mp;
                         _dragPlane      = MakeDragPlane(sa.Root.transform.position);
@@ -400,20 +764,28 @@ public partial class HanokUIManager : MonoBehaviour
                 else ClearSelection();
             }
 
-            // 드래그 시작 판정 (5px 임계값)
+            // 드래그 시작 판정 — 시작 직전 위치를 undo 스택에 기록
             if (_pendingDrag && !_isDragging && mouse.leftButton.isPressed &&
                 Vector2.Distance(mp, _dragStartMouse) > 5f)
             {
+                if (selectedObject != null) PushUndoMove(selectedObject);
                 _isDragging  = true;
                 _pendingDrag = false;
             }
 
-            // 드래그 적용
+            // 드래그 적용: 다른 오브젝트 위면 서피스 스냅, 폴백은 Y=0 바닥 평면
             if (_isDragging && selectedObject != null && mouse.leftButton.isPressed)
             {
                 var ray = Camera.main.ScreenPointToRay((Vector3)mp);
-                if (_dragPlane.Raycast(ray, out float e))
-                    selectedObject.transform.position = ray.GetPoint(e) + _dragOffset;
+                if (TryRaycastSurface(ray, selectedObject, out Vector3 surfPt))
+                    SnapToSurface(selectedObject, surfPt);
+                else
+                {
+                    // 바닥(Y=0) XZ 평면과 교차: 항상 오브젝트를 바닥에 붙임
+                    var ground = new Plane(Vector3.up, Vector3.zero);
+                    if (ground.Raycast(ray, out float gd))
+                        SnapToSurface(selectedObject, ray.GetPoint(gd));
+                }
             }
 
             if (mouse.leftButton.wasReleasedThisFrame)
@@ -422,48 +794,33 @@ public partial class HanokUIManager : MonoBehaviour
         }
 
         // ═══════════════════════════════════════════════════
-        // MOVE 모드: 오브젝트 클릭→드래그 이동 (뷰 인식 평면)
+        // SCALE 모드: 스케일 기즈모 조작 또는 오브젝트 클릭→선택
         // ═══════════════════════════════════════════════════
-        if (currentTool == EditTool.Move)
+        if (currentTool == EditTool.Scale)
         {
+            if (_scaleGizmo != null &&
+                (_scaleGizmo.IsConsuming || _scaleGizmo.WouldCapture(mp)))
+                return;
             if (mouse.leftButton.wasPressedThisFrame && !overUI)
             {
-                _isDragging = false;
                 var ray = Camera.main.ScreenPointToRay((Vector3)mp);
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     var sa = hit.collider.GetComponent<SelectableAsset>();
-                    if (sa != null)
-                    {
-                        SelectObject(sa.Root);
-                        _isDragging = true;
-                        _dragPlane  = MakeDragPlane(sa.Root.transform.position);
-                        if (_dragPlane.Raycast(ray, out float e))
-                            _dragOffset = sa.Root.transform.position - ray.GetPoint(e);
-                        else _dragOffset = Vector3.zero;
-                    }
+                    if (sa != null) SelectObject(sa.Root);
+                    else ClearSelection();
                 }
+                else ClearSelection();
             }
-            if (mouse.leftButton.isPressed && _isDragging && selectedObject != null)
-            {
-                var ray = Camera.main.ScreenPointToRay((Vector3)mp);
-                if (_dragPlane.Raycast(ray, out float e))
-                    selectedObject.transform.position = ray.GetPoint(e) + _dragOffset;
-            }
-            if (mouse.leftButton.wasReleasedThisFrame) _isDragging = false;
             return;
         }
 
         // ═══════════════════════════════════════════════════
-        // ROTATE 모드: 기즈모(X/Y/Z 링) 드래그 또는 오브젝트 클릭→선택
+        // ROTATE 모드: 기즈모 드래그 또는 오브젝트 클릭→선택
         // ═══════════════════════════════════════════════════
         if (currentTool == EditTool.Rotate)
         {
-            // 기즈모가 마우스를 소비 중이면 UIManager는 처리 안 함
-            if (_rotGizmo != null && _rotGizmo.IsConsuming)
-                return;
-
-            // 오브젝트 클릭으로 선택 (빈 공간 클릭은 선택 유지)
+            if (_rotGizmo != null && _rotGizmo.IsConsuming) return;
             if (mouse.leftButton.wasPressedThisFrame && !overUI)
             {
                 var ray = Camera.main.ScreenPointToRay((Vector3)mp);
@@ -488,6 +845,73 @@ public partial class HanokUIManager : MonoBehaviour
                 var sa = hit.collider.GetComponent<SelectableAsset>();
                 if (sa != null) { SelectObject(sa.Root); DeleteSelected(); }
             }
+        }
+    }
+
+    // ── 서피스 스냅 헬퍼 ──────────────────────────────────
+    bool TryRaycastSurface(Ray ray, GameObject exclude, out Vector3 point)
+    {
+        var hits = Physics.RaycastAll(ray, 1000f);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+        foreach (var h in hits)
+        {
+            if (h.collider.transform == exclude.transform) continue;
+            if (h.collider.transform.IsChildOf(exclude.transform)) continue;
+            point = h.point;
+            return true;
+        }
+        point = Vector3.zero;
+        return false;
+    }
+
+    void SnapToSurface(GameObject obj, Vector3 point)
+    {
+        var rends = obj.GetComponentsInChildren<Renderer>();
+        float bottomOffset = 0f;
+        if (rends.Length > 0)
+        {
+            var b = rends[0].bounds;
+            foreach (var r in rends) b.Encapsulate(r.bounds);
+            bottomOffset = obj.transform.position.y - b.min.y;
+        }
+        obj.transform.position = new Vector3(point.x, point.y + bottomOffset, point.z);
+    }
+
+    // ── 실행 취소 ─────────────────────────────────────────
+    void PushUndoMove(GameObject obj)
+    {
+        if (_undoStack.Count >= 20) _undoStack.RemoveAt(0);
+        _undoStack.Add(new UndoEntry
+        {
+            op = UndoEntry.Op.Move, obj = obj,
+            prevPos = obj.transform.position,
+            prevRot = obj.transform.rotation
+        });
+    }
+
+    void PushUndoSpawn(GameObject obj)
+    {
+        if (_undoStack.Count >= 20) _undoStack.RemoveAt(0);
+        _undoStack.Add(new UndoEntry { op = UndoEntry.Op.Spawn, obj = obj });
+    }
+
+    void DoUndo()
+    {
+        if (_undoStack.Count == 0) return;
+        var entry = _undoStack[_undoStack.Count - 1];
+        _undoStack.RemoveAt(_undoStack.Count - 1);
+        if (entry.obj == null) return; // 이미 삭제됨
+        switch (entry.op)
+        {
+            case UndoEntry.Op.Move:
+                entry.obj.transform.position = entry.prevPos;
+                entry.obj.transform.rotation = entry.prevRot;
+                SelectObject(entry.obj);
+                break;
+            case UndoEntry.Op.Spawn:
+                if (selectedObject == entry.obj) ClearSelection();
+                Destroy(entry.obj);
+                break;
         }
     }
 
@@ -520,8 +944,8 @@ public partial class HanokUIManager : MonoBehaviour
         if (kb == null || AnyInputFocused()) return;
 
         if (kb.digit1Key.wasPressedThisFrame) SetTool(EditTool.Select);
-        if (kb.digit2Key.wasPressedThisFrame) SetTool(EditTool.Move);
-        if (kb.digit3Key.wasPressedThisFrame) SetTool(EditTool.Rotate);
+        if (kb.digit2Key.wasPressedThisFrame) SetTool(EditTool.Rotate);
+        if (kb.digit3Key.wasPressedThisFrame) SetTool(EditTool.Scale);
         if (kb.digit4Key.wasPressedThisFrame) SetTool(EditTool.Delete);
         if (kb.deleteKey.wasPressedThisFrame || kb.backspaceKey.wasPressedThisFrame)
             DeleteSelected();
@@ -529,6 +953,10 @@ public partial class HanokUIManager : MonoBehaviour
         { ClearSelection(); SetTool(EditTool.Select); }
         if (kb.homeKey.wasPressedThisFrame)
             Camera.main?.GetComponent<HanokCameraController>()?.ResetView();
+        if (kb.ctrlKey.isPressed && kb.zKey.wasPressedThisFrame) DoUndo();
+        if (kb.ctrlKey.isPressed && kb.dKey.wasPressedThisFrame) Duplicate();
+        if (kb.gKey.wasPressedThisFrame) ToggleGrid();
+        if (kb.pKey.wasPressedThisFrame) TriggerCapture();
     }
 
     bool AnyInputFocused()
@@ -557,5 +985,115 @@ public partial class HanokUIManager : MonoBehaviour
         foreach (char c in s)
             if (c >= '가' && c <= '힣') return true;
         return false;
+    }
+
+    // ── 격자 토글 ─────────────────────────────────────────────
+    public void ToggleGrid()
+    {
+        _gridVisible = !_gridVisible;
+        var grid = GameObject.Find("_HanokGrid");
+        if (grid != null) grid.SetActive(_gridVisible);
+        if (_gridBtnImg != null)
+            _gridBtnImg.color = _gridVisible
+                ? new Color(0.25f, 0.75f, 0.50f, 0.35f)   // ON = 초록 활성
+                : new Color(1f, 1f, 1f, 0.08f);            // OFF = 어둡게
+    }
+
+    // ── 뷰포트 캡처 ───────────────────────────────────────────
+    public void TriggerCapture() { if (!_capturing) StartCoroutine(CaptureViewport()); }
+
+    System.Collections.IEnumerator CaptureViewport()
+    {
+        _capturing = true;
+
+        // 플래시 즉시 표시
+        if (_captureFlash != null)
+        {
+            _captureFlash.SetActive(true);
+            _captureFlash.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.80f);
+        }
+        yield return new WaitForEndOfFrame();
+
+        // 전체 화면 픽셀 읽기
+        var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+        tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+        tex.Apply();
+
+        // 바탕화면에 PNG 저장
+        string folder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+        string fname  = "Hanok_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
+        string path   = System.IO.Path.Combine(folder, fname);
+        System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
+        Destroy(tex);
+
+        // 플래시 페이드 아웃
+        if (_captureFlash != null)
+        {
+            var fi = _captureFlash.GetComponent<Image>();
+            for (float t = 0f; t < 0.40f; t += Time.unscaledDeltaTime)
+            {
+                fi.color = new Color(1f, 1f, 1f, Mathf.Lerp(0.80f, 0f, t / 0.40f));
+                yield return null;
+            }
+            _captureFlash.SetActive(false);
+        }
+
+        ShowToast("저장됨  " + fname);
+        _capturing = false;
+    }
+
+    // ── 토스트 알림 ───────────────────────────────────────────
+    public void ShowToast(string msg)
+    {
+        if (_toastGO == null) return;
+        if (_toastText != null) _toastText.text = msg;
+        if (_toastRoutine != null) StopCoroutine(_toastRoutine);
+        _toastRoutine = StartCoroutine(ToastAnim());
+    }
+
+    System.Collections.IEnumerator ToastAnim()
+    {
+        _toastGO.SetActive(true);
+        var bg  = _toastGO.GetComponent<Image>();
+        var txt = _toastText;
+        static Color BgCol(float a)  => new Color(0.08f, 0.08f, 0.12f, a * 0.90f);
+
+        for (float t = 0f; t < 0.20f; t += Time.unscaledDeltaTime)
+        {
+            float a = t / 0.20f;
+            if (bg)  bg.color  = BgCol(a);
+            if (txt) txt.color = new Color(1f, 1f, 1f, a);
+            yield return null;
+        }
+        if (bg)  bg.color  = BgCol(1f);
+        if (txt) txt.color = Color.white;
+
+        yield return new WaitForSeconds(2.5f);
+
+        for (float t = 0f; t < 0.30f; t += Time.unscaledDeltaTime)
+        {
+            float a = 1f - t / 0.30f;
+            if (bg)  bg.color  = BgCol(a);
+            if (txt) txt.color = new Color(1f, 1f, 1f, a);
+            yield return null;
+        }
+        _toastGO.SetActive(false);
+    }
+
+    // ── 뷰 배지 갱신 (매 프레임) ─────────────────────────────
+    void UpdateViewBadge()
+    {
+        if (_viewBadgeText == null) return;
+        var cam = Camera.main?.GetComponent<HanokCameraController>();
+        if (cam == null) return;
+        _viewBadgeText.text = cam.CurrentPreset switch
+        {
+            HanokCameraController.ViewPreset.Top         => "위",
+            HanokCameraController.ViewPreset.Front       => "정면",
+            HanokCameraController.ViewPreset.Back        => "후면",
+            HanokCameraController.ViewPreset.Right       => "우측",
+            HanokCameraController.ViewPreset.Left        => "좌측",
+            _                                            => "3D",
+        };
     }
 }

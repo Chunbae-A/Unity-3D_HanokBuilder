@@ -96,9 +96,9 @@ public partial class HanokUIManager
         scaleF.onEndEdit.AddListener(_ => ApplyScale());
         Spacer(content, 4);
         ActionRow(content, 28,
-            ("0.5x", () => SetScale(0.5f), BTN_GHOST, TEXT_MAIN),
-            (" 1x ", () => SetScale(1f),   NAVY,       Color.white),
-            (" 2x ", () => SetScale(2f),   BTN_GHOST, TEXT_MAIN));
+            (" 1x ", () => SetScale(1f),  BTN_GHOST, TEXT_MAIN),
+            (" 3x ", () => SetScale(3f),  NAVY,       Color.white),
+            (" 5x ", () => SetScale(5f),  BTN_GHOST, TEXT_MAIN));
 
         // ── 액션 버튼 ──────────────────────────────────────
         Spacer(content, 12);

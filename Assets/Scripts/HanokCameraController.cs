@@ -32,6 +32,10 @@ public class HanokCameraController : MonoBehaviour
     float   _tDist;
     bool    _focusing;
 
+    // 뷰 각도 부드러운 전환 타겟
+    float _tYaw, _tPitch;
+    bool  _transitioning;
+
     bool       _ortho;
     ViewPreset _preset = ViewPreset.Perspective;
     Vector2    _prevMouse;
@@ -39,6 +43,7 @@ public class HanokCameraController : MonoBehaviour
     const float DEF_PITCH = 18f;
     const float DEF_YAW   = -40f;
     const float DEF_DIST  = 22f;
+    const float VIEW_LERP = 9f;   // 뷰 전환 보간 속도
 
     public ViewPreset CurrentPreset => _preset;
     public Vector3    Pivot         => _pivot;
@@ -46,6 +51,7 @@ public class HanokCameraController : MonoBehaviour
     void Start()
     {
         _pitch = DEF_PITCH; _yaw = DEF_YAW;
+        _tPitch = DEF_PITCH; _tYaw = DEF_YAW;
         _dist  = DEF_DIST;  _pivot = Vector3.zero;
         _tPivot = _pivot;   _tDist = _dist;
         Apply();
@@ -75,6 +81,17 @@ public class HanokCameraController : MonoBehaviour
             { _pivot = _tPivot; _dist = _tDist; _focusing = false; SyncOrtho(); }
         }
 
+        // ── 뷰 전환 각도 부드러운 보간 ────────────────────
+        if (_transitioning)
+        {
+            float t = 1f - Mathf.Exp(-VIEW_LERP * Time.deltaTime);
+            _yaw   = Mathf.LerpAngle(_yaw,   _tYaw,   t);
+            _pitch = Mathf.Lerp      (_pitch, _tPitch, t);
+            if (Mathf.Abs(Mathf.DeltaAngle(_yaw, _tYaw)) < 0.25f &&
+                Mathf.Abs(_pitch - _tPitch) < 0.25f)
+            { _yaw = _tYaw; _pitch = _tPitch; _transitioning = false; }
+        }
+
         if (!overUI)
         {
             bool altHeld   = kb != null && kb.altKey.isPressed;
@@ -92,7 +109,8 @@ public class HanokCameraController : MonoBehaviour
                     _yaw   += delta.x * rotateSpeed * Time.deltaTime;
                     _pitch -= delta.y * rotateSpeed * Time.deltaTime;
                     _pitch  = Mathf.Clamp(_pitch, 5f, 85f);
-                    _focusing = false;
+                    _focusing     = false;
+                    _transitioning = false; // 사용자 드래그로 보간 중단
                 }
             }
 
@@ -110,9 +128,14 @@ public class HanokCameraController : MonoBehaviour
             }
 
             // ── 줌: 스크롤 (커서 방향으로) ───────────────
+            // Ctrl+스크롤이면 UIManager가 선택 오브젝트 스케일에 소비
             float scroll = mouse.scroll.ReadValue().y;
             if (Mathf.Abs(scroll) > 0.01f)
-                ZoomToCursor(scroll, cur, ctrlHeld);
+            {
+                bool uiMgrScales = ctrlHeld &&
+                    FindFirstObjectByType<HanokUIManager>()?.IsScaleScrollConsumed() == true;
+                if (!uiMgrScales) ZoomToCursor(scroll, cur, ctrlHeld);
+            }
         }
 
         // ── 키보드 이동 (WASD/QE) ────────────────────────
@@ -192,26 +215,27 @@ public class HanokCameraController : MonoBehaviour
             Camera.main.orthographicSize = Mathf.Max(_dist * 0.5f, 0.1f);
     }
 
-    // ── 뷰 프리셋 전환 ───────────────────────────────────────
+    // ── 뷰 프리셋 전환 (부드러운 각도 보간) ─────────────────
     public void SetViewPreset(ViewPreset preset)
     {
-        _preset = preset; _focusing = false;
+        _preset   = preset;
+        _focusing = false;
         switch (preset)
         {
-            case ViewPreset.Top:         _pitch = 89.9f; _yaw =   0f; _ortho = true;  break;
-            case ViewPreset.Front:       _pitch =  0.5f; _yaw =   0f; _ortho = true;  break;
-            case ViewPreset.Back:        _pitch =  0.5f; _yaw = 180f; _ortho = true;  break;
-            case ViewPreset.Right:       _pitch =  0.5f; _yaw =  90f; _ortho = true;  break;
-            case ViewPreset.Left:        _pitch =  0.5f; _yaw = -90f; _ortho = true;  break;
-            case ViewPreset.Perspective: _pitch = DEF_PITCH; _yaw = DEF_YAW; _ortho = false; break;
+            case ViewPreset.Top:         _tPitch = 89.9f; _tYaw =   0f; _ortho = true;  break;
+            case ViewPreset.Front:       _tPitch =  0.5f; _tYaw =   0f; _ortho = true;  break;
+            case ViewPreset.Back:        _tPitch =  0.5f; _tYaw = 180f; _ortho = true;  break;
+            case ViewPreset.Right:       _tPitch =  0.5f; _tYaw =  90f; _ortho = true;  break;
+            case ViewPreset.Left:        _tPitch =  0.5f; _tYaw = -90f; _ortho = true;  break;
+            case ViewPreset.Perspective: _tPitch = DEF_PITCH; _tYaw = DEF_YAW; _ortho = false; break;
         }
+        _transitioning = true;
         if (Camera.main != null)
         {
             Camera.main.orthographic = _ortho;
             if (_ortho) { _dist = Mathf.Max(_dist, 5f); SyncOrtho(); }
             else        { Camera.main.fieldOfView = 55f; }
         }
-        Apply();
     }
 
     // ── 공개 API ─────────────────────────────────────────────
@@ -282,9 +306,8 @@ public class HanokCameraController : MonoBehaviour
 
     public void ResetView()
     {
-        SetViewPreset(ViewPreset.Perspective);
+        SetViewPreset(ViewPreset.Perspective);  // _tPitch, _tYaw 설정 + _transitioning = true
         _tPivot = Vector3.zero; _tDist = DEF_DIST;
-        _pitch  = DEF_PITCH;   _yaw   = DEF_YAW;
         _focusing = true;
     }
 }

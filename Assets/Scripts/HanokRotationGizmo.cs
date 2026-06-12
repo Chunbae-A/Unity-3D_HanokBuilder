@@ -2,40 +2,35 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// 런타임 3축 회전 기즈모
-/// — X(빨강)·Y(초록)·Z(파랑) 링을 오브젝트 주변에 그림
-/// — 링 위에서 드래그하면 해당 축으로 회전, 호버 시 흰색 강조
-/// HanokUIManager 에서 Rotate 모드 진입 시 Attach, 벗어날 때 Detach
+/// 런타임 3축 회전 기즈모 — Unity 에디터 스타일
+/// X(빨강)·Y(초록)·Z(파랑) 링이 오브젝트를 감싸며 표시
+/// renderQueue 4000 으로 항상 오브젝트 위에 렌더링
 /// </summary>
 public class HanokRotationGizmo : MonoBehaviour
 {
     public enum Axis { None, X, Y, Z }
 
-    // ── 상수 ──────────────────────────────────────────────
-    const int   SEGS      = 64;
-    const float HIT_PX    = 18f;
-    const float ROT_SPEED = 0.5f;
-    // 선 두께: _radius 기준 비율 (카메라 거리에 자동 비례)
-    const float LINE_RATIO    = 0.018f;
-    const float LINE_RATIO_HV = 0.045f;
+    const int   SEGS          = 96;
+    const float HIT_PX        = 22f;
+    const float LINE_RATIO    = 0.055f;   // 링 반지름 대비 선 두께
+    const float LINE_RATIO_HV = 0.10f;   // 호버/드래그 시 두께
 
-    static readonly Color C_X = new Color(0.90f, 0.20f, 0.16f);
-    static readonly Color C_Y = new Color(0.16f, 0.78f, 0.26f);
-    static readonly Color C_Z = new Color(0.18f, 0.44f, 0.92f);
+    static readonly Color C_X = new Color(0.92f, 0.22f, 0.18f);
+    static readonly Color C_Y = new Color(0.18f, 0.82f, 0.28f);
+    static readonly Color C_Z = new Color(0.20f, 0.48f, 0.96f);
 
-    // ── 상태 ──────────────────────────────────────────────
     GameObject     _target;
     GameObject     _root;
-    LineRenderer[] _rings = new LineRenderer[3];  // 0=X  1=Y  2=Z
+    LineRenderer[] _rings = new LineRenderer[3];
     Material[]     _mats  = new Material[3];
 
-    Axis    _hover = Axis.None;
-    Axis    _drag  = Axis.None;
+    Axis    _hover       = Axis.None;
+    Axis    _drag        = Axis.None;
     Vector2 _prevMp;
+    Vector2 _smoothDelta;
     float   _radius;
 
-    // ── 공개 API ──────────────────────────────────────────
-    /// <summary>기즈모가 현재 마우스 입력을 소비 중이면 true</summary>
+    public System.Action<GameObject> onDragEnd;
     public bool IsConsuming => _drag != Axis.None || _hover != Axis.None;
 
     public void Attach(GameObject target)
@@ -53,7 +48,6 @@ public class HanokRotationGizmo : MonoBehaviour
         if (_root) _root.SetActive(false);
     }
 
-    // ── 생명주기 ──────────────────────────────────────────
     void LateUpdate()
     {
         if (_target == null || _root == null || !_root.activeSelf) return;
@@ -68,37 +62,38 @@ public class HanokRotationGizmo : MonoBehaviour
         HandleInput(center);
     }
 
-    // ── 기즈모 생성 ───────────────────────────────────────
     void Build()
     {
         _root = new GameObject("_HanokRotGizmo");
         _root.transform.SetParent(transform, false);
 
+        // URP Unlit shader — renderQueue 4000 으로 항상 위에 렌더링
         var shader = Shader.Find("Universal Render Pipeline/Unlit")
                   ?? Shader.Find("Unlit/Color");
         Color[] cols = { C_X, C_Y, C_Z };
 
         for (int i = 0; i < 3; i++)
         {
-            var go = new GameObject($"Ring{i}");
+            var go = new GameObject("Ring" + i);
             go.transform.SetParent(_root.transform, false);
             var lr = go.AddComponent<LineRenderer>();
 
             _mats[i] = new Material(shader) { color = cols[i] };
-            lr.material          = _mats[i];
-            lr.useWorldSpace     = true;
-            lr.positionCount     = SEGS + 1;
-            lr.loop              = false;
-            lr.startWidth        = 0.03f; // RefreshRing 에서 매 프레임 갱신됨
-            lr.endWidth          = 0.03f;
-            lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            lr.receiveShadows    = false;
+            _mats[i].renderQueue = 4000; // 씬 위에 항상 렌더링
+
+            lr.material             = _mats[i];
+            lr.useWorldSpace        = true;
+            lr.positionCount        = SEGS + 1;
+            lr.loop                 = false;
+            lr.startWidth           = 0.08f;
+            lr.endWidth             = 0.08f;
+            lr.shadowCastingMode    = UnityEngine.Rendering.ShadowCastingMode.Off;
+            lr.receiveShadows       = false;
             lr.generateLightingData = false;
             _rings[i] = lr;
         }
     }
 
-    // ── 링 위치·스타일 업데이트 ───────────────────────────
     void RefreshRing(int i, Vector3 center, Vector3 normal, float r)
     {
         var (t1, t2) = RingTangents(normal);
@@ -110,14 +105,13 @@ public class HanokRotationGizmo : MonoBehaviour
             lr.SetPosition(s, center + (t1 * Mathf.Cos(a) + t2 * Mathf.Sin(a)) * r);
         }
 
-        bool active = _drag == (Axis)(i + 1) || _hover == (Axis)(i + 1);
-        Color[] def = { C_X, C_Y, C_Z };
+        bool   active = _drag == (Axis)(i + 1) || _hover == (Axis)(i + 1);
+        Color[] def   = { C_X, C_Y, C_Z };
         _mats[i].color = active ? Color.white : def[i];
         float lw = _radius * (active ? LINE_RATIO_HV : LINE_RATIO);
-        lr.startWidth = lr.endWidth = lw;
+        lr.startWidth = lr.endWidth = Mathf.Max(lw, 0.04f);
     }
 
-    // ── 입력 처리 ─────────────────────────────────────────
     void HandleInput(Vector3 center)
     {
         var mouse = Mouse.current;
@@ -127,33 +121,40 @@ public class HanokRotationGizmo : MonoBehaviour
 
         if (_drag != Axis.None)
         {
-            // 드래그 중: 회전 적용
             if (mouse.leftButton.isPressed)
-                ApplyRotation(_drag, mp - _prevMp, center);
+            {
+                Vector2 rawDelta = mp - _prevMp;
+                // 0.5px 미만 미세 진동 제거
+                if (rawDelta.sqrMagnitude < 0.25f) rawDelta = Vector2.zero;
+                // 프레임 독립적 지수 스무딩 (응답 속도 k=25)
+                float smooth = 1f - Mathf.Exp(-Time.deltaTime * 25f);
+                _smoothDelta = Vector2.Lerp(_smoothDelta, rawDelta, smooth);
+                ApplyRotation(_drag, _smoothDelta, center);
+            }
             else
+            {
                 _drag = Axis.None;
+                _smoothDelta = Vector2.zero;
+                onDragEnd?.Invoke(_target);   // 바닥 스냅 등 후처리
+            }
         }
         else
         {
-            // 호버 감지 → 클릭으로 드래그 시작
             _hover = ClosestAxis(mp);
             if (mouse.leftButton.wasPressedThisFrame && _hover != Axis.None)
+            {
                 _drag = _hover;
+                _smoothDelta = Vector2.zero;
+            }
         }
 
         _prevMp = mp;
     }
 
-    // ── 회전 적용 ─────────────────────────────────────────
     void ApplyRotation(Axis axis, Vector2 delta, Vector3 pivot)
     {
-        float angle = axis switch
-        {
-            Axis.X =>  delta.y * ROT_SPEED,  // 위로 드래그 = 위로 젖힘
-            Axis.Y =>  delta.x * ROT_SPEED,  // 오른쪽 드래그 = 우회전
-            Axis.Z => -delta.x * ROT_SPEED,  // 오른쪽 드래그 = 좌롤
-            _      => 0f
-        };
+        float screenR  = GetScreenRadius(pivot);
+        float degPerPx = Mathf.Clamp(360f / (2f * Mathf.PI * screenR), 0.15f, 2.5f);
 
         Vector3 worldAxis = axis switch
         {
@@ -163,15 +164,60 @@ public class HanokRotationGizmo : MonoBehaviour
             _      => Vector3.up
         };
 
-        _target.transform.RotateAround(pivot, worldAxis, angle);
+        float angle;
+        var cam = Camera.main;
+        if (cam != null)
+        {
+            // 링 법선(worldAxis)과 카메라→피벗 방향의 외적 = 링의 스크린 탄젠트
+            // 드래그를 이 탄젠트에 투영하면 "링을 잡고 돌리는" 자연스러운 감도 구현
+            Vector3 camToPivot = (pivot - cam.transform.position).normalized;
+            Vector3 tangent3D  = Vector3.Cross(worldAxis, camToPivot).normalized;
+
+            if (tangent3D.sqrMagnitude > 0.01f)
+            {
+                Vector2 sc   = cam.WorldToScreenPoint(pivot);
+                Vector2 se   = (Vector2)(Vector3)cam.WorldToScreenPoint(pivot + tangent3D);
+                Vector2 sDir = (se - sc).sqrMagnitude > 0.25f
+                             ? (se - sc).normalized
+                             : Vector2.right;
+                angle = Vector2.Dot(delta, sDir) * degPerPx;
+            }
+            else
+            {
+                // 링이 카메라 정면을 향할 때 (엣지케이스) — 반시계방향 기준
+                angle = (delta.x - delta.y) * degPerPx * 0.5f;
+            }
+        }
+        else
+        {
+            angle = axis switch
+            {
+                Axis.X =>  delta.y * degPerPx,
+                Axis.Y =>  delta.x * degPerPx,
+                Axis.Z => -delta.x * degPerPx,
+                _      => 0f
+            };
+        }
+
+        // 제자리 회전 — transform.position 변경 없이 오브젝트 자신의 피벗 기준으로 회전
+        _target.transform.Rotate(worldAxis, angle, Space.World);
     }
 
-    // ── 가장 가까운 링 축 탐색 ────────────────────────────
+    // 월드 반경 _radius 를 스크린 픽셀 단위로 변환
+    float GetScreenRadius(Vector3 center)
+    {
+        var cam = Camera.main;
+        if (cam == null) return 80f;
+        Vector2 sc = (Vector2)(Vector3)cam.WorldToScreenPoint(center);
+        Vector3 edgeWorld = center + cam.transform.right * _radius;
+        Vector2 se = (Vector2)(Vector3)cam.WorldToScreenPoint(edgeWorld);
+        return Mathf.Max(Vector2.Distance(sc, se), 20f);
+    }
+
     Axis ClosestAxis(Vector2 mp)
     {
         float best = HIT_PX;
         Axis  res  = Axis.None;
-
         for (int i = 0; i < 3; i++)
         {
             float d = RingScreenDist(_rings[i], mp);
@@ -184,11 +230,9 @@ public class HanokRotationGizmo : MonoBehaviour
     {
         float min = float.MaxValue;
         var   cam = Camera.main;
-
         for (int s = 0; s < SEGS; s++)
         {
             Vector3 wp = lr.GetPosition(s);
-            // 카메라 뒤쪽 점은 스킵
             if (Vector3.Dot(wp - cam.transform.position, cam.transform.forward) <= 0f) continue;
             float d = Vector2.Distance(mp, (Vector2)(Vector3)cam.WorldToScreenPoint(wp));
             if (d < min) min = d;
@@ -196,7 +240,6 @@ public class HanokRotationGizmo : MonoBehaviour
         return min;
     }
 
-    // ── 링 평면 접선벡터 계산 ─────────────────────────────
     static (Vector3 t1, Vector3 t2) RingTangents(Vector3 normal)
     {
         Vector3 h  = Mathf.Abs(Vector3.Dot(normal, Vector3.up)) < 0.99f
@@ -206,47 +249,39 @@ public class HanokRotationGizmo : MonoBehaviour
         return (t1, t2);
     }
 
-    // ── 바운드 유틸 ───────────────────────────────────────
-
-    /// <summary>
-    /// FBX cm-스케일로 bounds가 비정상적으로 클 때도 시각적 중심을 안전하게 반환.
-    /// transform.position 기준 XZ ±4m, Y 0~4m 이내로 클램핑.
-    /// </summary>
     static Vector3 VisualCenter(GameObject obj)
     {
         var rs = obj.GetComponentsInChildren<Renderer>();
-        if (rs.Length == 0) return obj.transform.position + Vector3.up;
+        if (rs.Length == 0) return obj.transform.position + Vector3.up * 1.5f;
         var b = rs[0].bounds;
         foreach (var r in rs) b.Encapsulate(r.bounds);
-
         Vector3 p = obj.transform.position;
         return new Vector3(
-            Mathf.Clamp(b.center.x, p.x - 4f, p.x + 4f),
-            Mathf.Clamp(b.center.y, p.y,       p.y + 4f), // 바닥 이상 4m 이하
-            Mathf.Clamp(b.center.z, p.z - 4f,  p.z + 4f)
+            Mathf.Clamp(b.center.x, p.x - 20f, p.x + 20f),
+            Mathf.Clamp(b.center.y, p.y,        p.y + 20f),
+            Mathf.Clamp(b.center.z, p.z - 20f,  p.z + 20f)
         );
     }
 
     static float RingRadius(GameObject obj)
     {
-        if (Camera.main == null) return 1.0f;
-
-        Vector3 center = VisualCenter(obj);
-        float   dist   = Vector3.Distance(Camera.main.transform.position, center);
+        Vector3 center  = VisualCenter(obj);
+        float   camDist = Camera.main != null
+                        ? Vector3.Distance(Camera.main.transform.position, center)
+                        : 8f;
 
         var rs = obj.GetComponentsInChildren<Renderer>();
         if (rs.Length == 0)
-            return Mathf.Clamp(dist * 0.06f, 0.3f, 2f);
+            return Mathf.Clamp(camDist * 0.10f, 1.5f, 18f);
 
         var b = rs[0].bounds;
         foreach (var rv in rs) b.Encapsulate(rv.bounds);
-        float ext = Mathf.Max(b.size.x, b.size.y, b.size.z);
 
-        // ── 정상 bounds: 에셋 크기에 비례해 링 자동 조정 ──────────────────
-        if (ext <= dist * 5f)
-            return Mathf.Clamp(ext * 0.025f, 0.08f, 3f);
+        // bounds 비정상 (cm-scale FBX)
+        if (b.extents.magnitude > camDist * 5f)
+            return Mathf.Clamp(camDist * 0.10f, 1.5f, 18f);
 
-        // ── 비정상 bounds (cm-scale FBX) → 카메라 거리 fallback ────────────
-        return Mathf.Clamp(dist * 0.025f, 0.12f, 1.0f);
+        // 경계 구 반지름의 110% — 링이 모든 꼭짓점을 감쌈
+        return Mathf.Clamp(b.extents.magnitude * 1.1f, 0.8f, 30f);
     }
 }
