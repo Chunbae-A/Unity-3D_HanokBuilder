@@ -574,7 +574,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8da17862fed23242a610a9e0f6732e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HanokUIManager
-  koreanFont: {fileID: 11400000, guid: 0ef035db76593634697000c2a3cabf42, type: 2}
+  koreanFont: {fileID: 11400000, guid: 551100c5675cc1e438b2861cf64d8df4, type: 2}
 --- !u!1 &1728908535
 GameObject:
   m_ObjectHideFlags: 0

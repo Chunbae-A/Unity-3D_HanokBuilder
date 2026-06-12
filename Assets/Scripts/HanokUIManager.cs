@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -68,8 +67,6 @@ public partial class HanokUIManager : MonoBehaviour
     GameObject  _toastGO;
     TMP_Text    _toastText;
     TMP_Text    _viewBadgeText;
-    Image       _gridBtnImg;
-    bool        _gridVisible  = true;
     bool        _capturing    = false;
     Coroutine   _toastRoutine;
 
@@ -132,9 +129,6 @@ public partial class HanokUIManager : MonoBehaviour
         _scaleGizmo = gameObject.AddComponent<HanokScaleGizmo>();
 
         BuildUI();
-        // 격자 버튼을 초기 활성(ON) 상태 색상으로 동기화
-        if (_gridBtnImg != null)
-            _gridBtnImg.color = new Color(0.25f, 0.75f, 0.50f, 0.35f);
         LoadAssets();
         StartCoroutine(ForceLayout());
     }
@@ -264,102 +258,32 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 한국어 폰트 초기화 (다단계 폴백) ────────────────────
     void InitKoreanFont()
     {
-        const string KOR_CHARS =
-            "가각간갈감강개거건검게겨결경계고골공과관광교구국군그글기긴길" +
-            "나날남내너네노는닌달당대더도독돌동두드들등라래러로록류르를리린림" +
-            "마막만말매머면명모목무문물미밑바박반발방배백번법별병보볼부분불비빛" +
-            "사산살상새서선설성소속손수술시신심아악안앞애야어에여열오온올와왼" +
-            "요우운원위유은을이익인일입자장재저적전정제조종주중지직질집" +
-            "차찾채처초취층치카타태터통투파판편포표품피" +
-            "하학한할함합해행향허험현형호홈화확환활황회후힘" +
-            "이동회전크기삭제격자캡처초기화저장됨뷰포트모듈라이브러리검색" +
-            "문화해설카드용도시대재질출처배치편집위치복제선택해제" +
-            "정면후면우측좌측한옥마당청명낮사랑채온화빛조선장터흐린하늘" +
-            "전통정원초록향기구조소품문양드래그파란핸들카메줌간버튼패닝포커스" +
-            "부재를하세요기와채담장기단처마용마루행랑솟을대문봐속";
-
-        // 1단계: OS 한국어 폰트 탐색
-        string korName = null;
-        foreach (var n in Font.GetOSInstalledFontNames())
+        // 1단계: 프로젝트 내 MalgunGothic.ttf로 Dynamic TMP 폰트 생성
+        // Resources.Load<Font> → 실제 TTF 바이너리 포함 → FreeType이 한글 글리프를 온디맨드 렌더링
+        Font ttf = Resources.Load<Font>("MalgunGothic");
+        if (ttf != null)
         {
-            string nl = n.ToLowerInvariant();
-            if (nl.StartsWith("malgun") || nl.Contains("맑은") ||
-                nl.StartsWith("nanum") || nl.Contains("apple sd gothic") ||
-                nl.StartsWith("noto sans cjk"))
-            { korName = n; break; }
-        }
-        Font osFont = korName != null
-            ? Font.CreateDynamicFontFromOSFont(korName, 42)
-            : Font.CreateDynamicFontFromOSFont(new[]{"맑은 고딕","Malgun Gothic","NanumGothic"}, 42);
-        Debug.Log($"[KorFont] korName={korName ?? "NONE"}, osFont={osFont?.name ?? "NULL"}");
+            var dyn = TMP_FontAsset.CreateFontAsset(ttf);
 
-        // 2단계: CreateFontAsset 시도 + 실제로 한국어가 그려지는지 검증
-        if (osFont != null)
-        {
-            var dyn = TMP_FontAsset.CreateFontAsset(osFont);
             if (dyn != null)
             {
-                // 주요 누락 글자가 실제로 추가되는지 확인 후에만 primary로 사용
-                dyn.TryAddCharacters("구소품양위");
-                if (dyn.HasCharacter('구') && dyn.HasCharacter('위'))
+                dyn.TryAddCharacters("가이포트브러리");
+                if (dyn.HasCharacter('가') && dyn.HasCharacter('이'))
                 {
                     dyn.name = "KorDynamic";
-                    dyn.TryAddCharacters(KOR_CHARS);
                     koreanFont = dyn;
-                    Debug.Log("[KorFont] KorDynamic verified OK → primary");
+                    Debug.Log("[KorFont] Dynamic font from MalgunGothic.ttf OK");
                     return;
                 }
-                Debug.Log("[KorFont] CreateFontAsset succeeded but Korean rendering failed (FreeType/OS font issue)");
-                // 이 dyn은 사용하지 않음 — 기존 static 폰트가 더 많은 글자를 가짐
+                Debug.Log("[KorFont] CreateFontAsset(ttf) — Korean check failed");
             }
-            else
-            {
-                Debug.Log("[KorFont] CreateFontAsset returned null");
-            }
+            else Debug.Log("[KorFont] CreateFontAsset(ttf) returned null");
         }
+        else Debug.Log("[KorFont] Resources.Load<Font>(MalgunGothic) null — TTF not in Resources?");
 
-        // 3단계: 기존 인스펙터 폰트 유지하며 Dynamic 전환 + 글자 추가
-        // ⚠ ClearFontAssetData 절대 호출 금지 — 기존 baked 글리프 사라짐
-        if (koreanFont == null) { Debug.LogWarning("[KorFont] koreanFont null"); return; }
-
-        koreanFont.atlasPopulationMode = AtlasPopulationMode.Dynamic;
-
-        // 3a: 리플렉션으로 m_SourceFontFile 주입 (osFont가 있으면 TryAddCharacters 성공 가능성↑)
-        if (osFont != null)
-        {
-            foreach (var fname in new[]{"m_SourceFontFile","m_LegacyFontAsset"})
-            {
-                var fi = typeof(TMP_FontAsset).GetField(fname, BindingFlags.Instance|BindingFlags.NonPublic)
-                      ?? typeof(TMP_FontAsset).BaseType?.GetField(fname, BindingFlags.Instance|BindingFlags.NonPublic);
-                if (fi != null && fi.FieldType.IsAssignableFrom(typeof(Font)))
-                { fi.SetValue(koreanFont, osFont); Debug.Log($"[KorFont] Injected {fname}"); break; }
-            }
-        }
-
-        // 3b: FontEngine에 malgun.ttf 직접 로드 시도 (TryAddCharacters 가 이를 활용할 수 있음)
-        try
-        {
-            string fontDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Fonts);
-            string malgunPath = System.IO.Path.Combine(fontDir, "malgun.ttf");
-            if (System.IO.File.Exists(malgunPath))
-            {
-                System.Type feType = null;
-                foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies())
-                { feType = asm.GetType("UnityEngine.TextCore.Text.FontEngine"); if (feType != null) break; }
-                if (feType != null)
-                {
-                    var loadM = feType.GetMethod("LoadFontFace", BindingFlags.Public|BindingFlags.Static,
-                        null, new System.Type[]{typeof(string),typeof(int)}, null);
-                    if (loadM != null)
-                        Debug.Log($"[KorFont] FontEngine.LoadFontFace({malgunPath}) = {loadM.Invoke(null, new object[]{malgunPath, 42})}");
-                }
-            }
-        }
-        catch (System.Exception ex) { Debug.LogWarning($"[KorFont] FontEngine reflect: {ex.Message}"); }
-
-        // 3c: TryAddCharacters — 실패해도 ClearFontAssetData 호출 안 함
-        bool added = koreanFont.TryAddCharacters(KOR_CHARS);
-        Debug.Log($"[KorFont] TryAddCharacters={added}, finalFont={koreanFont.name}");
+        // 2단계: 실패 시 static baked 폰트 그대로 유지 (atlasPopulationMode 등 절대 수정 금지)
+        if (koreanFont == null) { Debug.LogWarning("[KorFont] koreanFont null, UI will use default"); return; }
+        Debug.Log($"[KorFont] Fallback: static font {koreanFont.name} ({koreanFont.characterTable.Count} chars)");
     }
 
     void OnDestroy()
@@ -463,40 +387,46 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.identity);
+        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
         obj.name = prefab.name;
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
 
-        // 뷰포트 기본 배치 스케일 3배
-        obj.transform.localScale *= 3f;
+        // 기본 스케일 23 (뷰포트 기준 적정 건물 크기)
+        obj.transform.localScale = Vector3.one * 23f;
 
         OptimizeRenderers(obj);
 
-        // 화면 중앙 서피스에 배치 → 바닥 위 정렬 → 그 후 콜라이더 계산
-        obj.transform.position = GetSpawnPos();
-        PlaceOnFloor(obj);
-        EnsureCollider(obj);
+        var sp = GetSpawnPos();
+        obj.transform.position = new Vector3(sp.x, 0f, sp.z);
 
         AttachSelectable(obj);
         PushUndoSpawn(obj);
         SelectObject(obj);
 
         var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
+        // bounds 계산은 다음 프레임에 — 동일 프레임 내 transform 변경 후 bounds가 미갱신되는 문제 방지
+        StartCoroutine(FinishSpawn(obj, camCtrl));
+    }
+
+    IEnumerator FinishSpawn(GameObject obj, HanokCameraController camCtrl)
+    {
+        yield return null; // 한 프레임 대기 → Renderer.bounds 갱신 보장
+        if (obj == null) yield break;
+        PlaceOnFloor(obj);
+        EnsureCollider(obj);
         camCtrl?.FocusObject(obj);
     }
 
-    // 모델 바닥면이 Y=0(바닥 평면) 위에 오도록 위치 보정
-    // 회전·크기 변경 후에도 항상 정확히 바닥에 붙음
+    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정
     public void PlaceOnFloor(GameObject obj)
     {
         var rends = obj.GetComponentsInChildren<Renderer>();
         if (rends.Length == 0) return;
         var b = rends[0].bounds;
         foreach (var r in rends) b.Encapsulate(r.bounds);
-        // b.min.y 가 음수면 올리고, 양수면 내려서 바닥(Y=0)에 정확히 맞춤
         obj.transform.position += Vector3.up * (-b.min.y);
     }
 
@@ -955,7 +885,6 @@ public partial class HanokUIManager : MonoBehaviour
             Camera.main?.GetComponent<HanokCameraController>()?.ResetView();
         if (kb.ctrlKey.isPressed && kb.zKey.wasPressedThisFrame) DoUndo();
         if (kb.ctrlKey.isPressed && kb.dKey.wasPressedThisFrame) Duplicate();
-        if (kb.gKey.wasPressedThisFrame) ToggleGrid();
         if (kb.pKey.wasPressedThisFrame) TriggerCapture();
     }
 
@@ -987,17 +916,6 @@ public partial class HanokUIManager : MonoBehaviour
         return false;
     }
 
-    // ── 격자 토글 ─────────────────────────────────────────────
-    public void ToggleGrid()
-    {
-        _gridVisible = !_gridVisible;
-        var grid = GameObject.Find("_HanokGrid");
-        if (grid != null) grid.SetActive(_gridVisible);
-        if (_gridBtnImg != null)
-            _gridBtnImg.color = _gridVisible
-                ? new Color(0.25f, 0.75f, 0.50f, 0.35f)   // ON = 초록 활성
-                : new Color(1f, 1f, 1f, 0.08f);            // OFF = 어둡게
-    }
 
     // ── 뷰포트 캡처 ───────────────────────────────────────────
     public void TriggerCapture() { if (!_capturing) StartCoroutine(CaptureViewport()); }

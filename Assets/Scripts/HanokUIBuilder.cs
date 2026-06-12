@@ -188,15 +188,6 @@ public partial class HanokUIManager
 
         ToolbarDivider(panel);
 
-        // ── 격자 토글 버튼 ───────────────────────────────
-        AddToolbarSmallBtn(panel, "격자", "G",
-            new Color(1f, 1f, 1f, 0.55f), new Color(1f, 1f, 1f, 0.15f),
-            new Color(1f, 1f, 1f, 0.25f), new Color(0.25f, 0.80f, 0.55f, 0.50f),
-            () => ToggleGrid(),
-            out _gridBtnImg);
-
-        ToolbarDivider(panel);
-
         // ── 캡처 버튼 ────────────────────────────────────
         AddToolbarSmallBtn(panel, "캡처", "P",
             new Color(0.55f, 0.82f, 1.00f, 0.70f), Color.clear,
