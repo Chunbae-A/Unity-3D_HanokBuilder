@@ -269,6 +269,13 @@ public partial class HanokUIManager
         return _aiCatalog;
     }
 
+    // Claude 응답이 반드시 이 형식을 따르도록 강제하는 JSON Schema (RecommendationList와 1:1 대응)
+    const string RECOMMENDATION_SCHEMA =
+        "{\"type\":\"object\",\"properties\":{\"recommendations\":{\"type\":\"array\",\"items\":" +
+        "{\"type\":\"object\",\"properties\":{\"assetKey\":{\"type\":\"string\"},\"reason\":{\"type\":\"string\"}}," +
+        "\"required\":[\"assetKey\",\"reason\"],\"additionalProperties\":false}}}," +
+        "\"required\":[\"recommendations\"],\"additionalProperties\":false}";
+
     // ── Claude API 호출 ───────────────────────────────────
     IEnumerator RequestAIRecommendations(string userPrompt)
     {
@@ -282,20 +289,23 @@ public partial class HanokUIManager
 
         string instruction =
             "너는 한옥 에셋 추천 도우미야. 아래 카탈로그(assetKey|표시명|태그) 안의 항목 중에서만 골라야 해.\n" +
-            "사용자의 설명에 가장 잘 맞는 에셋을 최대 6개 추천하고, 다른 설명이나 코드블록 없이 " +
-            "다음 JSON 형식으로만 응답해:\n" +
-            "{\"recommendations\":[{\"assetKey\":\"...\",\"reason\":\"...\"}]}\n\n" +
+            "사용자의 설명에 가장 잘 맞는 에셋을 최대 30개 추천해.\n\n" +
             "카탈로그:\n" + BuildAICatalog() +
             "\n사용자 요청: " + userPrompt;
 
         var reqBody = new ClaudeRequest
         {
             model = config.model,
-            max_tokens = 1024,
+            max_tokens = 4096,
             messages = new[] { new ClaudeMessage { role = "user", content = instruction } }
         };
 
-        byte[] bodyRaw = Encoding.UTF8.GetBytes(JsonUtility.ToJson(reqBody));
+        // JsonUtility는 임의의 중첩 객체(JSON Schema)를 직렬화할 수 없으므로,
+        // 직렬화 결과의 마지막 '}' 앞에 output_config를 문자열로 이어붙인다.
+        string baseJson = JsonUtility.ToJson(reqBody);
+        string bodyJson = baseJson[..^1] +
+            ",\"output_config\":{\"format\":{\"type\":\"json_schema\",\"schema\":" + RECOMMENDATION_SCHEMA + "}}}";
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJson);
 
         using var www = new UnityWebRequest("https://api.anthropic.com/v1/messages", "POST");
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -324,10 +334,8 @@ public partial class HanokUIManager
             yield break;
         }
 
-        string json = StripCodeFence(response.content[0].text);
-
         RecommendationList list = null;
-        try { list = JsonUtility.FromJson<RecommendationList>(json); }
+        try { list = JsonUtility.FromJson<RecommendationList>(response.content[0].text); }
         catch (System.Exception e) { Debug.LogError($"[HanokAI] 추천 목록 파싱 실패: {e.Message}"); }
 
         if (list == null || list.recommendations == null || list.recommendations.Length == 0)
@@ -339,19 +347,6 @@ public partial class HanokUIManager
 
         RenderAIRecommendations(list.recommendations);
         EndAIRequest();
-    }
-
-    // 응답이 ```json ... ``` 코드블록으로 감싸져 오는 경우 제거
-    static string StripCodeFence(string text)
-    {
-        text = text.Trim();
-        if (text.StartsWith("```"))
-        {
-            int firstNewline = text.IndexOf('\n');
-            if (firstNewline >= 0) text = text.Substring(firstNewline + 1);
-            if (text.EndsWith("```")) text = text.Substring(0, text.Length - 3);
-        }
-        return text.Trim();
     }
 
     // ── 추천 결과 렌더링 (좌측 패널과 동일한 카드/Spawn 재사용) ──
@@ -369,6 +364,8 @@ public partial class HanokUIManager
             ShowAIMessage("카탈로그에서 일치하는 에셋을 찾지 못했습니다.");
             return;
         }
+
+        SpawnAIRecommendations(matches);
 
         ClearAIResults();
 
@@ -406,6 +403,48 @@ public partial class HanokUIManager
         }
 
         StartCoroutine(RebuildAIResultsLayout());
+    }
+
+    // ── 추천 에셋을 가운데 3D 뷰에 동시 배치 ──────────────
+    // 가장 큰 에셋의 footprint를 기준으로 정사각형 격자를 만들어
+    // 카메라 피벗 주변에 서로 겹치지 않게 펼쳐서 배치한다.
+    void SpawnAIRecommendations(List<HanokAssetEntry> matches)
+    {
+        var basePos = GetSpawnPos();
+        var spawned = new List<GameObject>();
+        float maxFootprint = 0f;
+
+        foreach (var entry in matches)
+        {
+            var obj = SpawnAt(entry.prefab, basePos);
+            spawned.Add(obj);
+
+            var rends = obj.GetComponentsInChildren<Renderer>();
+            if (rends.Length == 0) continue;
+            var b = rends[0].bounds;
+            foreach (var r in rends) b.Encapsulate(r.bounds);
+            maxFootprint = Mathf.Max(maxFootprint, b.size.x, b.size.z);
+        }
+
+        float cell = Mathf.Max(maxFootprint + 1.5f, 2.5f);
+        int cols = Mathf.CeilToInt(Mathf.Sqrt(spawned.Count));
+        int rows = Mathf.CeilToInt(spawned.Count / (float)cols);
+        float startX = -(cols - 1) * cell * 0.5f;
+        float startZ = -(rows - 1) * cell * 0.5f;
+
+        for (int i = 0; i < spawned.Count; i++)
+        {
+            int col = i % cols;
+            int row = i / cols;
+            spawned[i].transform.position = new Vector3(
+                basePos.x + startX + col * cell,
+                basePos.y,
+                basePos.z + startZ + row * cell);
+            PlaceOnFloor(spawned[i]);
+        }
+
+        SelectObject(spawned[spawned.Count - 1]);
+        Camera.main?.GetComponent<HanokCameraController>()?.FrameAll();
     }
 
     void AddAIBlankCell(Transform parent)

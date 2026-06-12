@@ -152,6 +152,17 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
+        var obj = SpawnAt(prefab, GetSpawnPos());
+        SelectObject(obj);
+
+        // 배치 즉시 스무스 카메라 포커스
+        var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
+        camCtrl?.FocusObject(obj);
+    }
+
+    // 지정한 위치에 배치 (선택/카메라 포커스는 호출자가 처리) — AI 추천 다중 배치에 사용
+    public GameObject SpawnAt(GameObject prefab, Vector3 position)
+    {
         var obj = Instantiate(prefab, Vector3.zero, Quaternion.identity);
         obj.name = prefab.name;
 
@@ -162,15 +173,11 @@ public partial class HanokUIManager : MonoBehaviour
         EnsureCollider(obj);
 
         // 바닥 위에 올바르게 배치 (피벗이 중심인 모델 대응)
-        obj.transform.position = GetSpawnPos();
+        obj.transform.position = position;
         PlaceOnFloor(obj);
 
         AttachSelectable(obj);
-        SelectObject(obj);
-
-        // 배치 즉시 스무스 카메라 포커스
-        var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
-        camCtrl?.FocusObject(obj);
+        return obj;
     }
 
     // 모델 바닥면이 Y=0(바닥 평면) 위에 오도록 위치 보정
