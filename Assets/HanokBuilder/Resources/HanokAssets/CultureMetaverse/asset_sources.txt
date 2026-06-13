@@ -3,6 +3,9 @@ Culture Metaverse asset additions
 Downloaded from culture.go.kr Metaverse Data Lab on 2026-06-13.
 
 Characters
+- Korean character 01: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=1
+- Korean character 02: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=2
+- Korean character 03: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=3
 - Merchant male: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=20
 - Merchant female: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=19
 - Korean character 05: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=5
@@ -10,3 +13,22 @@ Characters
 
 Props
 - Gimpo Tongjin dure nori Unity assets: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=82&page=4
+- Merchant female clothing: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=237
+- Merchant male clothing: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=238
+- Merchant female jeogori: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=239
+- Merchant male jeogori: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=240
+- Merchant female skirt: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=241
+- Merchant male pants: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=242
+- Merchant male ankle bands: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=243
+- Merchant female front skirt: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=244
+- Merchant female pants: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=245
+- Merchant male straw hat: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=246
+- Merchant male headband: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=247
+- Merchant male shoes: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=248
+- Merchant female shoes: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=249
+- Merchant male traditional socks: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=250
+- Merchant female traditional socks: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=251
+- Merchant female chest cover: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=252
+- Merchant male backpack: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=253
+- Suwon Hwaseong Haenggung pine tree: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=254
+- Suwon Hwaseong Haenggung willow tree: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=255
