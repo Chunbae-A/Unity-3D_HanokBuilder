@@ -25,9 +25,14 @@ public partial class HanokUIManager : MonoBehaviour
     Transform      assetContent;
     Button[]       toolBtns;
     Button[]       _bgBtns;
-    RectTransform  rightPanelRT;
-    RectTransform  viewSwitcherRT;
-    RectTransform  viewportHintRT;
+
+    RectTransform leftPanelRT;
+    RectTransform _leftExpandBtnRT;
+
+    TMP_Text infoNameText;
+    TMP_InputField posX, posY, posZ;
+    TMP_InputField rotX, rotY, rotZ;
+    TMP_InputField scaleF;
 
     // ── 실행 취소 ─────────────────────────────────────────
     struct UndoEntry
@@ -83,15 +88,24 @@ public partial class HanokUIManager : MonoBehaviour
     static readonly Color NAVY       = Hex("#1B3A6B");
     static readonly Color NAVY_LIGHT = Hex("#2C5282");
     static readonly Color FOREST     = Hex("#3D6B4F");
+    static readonly Color GOLD       = Hex("#9A7228");
 
     // 텍스트
+    static readonly Color TEXT_H     = Hex("#1A1A1A");
     static readonly Color TEXT_MAIN  = Hex("#333333");
     static readonly Color TEXT_SUB   = Hex("#888888");
     static readonly Color TEXT_HINT  = Hex("#BBBBBB");
 
     // 버튼
     static readonly Color BTN_PRI    = Hex("#1B3A6B");
+    static readonly Color BTN_SEC    = Hex("#3D6B4F");
+    static readonly Color BTN_DANGER = Hex("#B03030");
     static readonly Color BTN_GHOST  = Hex("#E8E4DC");
+
+    // 축
+    static readonly Color COL_X = Hex("#C0392B");
+    static readonly Color COL_Y = Hex("#27AE60");
+    static readonly Color COL_Z = Hex("#2980B9");
 
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
@@ -391,15 +405,12 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
-
-        // 기본 스케일 23 (뷰포트 기준 적정 건물 크기)
-        obj.transform.localScale = Vector3.one * 23f;
 
         OptimizeRenderers(obj);
 
@@ -418,11 +429,10 @@ public partial class HanokUIManager : MonoBehaviour
     // 지정한 위치에 배치 — AI 추천 다중 배치에 사용
     public GameObject SpawnAt(GameObject prefab, Vector3 position)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
-        obj.transform.localScale = Vector3.one * 23f;
         OptimizeRenderers(obj);
         obj.transform.position = position;
         PlaceOnFloor(obj);
@@ -588,6 +598,90 @@ public partial class HanokUIManager : MonoBehaviour
         if (obj != null)
             Camera.main?.GetComponent<HanokCameraController>()
                         ?.ShiftPivotToward(obj.transform.position);
+    }
+
+    void RefreshInfoPanel()
+    {
+        if (infoNameText == null) return;
+        bool has = selectedObject != null;
+        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
+        infoNameText.color = has ? TEXT_H : TEXT_HINT;
+    }
+
+    // ── Transform 동기화 ──────────────────────────────────
+    void SyncTransformInputs()
+    {
+        if (selectedObject == null || posX == null) return;
+        var t = selectedObject.transform;
+        if (!posX.isFocused)  posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
+        if (!posY.isFocused)  posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
+        if (!posZ.isFocused)  posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
+        if (!rotX.isFocused)  rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
+        if (!rotY.isFocused)  rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
+        if (!rotZ.isFocused)  rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
+        if (!scaleF.isFocused) scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
+    }
+
+    void ForceSyncTransform()
+    {
+        if (selectedObject == null || posX == null) return;
+        var t = selectedObject.transform;
+        posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
+        posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
+        posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
+        rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
+        rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
+        rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
+        scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
+    }
+
+    // ── Transform 적용 ───────────────────────────────────
+    public void ApplyPos()
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.position =
+            new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
+    }
+
+    public void ApplyRot()
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.eulerAngles =
+            new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
+    }
+
+    public void ApplyScale()
+    {
+        if (!selectedObject) return;
+        float s = Mathf.Max(0.001f, Pf(scaleF.text));
+        selectedObject.transform.localScale = Vector3.one * s;
+    }
+
+    public void QuickRot(float deg)
+    {
+        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
+    }
+
+    public void ResetRot()
+    {
+        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
+    }
+
+    public void SetScale(float s)
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.localScale = Vector3.one * s;
+        scaleF?.SetTextWithoutNotify(s.ToString("F2"));
+    }
+
+    public void Duplicate()
+    {
+        if (!selectedObject) return;
+        var c = Instantiate(selectedObject);
+        c.name = selectedObject.name + "_복사";
+        c.transform.position += Vector3.right * 2f;
+        AttachSelectable(c);
+        SelectObject(c);
     }
 
     public void DeleteSelected()
@@ -851,6 +945,12 @@ public partial class HanokUIManager : MonoBehaviour
     }
 
     // ── 유틸 ─────────────────────────────────────────────
+    static float Pf(string s) =>
+        float.TryParse(s,
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out float v) ? v : 0f;
+
     void KorFont(TMP_Text t)  { if (koreanFont) t.font = koreanFont; }
 
     TMP_FontAsset _lat;
