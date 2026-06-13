@@ -1,0 +1,12 @@
+Culture Metaverse asset additions
+
+Downloaded from culture.go.kr Metaverse Data Lab on 2026-06-13.
+
+Characters
+- Merchant male: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=20
+- Merchant female: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=19
+- Korean character 05: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=5
+- Korean character 04: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=4
+
+Props
+- Gimpo Tongjin dure nori Unity assets: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=82&page=4
