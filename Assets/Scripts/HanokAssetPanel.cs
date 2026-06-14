@@ -31,6 +31,11 @@ public partial class HanokUIManager
     // ── 상태 필드 ────────────────────────────────────────
     Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
 
+    // 썸네일 순차 캡처 큐 — 한 번에 1개씩 처리해 프레임 스파이크 방지
+    readonly Queue<(GameObject prefab, RawImage target)> _thumbQueue =
+        new Queue<(GameObject, RawImage)>();
+    bool _thumbQueueRunning = false;
+
     const string LABEL_ALL = "전체";
 
     // 카테고리 정의 (Resources/HanokCategories에서 로드한 SO들을 분류해 보관)
@@ -328,6 +333,9 @@ public partial class HanokUIManager
     {
         if (assetContent == null) return;
 
+        // 이전 캡처 요청 취소 — 카테고리/검색 변경 시 불필요한 작업 방지
+        _thumbQueue.Clear();
+
         var children = new List<GameObject>();
         foreach (Transform ch in assetContent)
         {
@@ -375,7 +383,7 @@ public partial class HanokUIManager
                     var entry = filtered[pi];
                     var prefab = entry.prefab;
                     var rawImg = MakeGridCell(row.transform, entry.displayName, () => Spawn(prefab));
-                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
+                    EnqueueThumbnail(prefab, rawImg);
                 }
                 else
                 {
@@ -559,6 +567,27 @@ public partial class HanokUIManager
         if (HasKorean(label)) KorFont(t); else LatFont(t);
 
         return raw;
+    }
+
+    // ── 썸네일 순차 큐 ───────────────────────────────────
+    // RefreshAssetList·AI 패널 모두 이 메서드로 요청 → 프레임당 1개씩 순차 처리
+    void EnqueueThumbnail(GameObject prefab, RawImage target)
+    {
+        _thumbQueue.Enqueue((prefab, target));
+        if (!_thumbQueueRunning)
+            StartCoroutine(ProcessThumbnailQueue());
+    }
+
+    IEnumerator ProcessThumbnailQueue()
+    {
+        _thumbQueueRunning = true;
+        while (_thumbQueue.Count > 0)
+        {
+            var (prefab, target) = _thumbQueue.Dequeue();
+            yield return StartCoroutine(CaptureThumbnail(prefab, target));
+            yield return null; // 캡처 사이 1프레임 여유
+        }
+        _thumbQueueRunning = false;
     }
 
     // ── 썸네일 캡처 ──────────────────────────────────────

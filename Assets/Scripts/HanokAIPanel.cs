@@ -393,7 +393,7 @@ public partial class HanokUIManager
                 {
                     var prefab = matches[idx].prefab;
                     var rawImg = MakeGridCell(row.transform, matches[idx].displayName, () => Spawn(prefab));
-                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
+                    EnqueueThumbnail(prefab, rawImg);
                 }
                 else
                 {
