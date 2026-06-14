@@ -55,9 +55,9 @@ public partial class HanokUIManager
         BuildToast(root);
         BuildAIPromptWidget(root);
         BuildLeftToggleButton(root);
+        BuildAIOverlay(root);
 
-        // 기본 상태: 우측 패널 숨김 → 가운데 뷰 영역 확장
-        SetRightPanelVisible(false);
+        // 기본 상태: 우측 편집 패널 고정 표시, 왼쪽 패널 열림
         SetLeftPanelVisible(true);
     }
 
@@ -157,7 +157,7 @@ public partial class HanokUIManager
         searchInput.onValueChanged.AddListener(OnSearchChanged);
     }
 
-    // ── 오른쪽 헤더 ───────────────────────────────────────
+    // ── 오른쪽 헤더 (편집 패널 — 항상 고정 표시) ─────────
     void BuildRightHeader(RectTransform panel)
     {
         var hdr = NewRT(panel, "Hdr");
@@ -166,44 +166,11 @@ public partial class HanokUIManager
         hdr.offsetMin = new Vector2(0, -56); hdr.offsetMax = Vector2.zero;
         hdr.GetComponent<Image>().color = NAVY;
 
-        var t = MakeLabel(hdr, "AI 에셋 추천", 13, Color.white, bold: true);
+        var t = MakeLabel(hdr, "선택 부재 편집", 13, Color.white, bold: true);
         var tRT = t.GetComponent<RectTransform>();
         tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-44, 0);
+        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = Vector2.zero;
         t.alignment = TextAlignmentOptions.Left;
-
-        // 패널 접기 버튼 — 반투명 원형 배경 + 흰색 화살표(▶)
-        // 누르면 패널이 닫히고 우측 하단 AI 토글 버튼이 다시 나타남
-        var foldRT = NewRT(hdr, "FoldBtn");
-        foldRT.anchorMin = new Vector2(1, 0.5f); foldRT.anchorMax = new Vector2(1, 0.5f);
-        foldRT.pivot = new Vector2(1, 0.5f);
-        foldRT.offsetMin = new Vector2(-40, -14); foldRT.offsetMax = new Vector2(-12, 14);
-
-        var foldImg = foldRT.GetComponent<Image>();
-        foldImg.sprite = AICircleSprite();
-        foldImg.type = Image.Type.Simple;
-        foldImg.color = new Color(1, 1, 1, 0.12f);
-
-        var foldBtn = foldRT.gameObject.AddComponent<Button>();
-        foldBtn.targetGraphic = foldImg;
-        var fcs = foldBtn.colors;
-        fcs.normalColor = new Color(1, 1, 1, 0.12f);
-        fcs.highlightedColor = new Color(1, 1, 1, 0.24f);
-        fcs.pressedColor = new Color(1, 1, 1, 0.36f);
-        foldBtn.colors = fcs;
-        foldBtn.onClick.AddListener(() => SetRightPanelVisible(false));
-
-        // 화살표 아이콘 — 버튼 중앙에 작게 배치
-        var arrowGO = new GameObject("Arrow");
-        arrowGO.transform.SetParent(foldRT, false);
-        var arrowRT = arrowGO.AddComponent<RectTransform>();
-        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
-        arrowRT.sizeDelta = new Vector2(11, 11);
-        var arrowImg = arrowGO.AddComponent<Image>();
-        arrowImg.sprite = AITriangleSprite();
-        arrowImg.type = Image.Type.Simple;
-        arrowImg.color = new Color(1, 1, 1, 0.92f);
-        arrowImg.raycastTarget = false;
     }
 
     // ── 뷰포트 툴바 (가운데 왼쪽 플로팅) ─────────────────
@@ -726,6 +693,70 @@ public partial class HanokUIManager
         KorFont(arrowT);
 
         btn.gameObject.SetActive(false);
+    }
+
+    // ── AI 추천 오버레이 (편집 패널 위에 표시되는 별도 창) ─
+    void BuildAIOverlay(Transform root)
+    {
+        var panel = NewRT(root, "AIOverlay");
+        panel.anchorMin = new Vector2(1, 0);
+        panel.anchorMax = new Vector2(1, 1);
+        panel.pivot     = new Vector2(1, 0.5f);
+        panel.offsetMin = new Vector2(-280, 0);
+        panel.offsetMax = Vector2.zero;
+        StylePanel(panel.gameObject);
+        _aiOverlayRT = panel;
+
+        var hdr = NewRT(panel, "Hdr");
+        hdr.anchorMin = new Vector2(0, 1); hdr.anchorMax = new Vector2(1, 1);
+        hdr.pivot = new Vector2(0.5f, 1);
+        hdr.offsetMin = new Vector2(0, -56); hdr.offsetMax = Vector2.zero;
+        hdr.GetComponent<Image>().color = NAVY;
+
+        var title = MakeLabel(hdr, "AI 에셋 추천", 13, Color.white, bold: true);
+        var tRT = title.GetComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-44, 0);
+        title.alignment = TextAlignmentOptions.Left;
+
+        var closeRT = NewRT(hdr, "CloseBtn");
+        closeRT.anchorMin = new Vector2(1, 0.5f); closeRT.anchorMax = new Vector2(1, 0.5f);
+        closeRT.pivot = new Vector2(1, 0.5f);
+        closeRT.offsetMin = new Vector2(-40, -14); closeRT.offsetMax = new Vector2(-12, 14);
+
+        var closeImg = closeRT.GetComponent<Image>();
+        closeImg.sprite = AICircleSprite();
+        closeImg.type = Image.Type.Simple;
+        closeImg.color = new Color(1, 1, 1, 0.12f);
+
+        var closeBtn = closeRT.gameObject.AddComponent<Button>();
+        closeBtn.targetGraphic = closeImg;
+        var ccs = closeBtn.colors;
+        ccs.normalColor      = new Color(1, 1, 1, 0.12f);
+        ccs.highlightedColor = new Color(1, 1, 1, 0.24f);
+        ccs.pressedColor     = new Color(1, 1, 1, 0.36f);
+        closeBtn.colors = ccs;
+        closeBtn.onClick.AddListener(() => SetAIOverlayVisible(false));
+
+        var closeLabel = new GameObject("CloseT");
+        closeLabel.transform.SetParent(closeRT, false);
+        var clRT = closeLabel.AddComponent<RectTransform>();
+        clRT.anchorMin = clRT.anchorMax = new Vector2(0.5f, 0.5f);
+        clRT.sizeDelta = new Vector2(14, 14);
+        var clT = closeLabel.AddComponent<TextMeshProUGUI>();
+        clT.text = "X"; clT.fontSize = 10f;
+        clT.color = new Color(1, 1, 1, 0.92f);
+        clT.alignment = TextAlignmentOptions.Center;
+        clT.raycastTarget = false;
+        LatFont(clT);
+
+        var scroll = MakeScroll(panel, 56);
+        var content = scroll.transform.Find("Viewport/Content");
+        BuildAIInputBar(content);
+        Spacer(content, 8);
+        BuildAIRecommendationSection(content);
+
+        panel.gameObject.SetActive(false);
     }
 
     // ── 왼쪽 패널 표시/숨김 ────────────────────────────────

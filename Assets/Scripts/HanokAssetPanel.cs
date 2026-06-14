@@ -402,6 +402,7 @@ public partial class HanokUIManager
     }
 
     // 선택된 메인/서브 카테고리를 모두 포함하고, 검색어가 이름에 포함되는 에셋만 추려냄 (AND 조건)
+    // 성능 제한: 최대 1개만 반환 (컴퓨터 사양 대응)
     List<HanokAssetEntry> GetFilteredAssets()
     {
         var result = new List<HanokAssetEntry>();
@@ -417,6 +418,7 @@ public partial class HanokUIManager
                 continue;
 
             result.Add(asset);
+            break;  // 에셋 1개만 표시
         }
 
         return result;
@@ -606,21 +608,28 @@ public partial class HanokUIManager
         // FBX 재질 색상 보존: 깨진 셰이더를 URP/Lit으로 교체하면서 원본 색상 유지
         FixMaterialColors(inst);
 
-        var rends = inst.GetComponentsInChildren<Renderer>();
+        // 비활성 자식도 포함해 bounds 계산 (LOD/비활성 메시 누락 방지)
+        var rends = inst.GetComponentsInChildren<Renderer>(true);
         var bounds = GetRendererBounds(rends, inst.transform.position);
-        FitThumbnailCamera(bounds);
 
-        // 아이소메트릭 스타일 각도 (약간 옆+위)
         float dist = Mathf.Max(bounds.size.magnitude * 1.35f, 0.5f);
         _thumbCam.transform.position =
             bounds.center + new Vector3(1.1f, 0.85f, -1.05f).normalized * dist;
         _thumbCam.transform.LookAt(bounds.center);
 
-        // 해상도 128×128 + 4x MSAA (선명도 개선)
-        var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
-        rt.antiAliasing = 4;
+        // 클리핑 평면: 카메라-오브젝트 거리를 고려해 올바르게 설정
+        _thumbCam.nearClipPlane = 0.1f;
+        _thumbCam.farClipPlane  = dist + bounds.size.magnitude + 10f;
+
+        var rt = new RenderTexture(128, 128, 16, RenderTextureFormat.ARGB32);
+        rt.Create();
         _thumbCam.targetTexture = rt;
-        _thumbCam.Render();
+
+        // URP에서 disabled 카메라의 Render() 미동작 문제 방지:
+        // 한 프레임 동안 활성화해 파이프라인이 정상 렌더하도록 함
+        _thumbCam.enabled = true;
+        yield return new WaitForEndOfFrame();
+        _thumbCam.enabled = false;
         _thumbCam.targetTexture = null;
 
         if (target != null) { target.texture = rt; target.color = Color.white; }

@@ -9,13 +9,6 @@ public partial class HanokUIManager
 {
     void BuildEditPanel(Transform content)
     {
-        // ── AI 프롬프트 입력 바 ────────────────────────────
-        BuildAIInputBar(content);
-
-        // ── AI 에셋 추천 ──────────────────────────────────
-        Spacer(content, 8);
-        BuildAIRecommendationSection(content);
-
         Spacer(content, 12);
 
         // 이름 카드

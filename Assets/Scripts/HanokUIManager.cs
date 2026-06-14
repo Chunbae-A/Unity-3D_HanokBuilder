@@ -31,6 +31,7 @@ public partial class HanokUIManager : MonoBehaviour
     RectTransform  viewportHintRT;
     RectTransform  _toolbarPanelRT;
     RectTransform  _leftToggleBtnRT;   // 왼쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
+    RectTransform  _aiOverlayRT;       // AI 추천 오버레이 패널 (편집 패널 위에 표시)
 
     // ── 편집 패널 UI 참조 ─────────────────────────────────
     TMP_Text       infoNameText;
@@ -458,10 +459,10 @@ public partial class HanokUIManager : MonoBehaviour
         camCtrl?.FocusObject(obj);
     }
 
-    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정
+    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정 (비활성 자식 포함)
     public void PlaceOnFloor(GameObject obj)
     {
-        var rends = obj.GetComponentsInChildren<Renderer>();
+        var rends = obj.GetComponentsInChildren<Renderer>(true);
         if (rends.Length == 0) return;
         var b = rends[0].bounds;
         foreach (var r in rends) b.Encapsulate(r.bounds);
@@ -482,35 +483,33 @@ public partial class HanokUIManager : MonoBehaviour
         return pt;
     }
 
-    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존
+    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존 (비활성 자식 포함)
     void OptimizeRenderers(GameObject obj)
     {
         var urpLit = Shader.Find("Universal Render Pipeline/Lit");
 
-        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        foreach (var r in obj.GetComponentsInChildren<Renderer>(true))
         {
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             r.receiveShadows    = true;
 
             if (urpLit == null) continue;
 
-            // sharedMaterials 로 깨진 셰이더 여부만 확인 (인스턴스 미생성)
             bool needFix = false;
             foreach (var sm in r.sharedMaterials)
             {
                 if (sm == null) continue;
                 var sn = sm.shader?.name ?? "";
-                if (sn == "Hidden/InternalErrorShader" || sn == "")
+                if (sn == "Hidden/InternalErrorShader" || sn == "Standard" || sn == "")
                 { needFix = true; break; }
             }
             if (!needFix) continue;
 
-            // r.materials → 인스턴스 생성 (원본 프리팹 재질 보호)
             foreach (var m in r.materials)
             {
                 if (m == null) continue;
                 var sn = m.shader?.name ?? "";
-                if (sn != "Hidden/InternalErrorShader" && sn != "") continue;
+                if (sn != "Hidden/InternalErrorShader" && sn != "Standard" && sn != "") continue;
                 Color   col = m.HasProperty("_Color")   ? m.GetColor("_Color")     : Color.white;
                 Texture tx  = m.HasProperty("_MainTex") ? m.GetTexture("_MainTex") : null;
                 m.shader = urpLit;
@@ -527,7 +526,7 @@ public partial class HanokUIManager : MonoBehaviour
         FixNegativeBoxColliders(obj);
         if (obj.GetComponentInChildren<Collider>() != null) return;
         var col = obj.AddComponent<BoxCollider>();
-        var rs  = obj.GetComponentsInChildren<Renderer>();
+        var rs  = obj.GetComponentsInChildren<Renderer>(true);
         if (rs.Length == 0) return;
         var b = rs[0].bounds;
         for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
@@ -584,10 +583,10 @@ public partial class HanokUIManager : MonoBehaviour
             hl.Show();
         }
 
-        // 바닥 아래로 박힌 오브젝트 자동 보정 (b.min.y < 0 이면 올려서 바닥에 정렬)
+        // 바닥 아래로 박힌 오브젝트 자동 보정 (비활성 자식 포함)
         if (obj != null)
         {
-            var rends = obj.GetComponentsInChildren<Renderer>();
+            var rends = obj.GetComponentsInChildren<Renderer>(true);
             if (rends.Length > 0)
             {
                 var b = rends[0].bounds;
