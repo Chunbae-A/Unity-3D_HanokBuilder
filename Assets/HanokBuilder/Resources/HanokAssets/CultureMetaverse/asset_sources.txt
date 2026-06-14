@@ -32,3 +32,5 @@ Props
 - Merchant male backpack: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=253
 - Suwon Hwaseong Haenggung pine tree: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=254
 - Suwon Hwaseong Haenggung willow tree: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=255
+- Object direct FBX batch: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object
+  See Props/ObjectDirectFBX/object_direct_fbx_sources.tsv for per-file source URLs.
