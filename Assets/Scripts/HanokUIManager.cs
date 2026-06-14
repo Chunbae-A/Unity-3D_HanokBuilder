@@ -115,7 +115,7 @@ public partial class HanokUIManager : MonoBehaviour
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
     const string ASSETINFO_PATH = "HanokAssetInfo";
-    const int    THUMB_LAYER = 31;
+    const int    THUMB_LAYER = 30;
 
     // ── 생명주기 ──────────────────────────────────────────
     // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)

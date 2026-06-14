@@ -259,7 +259,7 @@ public class HanokCameraController : MonoBehaviour
             foreach (var r in rends) b.Encapsulate(r.bounds);
             _tPivot = b.center;
             float maxE = Mathf.Max(b.size.x, b.size.y, b.size.z);
-            _tDist = Mathf.Clamp(maxE * 3f, 3f, 80f);
+            _tDist = Mathf.Clamp(maxE * 2f, 3f, 300f);
         }
         if (!_ortho && _pitch < 25f) _pitch = DEF_PITCH;
         _focusing = true;
