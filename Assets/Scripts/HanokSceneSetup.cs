@@ -666,12 +666,12 @@ public static class HanokSceneSetup
         MarketScale(mk.transform, V(3.2f, 0f, -3.8f));
 
         // 멱통 (straw bundles) scatter
-        float[][] bpos = {{-3f,-2.5f},{3f,-2f},{-4f,1f},{5f,1.5f},{-2f,3f}};
+        float[][] bpos = new float[][] { new[]{-3f,-2.5f}, new[]{3f,-2f}, new[]{-4f,1f}, new[]{5f,1.5f}, new[]{-2f,3f} };
         foreach (float[] bp in bpos)
             StrawBundle(mk.transform, V(bp[0], 0f, bp[1]));
 
         // 항아리 (onggi jars) cluster
-        float[][] jpos = {{-6f,-1f},{-5.5f,-0.4f},{-5f,-1.2f},{4.5f,0.8f},{5f,0.2f}};
+        float[][] jpos = new float[][] { new[]{-6f,-1f}, new[]{-5.5f,-0.4f}, new[]{-5f,-1.2f}, new[]{4.5f,0.8f}, new[]{5f,0.2f} };
         foreach (float[] jp in jpos)
         {
             MkCyl(mk, V(jp[0], 0.20f, jp[1]), 0.17f, 0.38f, clay, SM_CLAY);
@@ -689,7 +689,7 @@ public static class HanokSceneSetup
         CreateLantern(mk.transform, V( 0.0f, 0f,  1.0f));
 
         // Silhouette figures (simple shapes suggesting people/movement)
-        float[][] figPos = {{-1f,0f},{2f,-1f},{-3f,1f},{1f,2f},{-2f,-2f}};
+        float[][] figPos = new float[][] { new[]{-1f,0f}, new[]{2f,-1f}, new[]{-3f,1f}, new[]{1f,2f}, new[]{-2f,-2f} };
         foreach (float[] fp in figPos)
             MarketFigure(mk.transform, V(fp[0], 0f, fp[1]));
     }
@@ -880,7 +880,7 @@ public static class HanokSceneSetup
         GardenRock(g.transform, V(-5.3f,0.10f,-3.2f), 0.22f, Hex("787068"), Hex("60585C"));
 
         // 이끼 패치 (moss patches)
-        float[][] mossPos = {{-3f,-4f},{2f,-3.5f},{-1f,3f},{4f,2.5f},{-5f,1f},{6f,-1f},{3f,-5f},{-2f,-2f}};
+        float[][] mossPos = new float[][] { new[]{-3f,-4f}, new[]{2f,-3.5f}, new[]{-1f,3f}, new[]{4f,2.5f}, new[]{-5f,1f}, new[]{6f,-1f}, new[]{3f,-5f}, new[]{-2f,-2f} };
         foreach (float[] mp in mossPos)
             MkBox(g, V(mp[0], 0.02f, mp[1]), V(0.7f+Mathf.Abs(mp[0])%0.4f, 0.04f, 0.5f+Mathf.Abs(mp[1])%0.3f),
                   moss, SM_ROUGH_STONE);
