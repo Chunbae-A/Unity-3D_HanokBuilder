@@ -257,14 +257,20 @@ public partial class HanokUIManager
         if (_aiCatalog != null) return _aiCatalog;
 
         var sb = new StringBuilder();
-        foreach (var entry in _assetEntries)
+        foreach (var entry in GetAICatalogEntries())
         {
-            sb.Append(entry.prefab.name).Append('|').Append(entry.displayName).Append('|');
+            sb.Append(entry.assetKey).Append('|').Append(entry.displayName).Append('|');
             sb.Append(string.Join(",", entry.searchTags));
             sb.Append('\n');
         }
         _aiCatalog = sb.ToString();
         return _aiCatalog;
+    }
+
+    List<HanokAssetEntry> GetAICatalogEntries()
+    {
+        var cultureEntries = _assetEntries.FindAll(e => e.isCultureAsset);
+        return cultureEntries.Count > 0 ? cultureEntries : _assetEntries;
     }
 
     // Claude 응답이 반드시 이 형식을 따르도록 강제하는 JSON Schema (RecommendationList와 1:1 대응)
@@ -280,14 +286,23 @@ public partial class HanokUIManager
         var config = Resources.Load<ClaudeApiConfig>("ClaudeApiConfig");
         if (config == null || string.IsNullOrEmpty(config.apiKey))
         {
-            ShowAIMessage("API 키가 설정되지 않았습니다.\nAssets/HanokBuilder/Resources/ClaudeApiConfig 를 생성하고 키를 입력하세요.");
+            var localItems = BuildLocalRecommendations(userPrompt);
+            if (localItems.Length == 0)
+            {
+                ShowAIMessage("추가 에셋에서 일치하는 항목을 찾지 못했습니다.\nAPI 키를 설정하면 더 자연어에 가까운 추천을 받을 수 있습니다.");
+            }
+            else
+            {
+                RenderAIRecommendations(localItems);
+                ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
+            }
             EndAIRequest();
             yield break;
         }
 
         string instruction =
-            "너는 한옥 에셋 추천 도우미야. 아래 카탈로그(assetKey|표시명|태그) 안의 항목 중에서만 골라야 해.\n" +
-            "사용자의 설명에 가장 잘 맞는 에셋을 최대 30개 추천해.\n\n" +
+            "너는 문화포털 메타버스 에셋 추천 도우미야. 아래 카탈로그(assetKey|표시명|태그) 안의 항목 중에서만 골라야 해.\n" +
+            "사용자의 설명에 가장 잘 맞는 추가 에셋을 최대 30개 추천해. assetKey는 카탈로그의 값을 정확히 복사해야 해.\n\n" +
             "카탈로그:\n" + BuildAICatalog() +
             "\n사용자 요청: " + userPrompt;
 
@@ -353,7 +368,7 @@ public partial class HanokUIManager
         var matches = new List<HanokAssetEntry>();
         foreach (var item in items)
         {
-            var entry = _assetEntries.Find(e => e.prefab.name == item.assetKey);
+            var entry = _assetEntries.Find(e => e.assetKey == item.assetKey || e.prefab.name == item.assetKey);
             if (entry != null) matches.Add(entry);
         }
 
@@ -374,6 +389,95 @@ public partial class HanokUIManager
 
         _aiResultsPanelRT.gameObject.SetActive(true);
         StartCoroutine(RebuildAIResultsLayout());
+    }
+
+    RecommendationItem[] BuildLocalRecommendations(string prompt)
+    {
+        var catalogEntries = GetAICatalogEntries();
+        var tokens = TokenizePrompt(prompt);
+        var scored = new List<ScoredAsset>();
+
+        foreach (var entry in catalogEntries)
+        {
+            int score = ScoreLocalAsset(entry, tokens);
+            if (score > 0)
+                scored.Add(new ScoredAsset { entry = entry, score = score });
+        }
+
+        scored.Sort((a, b) =>
+        {
+            int byScore = b.score.CompareTo(a.score);
+            if (byScore != 0) return byScore;
+            return string.Compare(a.entry.displayName, b.entry.displayName, System.StringComparison.OrdinalIgnoreCase);
+        });
+
+        if (scored.Count == 0)
+        {
+            foreach (var entry in catalogEntries)
+            {
+                if (scored.Count >= 30) break;
+                scored.Add(new ScoredAsset { entry = entry, score = 0 });
+            }
+        }
+
+        int count = Mathf.Min(30, scored.Count);
+        var result = new RecommendationItem[count];
+        for (int i = 0; i < count; i++)
+            result[i] = new RecommendationItem
+            {
+                assetKey = scored[i].entry.assetKey,
+                reason = "local"
+            };
+        return result;
+    }
+
+    List<string> TokenizePrompt(string prompt)
+    {
+        var tokens = new List<string>();
+        var sb = new StringBuilder();
+        foreach (char c in prompt)
+        {
+            if (char.IsLetterOrDigit(c) || c >= '가' && c <= '힣')
+            {
+                sb.Append(char.ToLowerInvariant(c));
+                continue;
+            }
+
+            AddToken(tokens, sb);
+        }
+        AddToken(tokens, sb);
+        return tokens;
+    }
+
+    void AddToken(List<string> tokens, StringBuilder sb)
+    {
+        if (sb.Length < 2)
+        {
+            sb.Length = 0;
+            return;
+        }
+
+        tokens.Add(sb.ToString());
+        sb.Length = 0;
+    }
+
+    int ScoreLocalAsset(HanokAssetEntry entry, List<string> tokens)
+    {
+        if (tokens.Count == 0) return 1;
+
+        string display = entry.displayName.ToLowerInvariant();
+        string name = entry.prefab.name.ToLowerInvariant();
+        string haystack = (entry.assetKey + " " + entry.displayName + " " + entry.prefab.name + " " +
+            string.Join(" ", entry.searchTags)).ToLowerInvariant();
+
+        int score = 0;
+        foreach (var token in tokens)
+        {
+            if (display.Contains(token)) score += 8;
+            if (name.Contains(token)) score += 5;
+            if (haystack.Contains(token)) score += 3;
+        }
+        return score;
     }
 
     void ClearAIResults()
@@ -449,5 +553,11 @@ public partial class HanokUIManager
     class RecommendationList
     {
         public RecommendationItem[] recommendations;
+    }
+
+    class ScoredAsset
+    {
+        public HanokAssetEntry entry;
+        public int score;
     }
 }
