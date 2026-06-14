@@ -410,7 +410,7 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
@@ -437,7 +437,7 @@ public partial class HanokUIManager : MonoBehaviour
     // 지정한 위치에 배치 — AI 추천 다중 배치에 사용
     public GameObject SpawnAt(GameObject prefab, Vector3 position)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;

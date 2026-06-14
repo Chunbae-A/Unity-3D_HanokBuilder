@@ -593,7 +593,7 @@ public partial class HanokUIManager
     }
 
     // ── 썸네일 캡처 ──────────────────────────────────────
-    // 카메라 시야 밖 먼 곳에 prefab을 임시 인스턴스화해 전용 카메라로 찍은 뒤 RenderTexture로 표시
+    // orthographic 카메라로 prefab을 먼 곳에 임시 인스턴스화해 찍은 뒤 RenderTexture로 표시
     IEnumerator CaptureThumbnail(GameObject prefab, RawImage target)
     {
         yield return null;
@@ -605,31 +605,16 @@ public partial class HanokUIManager
         inst.hideFlags = HideFlags.HideAndDontSave;
         SetLayerAll(inst, THUMB_LAYER);
 
-        // FBX 재질 색상 보존: 깨진 셰이더를 URP/Lit으로 교체하면서 원본 색상 유지
         FixMaterialColors(inst);
 
-        // 비활성 자식도 포함해 bounds 계산 (LOD/비활성 메시 누락 방지)
-        var rends = inst.GetComponentsInChildren<Renderer>(true);
+        var rends = inst.GetComponentsInChildren<Renderer>();
         var bounds = GetRendererBounds(rends, inst.transform.position);
+        FitThumbnailCamera(bounds);
 
-        float dist = Mathf.Max(bounds.size.magnitude * 1.35f, 0.5f);
-        _thumbCam.transform.position =
-            bounds.center + new Vector3(1.1f, 0.85f, -1.05f).normalized * dist;
-        _thumbCam.transform.LookAt(bounds.center);
-
-        // 클리핑 평면: 카메라-오브젝트 거리를 고려해 올바르게 설정
-        _thumbCam.nearClipPlane = 0.1f;
-        _thumbCam.farClipPlane  = dist + bounds.size.magnitude + 10f;
-
-        var rt = new RenderTexture(128, 128, 16, RenderTextureFormat.ARGB32);
-        rt.Create();
+        var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
+        rt.antiAliasing = 4;
         _thumbCam.targetTexture = rt;
-
-        // URP에서 disabled 카메라의 Render() 미동작 문제 방지:
-        // 한 프레임 동안 활성화해 파이프라인이 정상 렌더하도록 함
-        _thumbCam.enabled = true;
-        yield return new WaitForEndOfFrame();
-        _thumbCam.enabled = false;
+        _thumbCam.Render();
         _thumbCam.targetTexture = null;
 
         if (target != null) { target.texture = rt; target.color = Color.white; }
@@ -711,6 +696,10 @@ public partial class HanokUIManager
             maxZ = Mathf.Max(maxZ, Mathf.Abs(local.z));
         }
 
+        float padding = 1.18f;
+        _thumbCam.orthographicSize = Mathf.Max(maxY, maxX, 0.5f) * padding;
+        _thumbCam.transform.rotation = viewRot;
+        _thumbCam.transform.position = cen + viewDir * Mathf.Max(maxZ + 10f, 10f);
         _thumbCam.nearClipPlane = 0.01f;
         _thumbCam.farClipPlane  = Mathf.Max(maxZ + 30f, 50f);
     }
@@ -720,15 +709,14 @@ public partial class HanokUIManager
         if (_thumbCam != null) return;
 
         var go = new GameObject("_HanokThumbCam");
-        // HideAndDontSave 대신 HideInHierarchy만 설정: URP는 Camera.allCameras에서 HideAndDontSave 카메라를 제외하므로 렌더링이 안 됨
-        go.hideFlags  = HideFlags.HideInHierarchy;
+        go.hideFlags  = HideFlags.HideAndDontSave;
         _thumbCam     = go.AddComponent<Camera>();
         _thumbCam.enabled          = false;
         _thumbCam.clearFlags       = CameraClearFlags.SolidColor;
         _thumbCam.backgroundColor  = Hex("#EEE8DC");
-        _thumbCam.fieldOfView      = 28f;
-        _thumbCam.nearClipPlane    = 0.05f;
-        _thumbCam.farClipPlane     = 20000f;
+        _thumbCam.orthographic     = true;
+        _thumbCam.nearClipPlane    = 0.01f;
+        _thumbCam.farClipPlane     = 100f;
         _thumbCam.cullingMask      = 1 << THUMB_LAYER;
         _thumbCam.allowMSAA        = true;
 
