@@ -839,9 +839,9 @@ public static class HanokSceneSetup
         }
 
         // 연꽃 (lotus flowers) × 6
-        float[][] lotusPos = {
-            new[]{-1.5f,0.5f},{1.0f,1.2f},{-0.5f,-0.5f},
-            new[]{ 2.0f,-0.3f},{-2.2f,1.0f},{0.5f,2.0f}
+        float[][] lotusPos = new float[][] {
+            new[]{-1.5f,0.5f}, new[]{1.0f,1.2f}, new[]{-0.5f,-0.5f},
+            new[]{ 2.0f,-0.3f}, new[]{-2.2f,1.0f}, new[]{0.5f,2.0f}
         };
         foreach (float[] lp in lotusPos)
         {
@@ -1238,7 +1238,7 @@ public static class HanokSceneSetup
         sun.shadowStrength = 0.75f;
         sun.shadowBias     = 0.015f;
         sun.shadowNormalBias = 0.4f;
-        sun.shadowDistance = 120f; // covers full scene
+        QualitySettings.shadowDistance = 120f; // covers full scene
         sun.transform.eulerAngles = V(42f, -38f, 0f);
 
         // Sky fill (blue-ish, soft, from above)
