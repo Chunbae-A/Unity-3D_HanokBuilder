@@ -9,14 +9,12 @@ public partial class HanokUIManager
 {
     void BuildEditPanel(Transform content)
     {
-        // ══ A. Transform 편집 ═════════════════════════════
         Spacer(content, 8);
-        InfoSectionLabel(content, "배치 편집");
+        InfoSectionLabel(content, "선택한 에셋");
 
         // 이름 카드
         Spacer(content, 6);
-        var nameCard = RowBox(content, "NameCard", 52, BG_PANEL);
-        var nameCardImg = nameCard.GetComponent<Image>();
+        var nameCard = RowBox(content, "NameCard", 64, BG_PANEL);
         var ncOutline = nameCard.gameObject.AddComponent<Outline>();
         ncOutline.effectColor = BORDER; ncOutline.effectDistance = new Vector2(1,-1);
 
@@ -28,13 +26,24 @@ public partial class HanokUIManager
         abRT.offsetMin = Vector2.zero; abRT.offsetMax = new Vector2(4, 0);
         accentBar.AddComponent<Image>().color = NAVY;
 
+        var cap = new GameObject("Caption"); cap.transform.SetParent(nameCard, false);
+        var capRT = cap.AddComponent<RectTransform>();
+        capRT.anchorMin = new Vector2(0, 0.56f); capRT.anchorMax = Vector2.one;
+        capRT.offsetMin = new Vector2(14, 0); capRT.offsetMax = new Vector2(-8, -4);
+        var capText = cap.AddComponent<TextMeshProUGUI>();
+        capText.text = "현재 선택";
+        capText.fontSize = 9;
+        capText.color = TEXT_SUB;
+        capText.alignment = TextAlignmentOptions.Left;
+        KorFont(capText);
+
         var nt = new GameObject("NameT"); nt.transform.SetParent(nameCard, false);
         var ntRT = nt.AddComponent<RectTransform>();
-        ntRT.anchorMin = Vector2.zero; ntRT.anchorMax = Vector2.one;
-        ntRT.offsetMin = new Vector2(12, 4); ntRT.offsetMax = new Vector2(-8, -4);
+        ntRT.anchorMin = Vector2.zero; ntRT.anchorMax = new Vector2(1, 0.58f);
+        ntRT.offsetMin = new Vector2(14, 5); ntRT.offsetMax = new Vector2(-8, 0);
         infoNameText = nt.AddComponent<TextMeshProUGUI>();
         infoNameText.text = "부재를 선택하세요";
-        infoNameText.fontSize = 12;
+        infoNameText.fontSize = 12.5f;
         infoNameText.fontStyle = FontStyles.Bold;
         infoNameText.color = TEXT_HINT;
         infoNameText.alignment = TextAlignmentOptions.Left;
@@ -42,8 +51,13 @@ public partial class HanokUIManager
         infoNameText.textWrappingMode = TextWrappingModes.NoWrap;
         KorFont(infoNameText);
 
-        Spacer(content, 8);
+        Spacer(content, 6);
+        MiniHint(content, "라이브러리나 AI 추천으로 배치한 에셋을 선택하면 값이 자동으로 채워집니다.");
+        Spacer(content, 10);
         Divider(content);
+
+        Spacer(content, 4);
+        InfoSectionLabel(content, "변형 조정");
 
         // 위치
         Spacer(content, 4);
@@ -85,6 +99,8 @@ public partial class HanokUIManager
         // ── 액션 버튼 ──────────────────────────────────────
         Spacer(content, 12);
         Divider(content);
+        Spacer(content, 4);
+        InfoSectionLabel(content, "빠른 작업");
         Spacer(content, 8);
         ActionRow(content, 40,
             ("복  제", Duplicate,      BTN_SEC,    Color.white),
@@ -122,9 +138,32 @@ public partial class HanokUIManager
         var t = go.AddComponent<TextMeshProUGUI>();
         t.text = kor; t.fontSize = 9; t.fontStyle = FontStyles.Bold;
         t.color = TEXT_SUB; t.alignment = TextAlignmentOptions.Left;
-        // 마진을 위한 RectTransform 오프셋
-        var rt = go.GetComponent<RectTransform>();
-        if (rt == null) rt = go.AddComponent<RectTransform>();
+        KorFont(t);
+    }
+
+    void MiniHint(Transform parent, string text)
+    {
+        var go = new GameObject("Hint");
+        go.transform.SetParent(parent, false);
+        var le = go.AddComponent<LayoutElement>();
+        le.preferredHeight = 34;
+        le.flexibleWidth = 1;
+        go.AddComponent<Image>().color = Hex("#F3F0E8");
+
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero;
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(12, 4);
+        tRT.offsetMax = new Vector2(-12, -4);
+
+        var t = tgo.AddComponent<TextMeshProUGUI>();
+        t.text = text;
+        t.fontSize = 9;
+        t.color = TEXT_SUB;
+        t.alignment = TextAlignmentOptions.Left;
+        t.textWrappingMode = TextWrappingModes.Normal;
         KorFont(t);
     }
 

@@ -4,6 +4,9 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 /// <summary>
 /// Left asset library panel for HanokUIManager.
@@ -41,8 +44,10 @@ public partial class HanokUIManager
 
     // ── 상태 필드 ────────────────────────────────────────
     Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
+    readonly Dictionary<GameObject, Texture> _editorPreviewCache = new Dictionary<GameObject, Texture>();
 
     const string LABEL_ALL = "전체";
+    const string CULTURE_INDEX_PATH = "HanokAssets/CultureMetaverse/culture_metaverse_index";
 
     // 카테고리 정의 (Resources/HanokCategories에서 로드한 SO들을 분류해 보관)
     readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
@@ -96,6 +101,7 @@ public partial class HanokUIManager
                 assetInfoByKey[info.assetKey] = info;
 
         _assetEntries.Clear();
+        _aiCatalog = null;
         var addedPrefabs = new HashSet<GameObject>();
         var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
         foreach (var prefab in raw)
@@ -226,6 +232,9 @@ public partial class HanokUIManager
         HashSet<GameObject> addedPrefabs)
     {
         var objectTitles = LoadObjectDirectTitles();
+        if (LoadCultureMetaverseAssetIndex(assetInfoByKey, addedPrefabs, objectTitles))
+            return;
+
         AddCultureAssetGroup(
             "HanokAssets/CultureMetaverse/Characters",
             _cultureCharactersCategory,
@@ -256,6 +265,58 @@ public partial class HanokUIManager
             objectTitles);
     }
 
+    bool LoadCultureMetaverseAssetIndex(
+        Dictionary<string, HanokAssetInfo> assetInfoByKey,
+        HashSet<GameObject> addedPrefabs,
+        Dictionary<string, string> objectTitles)
+    {
+        var index = Resources.Load<TextAsset>(CULTURE_INDEX_PATH);
+        if (index == null) return false;
+
+        int loaded = 0;
+        var lines = index.text.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i].Trim();
+            if (string.IsNullOrEmpty(line) || line.StartsWith("#") || line.StartsWith("category\t"))
+                continue;
+
+            var parts = line.Split('\t');
+            if (parts.Length < 3) continue;
+
+            string categoryKey = parts[0].Trim();
+            string resourcePath = parts[1].Trim();
+            string broadTags = parts[2].Trim();
+            var subCategory = GetCultureSubCategory(categoryKey);
+            if (subCategory == null) continue;
+
+            var prefab = Resources.Load<GameObject>(resourcePath);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[HanokBuilder] CultureMetaverse index asset not found: {resourcePath}");
+                continue;
+            }
+
+            if (AddCultureAsset(prefab, resourcePath, subCategory, broadTags, assetInfoByKey, addedPrefabs, objectTitles))
+                loaded++;
+        }
+
+        Debug.Log($"[HanokBuilder] {loaded} CultureMetaverse indexed assets loaded");
+        return loaded > 0;
+    }
+
+    HanokAssetCategory GetCultureSubCategory(string key)
+    {
+        return key switch
+        {
+            "characters" => _cultureCharactersCategory,
+            "merchant" => _cultureMerchantCategory,
+            "festival" => _cultureFestivalCategory,
+            "object" => _cultureObjectCategory,
+            _ => null
+        };
+    }
+
     void AddCultureAssetGroup(
         string resourcePath,
         HanokAssetCategory subCategory,
@@ -266,21 +327,34 @@ public partial class HanokUIManager
     {
         foreach (var prefab in Resources.LoadAll<GameObject>(resourcePath))
         {
-            if (prefab == null || addedPrefabs.Contains(prefab)) continue;
-
-            assetInfoByKey.TryGetValue(prefab.name, out var info);
-            string displayName = GetCultureDisplayName(prefab.name, info, objectTitles);
-            string[] searchTags = BuildCultureSearchTags(prefab.name, displayName, broadTags, info);
-            string assetKey = resourcePath + "/" + prefab.name;
-            _assetEntries.Add(new HanokAssetEntry(
-                prefab,
-                assetKey,
-                new[] { _cultureCategory, subCategory },
-                displayName,
-                searchTags,
-                true));
-            addedPrefabs.Add(prefab);
+            AddCultureAsset(prefab, resourcePath + "/" + prefab.name, subCategory, broadTags,
+                assetInfoByKey, addedPrefabs, objectTitles);
         }
+    }
+
+    bool AddCultureAsset(
+        GameObject prefab,
+        string assetKey,
+        HanokAssetCategory subCategory,
+        string broadTags,
+        Dictionary<string, HanokAssetInfo> assetInfoByKey,
+        HashSet<GameObject> addedPrefabs,
+        Dictionary<string, string> objectTitles)
+    {
+        if (prefab == null || addedPrefabs.Contains(prefab)) return false;
+
+        assetInfoByKey.TryGetValue(prefab.name, out var info);
+        string displayName = GetCultureDisplayName(prefab.name, info, objectTitles);
+        string[] searchTags = BuildCultureSearchTags(prefab.name, displayName, broadTags, info);
+        _assetEntries.Add(new HanokAssetEntry(
+            prefab,
+            assetKey,
+            new[] { _cultureCategory, subCategory },
+            displayName,
+            searchTags,
+            true));
+        addedPrefabs.Add(prefab);
+        return true;
     }
 
     Dictionary<string, string> LoadObjectDirectTitles()
@@ -813,6 +887,32 @@ public partial class HanokUIManager
             yield return null;
 
         if (target == null) yield break;
+
+#if UNITY_EDITOR
+        if (_editorPreviewCache.TryGetValue(prefab, out var cachedPreview) && cachedPreview != null)
+        {
+            AssignThumbnail(target, cachedPreview);
+            yield break;
+        }
+
+        for (int tries = 0; tries < 45; tries++)
+        {
+            Texture preview = AssetPreview.GetAssetPreview(prefab);
+            if (preview == null && tries > 8)
+                preview = AssetPreview.GetMiniThumbnail(prefab);
+
+            if (preview != null && !AssetPreview.IsLoadingAssetPreview(prefab.GetInstanceID()))
+            {
+                _editorPreviewCache[prefab] = preview;
+                AssignThumbnail(target, preview);
+                yield break;
+            }
+
+            yield return null;
+            if (target == null) yield break;
+        }
+#endif
+
         EnsureThumbCam();
 
         // 캡처마다 고유한 먼 위치를 사용 — Destroy()가 프레임 끝까지 지연되는 동안
@@ -836,9 +936,16 @@ public partial class HanokUIManager
         _thumbCam.Render();
         _thumbCam.targetTexture = null;
 
-        if (target != null) { target.texture = rt; target.color = Color.white; }
+        if (target != null) AssignThumbnail(target, rt);
         else { rt.Release(); Destroy(rt); }
         Destroy(inst);
+    }
+
+    void AssignThumbnail(RawImage target, Texture texture)
+    {
+        if (target == null || texture == null) return;
+        target.texture = texture;
+        target.color = Color.white;
     }
 
     // FBX 재질 색상 보존 — Standard → URP 변환 시 색상·텍스처 유지

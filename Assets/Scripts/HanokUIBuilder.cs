@@ -34,14 +34,14 @@ public partial class HanokUIManager
         assetContent = lScroll.transform.Find("Viewport/Content");
         leftPanelRT = leftRT;
 
-        // ── 오른쪽 패널 (280px, 배치 편집) ────────────────
+        // ── 오른쪽 패널 (300px, 배치 편집) ────────────────
         var rightRT = NewRT(root, "Right");
         rightRT.anchorMin = new Vector2(1, 0); rightRT.anchorMax = new Vector2(1, 1);
         rightRT.pivot = new Vector2(1, 0.5f);
-        rightRT.offsetMin = new Vector2(-280, 0); rightRT.offsetMax = Vector2.zero;
+        rightRT.offsetMin = new Vector2(-300, 0); rightRT.offsetMax = Vector2.zero;
         StylePanel(rightRT.gameObject);
         BuildRightHeader(rightRT);
-        var rScroll = MakeScroll(rightRT, 56);
+        var rScroll = MakeScroll(rightRT, 72);
         BuildEditPanel(rScroll.transform.Find("Viewport/Content"));
 
         // ── 가운데 뷰포트 툴바 + 배경 선택 + 스케일 핸들 ──────
@@ -157,14 +157,22 @@ public partial class HanokUIManager
         var hdr = NewRT(panel, "Hdr");
         hdr.anchorMin = new Vector2(0, 1); hdr.anchorMax = new Vector2(1, 1);
         hdr.pivot = new Vector2(0.5f, 1);
-        hdr.offsetMin = new Vector2(0, -56); hdr.offsetMax = Vector2.zero;
+        hdr.offsetMin = new Vector2(0, -72); hdr.offsetMax = Vector2.zero;
         hdr.GetComponent<Image>().color = NAVY;
 
         var t = MakeLabel(hdr, "배치 편집", 13, Color.white, bold: true);
         var tRT = t.GetComponent<RectTransform>();
-        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-12, 0);
+        tRT.anchorMin = new Vector2(0, 0.45f); tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-12, -4);
         t.alignment = TextAlignmentOptions.Left;
+
+        var sub = MakeLabel(hdr, "선택한 에셋의 위치·회전·크기를 조정합니다", 9.5f,
+            new Color(1f, 1f, 1f, 0.68f));
+        var subRT = sub.GetComponent<RectTransform>();
+        subRT.anchorMin = Vector2.zero; subRT.anchorMax = new Vector2(1, 0.5f);
+        subRT.offsetMin = new Vector2(16, 8); subRT.offsetMax = new Vector2(-12, 0);
+        sub.alignment = TextAlignmentOptions.Left;
+        KorFont(sub);
     }
 
     // ── 뷰포트 툴바 (가운데 왼쪽 플로팅) ─────────────────
@@ -373,8 +381,8 @@ public partial class HanokUIManager
         badge.anchorMin = new Vector2(1f, 1f);
         badge.anchorMax = new Vector2(1f, 1f);
         badge.pivot     = new Vector2(1f, 1f);
-        badge.offsetMin = new Vector2(-348, -36);
-        badge.offsetMax = new Vector2(-290,  -6);
+        badge.offsetMin = new Vector2(-368, -36);
+        badge.offsetMax = new Vector2(-310,  -6);
         badge.gameObject.GetComponent<Image>().color = new Color(0.10f, 0.12f, 0.16f, 0.82f);
         var ol = badge.gameObject.AddComponent<Outline>();
         ol.effectColor = new Color(1f, 1f, 1f, 0.10f); ol.effectDistance = new Vector2(1, -1);
@@ -424,7 +432,7 @@ public partial class HanokUIManager
         _toastText.color = new Color(1f, 1f, 1f, 0f);
         _toastText.alignment = TextAlignmentOptions.Center;
         _toastText.overflowMode = TextOverflowModes.Ellipsis;
-        _toastText.enableWordWrapping = false;
+        _toastText.textWrappingMode = TextWrappingModes.NoWrap;
         _toastText.raycastTarget = false;
         KorFont(_toastText);
         _toastGO = toast.gameObject;

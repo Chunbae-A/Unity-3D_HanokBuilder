@@ -22,6 +22,10 @@ public partial class HanokUIManager
     static Sprite _aiCircleSprite;
     static Sprite _aiTriangleSprite;
     static Sprite _aiRoundedRectSprite;
+    const int AI_AUTO_PLACE_MIN = 3;
+    const int AI_AUTO_PLACE_MAX = 12;
+    const float AI_AUTO_PLACE_SPACING = 3.2f;
+    const float AI_AUTO_PLACE_JITTER = 0.65f;
 
     // ── 화면 하단 중앙: 둥근 모서리 프롬프트 바 (항상 표시) ──
     void BuildAIPromptWidget(Transform root)
@@ -293,8 +297,9 @@ public partial class HanokUIManager
             }
             else
             {
-                RenderAIRecommendations(localItems);
-                ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
+                int placed = RenderAIRecommendations(localItems);
+                if (placed == 0)
+                    ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
             }
             EndAIRequest();
             yield break;
@@ -362,20 +367,22 @@ public partial class HanokUIManager
         EndAIRequest();
     }
 
-    // ── 추천 결과 렌더링: 결과 패널에 가로 한 줄로 표시 (카드/Spawn은 좌측 패널과 동일하게 재사용) ──
-    void RenderAIRecommendations(RecommendationItem[] items)
+    // ── 추천 결과 렌더링 + 자동 배치 ─────────────────────
+    int RenderAIRecommendations(RecommendationItem[] items)
     {
         var matches = new List<HanokAssetEntry>();
+        var seen = new HashSet<string>();
         foreach (var item in items)
         {
             var entry = _assetEntries.Find(e => e.assetKey == item.assetKey || e.prefab.name == item.assetKey);
-            if (entry != null) matches.Add(entry);
+            if (entry != null && seen.Add(entry.assetKey))
+                matches.Add(entry);
         }
 
         if (matches.Count == 0)
         {
             ShowAIMessage("카탈로그에서 일치하는 에셋을 찾지 못했습니다.");
-            return;
+            return 0;
         }
 
         ClearAIResults();
@@ -389,6 +396,63 @@ public partial class HanokUIManager
 
         _aiResultsPanelRT.gameObject.SetActive(true);
         StartCoroutine(RebuildAIResultsLayout());
+
+        int placed = AutoPlaceRecommendationMatches(matches);
+        if (placed > 0)
+            ShowToast($"추천 에셋 {placed}개를 자동 배치했습니다.");
+        return placed;
+    }
+
+    int AutoPlaceRecommendationMatches(List<HanokAssetEntry> matches)
+    {
+        if (matches == null || matches.Count == 0) return 0;
+
+        var pool = new List<HanokAssetEntry>(matches);
+        for (int i = 0; i < pool.Count; i++)
+        {
+            int swap = UnityEngine.Random.Range(i, pool.Count);
+            var tmp = pool[i];
+            pool[i] = pool[swap];
+            pool[swap] = tmp;
+        }
+
+        int min = Mathf.Min(AI_AUTO_PLACE_MIN, pool.Count);
+        int max = Mathf.Min(AI_AUTO_PLACE_MAX, pool.Count);
+        int count = UnityEngine.Random.Range(min, max + 1);
+        var center = GetAIAutoPlaceCenter();
+        int cols = Mathf.CeilToInt(Mathf.Sqrt(count));
+        int rows = Mathf.CeilToInt(count / (float)cols);
+        int placed = 0;
+        GameObject last = null;
+
+        for (int i = 0; i < count; i++)
+        {
+            int col = i % cols;
+            int row = i / cols;
+            float x = (col - (cols - 1) * 0.5f) * AI_AUTO_PLACE_SPACING;
+            float z = (row - (rows - 1) * 0.5f) * AI_AUTO_PLACE_SPACING;
+            x += UnityEngine.Random.Range(-AI_AUTO_PLACE_JITTER, AI_AUTO_PLACE_JITTER);
+            z += UnityEngine.Random.Range(-AI_AUTO_PLACE_JITTER, AI_AUTO_PLACE_JITTER);
+
+            var obj = SpawnAt(pool[i].prefab, center + new Vector3(x, 0f, z));
+            if (obj == null) continue;
+
+            var euler = obj.transform.eulerAngles;
+            obj.transform.eulerAngles = new Vector3(euler.x, UnityEngine.Random.Range(0f, 360f), euler.z);
+            PlaceOnFloor(obj);
+            last = obj;
+            placed++;
+        }
+
+        if (last != null) SelectObject(last);
+        return placed;
+    }
+
+    Vector3 GetAIAutoPlaceCenter()
+    {
+        var center = GetSpawnPos();
+        center.y = 0f;
+        return center;
     }
 
     RecommendationItem[] BuildLocalRecommendations(string prompt)

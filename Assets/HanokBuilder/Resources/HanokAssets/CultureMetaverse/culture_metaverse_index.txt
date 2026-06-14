@@ -1,0 +1,227 @@
+# category	resource_path	broad_tags
+category	resource_path	broad_tags
+characters	HanokAssets/CultureMetaverse/Characters/KoreanCharacter01/DH_Man_01	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+characters	HanokAssets/CultureMetaverse/Characters/KoreanCharacter02/DH_Man_02	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+characters	HanokAssets/CultureMetaverse/Characters/KoreanCharacter03/DH_Man_03	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+characters	HanokAssets/CultureMetaverse/Characters/KoreanCharacter04/DH_Man_04	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+characters	HanokAssets/CultureMetaverse/Characters/KoreanCharacter05/DH_Woman_01	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+characters	HanokAssets/CultureMetaverse/Characters/MerchantFemale/SM_Merchant_FeMale	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+characters	HanokAssets/CultureMetaverse/Characters/MerchantMale/SM_Merchant_Male	문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_AnkleBands_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Backpack_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_ChestCover_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_FineTree	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_FrontSkirt_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Headband_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Jeogori_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Jeogori_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_MerchantCloth_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_MerchantCloth_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Pants_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Pants_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Shoes_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Shoes_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_Skirt_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_StrawHat_Male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_TraditionalSocks_Female	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_TraditionalSocks_male	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+merchant	HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment/SM_WIllowTree	문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_BaeghogiFlag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_BalchaeSaddle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_BanggatHat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Basket	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_BulimangMuzzle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_CarrierCushion	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_CheonglyonggiFlag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothExcellency	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothExcellency_Bot	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothExcellency_Hat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothExcellency_Tobacco	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothExcellency_Top	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothWhite	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothWhite_Bot	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothWhite_Hat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothWhite_Top	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothYellow	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothYellow_Bot	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothYellow_Hat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ClothYellow_Top	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Cow	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_CucurbitBucket	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_DeungsagiFlag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_DosjaliMat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_DulegiFlag1	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_DulegiFlag2	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_DuteuleCushion	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_EggBag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Flail	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_FoodMesh	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_FrameCarrier	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_GalaeRope	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_GalaeShovel	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_GalaeShovel_NoRope	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_GilmaSaddle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_GomulaeRake	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Hamper	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Haystack	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_HyeonmugiFlag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_JaenggiPlow	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_JeolguThresher	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_JolongtaegiBag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_JonggalaeShovel	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_JujaggiFlag	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_KoreanHandPlow	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_LineFan	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_MeHammer	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_MeongseogMat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_MildaeMop	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Mortar	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_PanaebagLadle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Pestle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_PullCar	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Rake	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Rice	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_RiceBale	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_RiceSeedlings	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Rope	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_SackOfRice	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_SamtaegiTray	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Scale	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Scarecrow	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_SheafOfRice	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Sickle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_SorghumBroom	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_SseolaeHarrow	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_StrawShoes_01	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_StrawShoes_02	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Thresher	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_ThreshingFan	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Torch	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_TownFlag1	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_TownFlag2	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_TownFlag3	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_TownFlag4	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Tray	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_TtwaliPedestal	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_TtwalitaeRope	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_UjangRaincoat	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_Winnower	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_YeonggiFlag1	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_YeonggiFlag2	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_YongduleLadle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_YongduleLadle_Base	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+festival	HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs/SM_YongduleLadle_Ladle	문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/102_창원의집 - 괭이 1/Adze_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/103_창원의집 - 괭이 2/Adze_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/104_창원의집 - 괭이 3/Adze_03	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/105_창원의집 - 함 1/Box_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/106_창원의집 - 함 2/Box_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/107_창원의집 - 함 3/Box_03	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/108_창원의집 - 궤/Cabinet_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/109_창원의집 - 수통/Cylinder	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/110_창원의집 - 좌경/Dressing_Stand	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/111_창원의집 - 오리장식 1/Goose_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/112_창원의집 - 오리장식 2/Goose_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/113_창원의집 - 곡괭이/Hammer_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/114_창원의집 - 망치 1/Hammer_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/115_창원의집 - 망치 2/Hammer_03	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/116_창원의집 - 망치 3/Hammer_04	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/117_창원의집 - 다리미/Iron	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/118_창원의집 - 장독대/Jar	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/119_창원의집 - 주전자/Kettle	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/120_창원의집 - 걸쇠 1/Latch_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/121_창원의집 - 걸쇠 2/Latch_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/122_창원의집 - 창살/Lattice_Window	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/123_창원의집 - 연자매/Mill	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/124_창원의집 - 평대패 1/Plane_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/125_창원의집 - 평대패 2/Plane_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/126_창원의집 - 평대패 3/Plane_03	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/127_창원의집 - 평대패 4/Plane_04	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/128_창원의집 - 단지 1/Porcelain	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/129_창원의집 - 주전자/Porcelain_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/130_창원의집 - 연적/Porcelain_03	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/131_창원의집 - 단지 2/Porcelain_04	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/132_창원의집 - 절구/Prorcelain_05	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/133_창원의집 - 접시 1/Porcelain_06	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/134_창원의집 - 접시 2/Porcelain_07	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/135_창원의집 - 술병/Porcelain_08	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/136_창원의집 - 백자/Porcelain_09	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/137_창원의집 - 기름병/Porcelain_10	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/138_창원의집 - 매통/Props_10	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/139_창원의집 - 받침대/Prop_10	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/140_창원의집 - 거두/RipSaw_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/141_창원의집 - 깎낫/Sickle	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/142_창원의집 - 못줄대/Spin_Drill	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/143_창원의집 - 3단 찬합/Three_Tier_Box	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/144_창원의집 - 나막신 1/Woodenshoes_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/145_창원의집 - 나막신 2/Woodenshoes_02	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/146_창원의집 - 토시/Wristlet_01	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/152_검무복 모자/TraditionalHat	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/153_건고 1/1-1-Gun Drum	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/170_신제총통 1/01_육군박물관_신제총통_011004	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/171_신제총통 2/02_육군박물관_신제총통_011005	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/172_세총통/03_육군박물관_세총통_011011	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/173_소승자총통 1/04_육군박물관_소승자총통_011020	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/174_소승자총통 2/05_육군박물관_소승자총통_011019	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/175_승자총통/06_육군박물관_승자총통_011040	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/176_삼총통/07_육군박물관_삼총통_011028	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/177_화희발사기/08_육군박물관_화희발사기_011055	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/178_사전총통/09_육군박물관_사전총통_011056	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/179_쌍승자총통/10_육군박물관_쌍승자총통_011057	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/180_별승자총통/11_육군박물관_별승자총통_011062	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/181_삼원삼안총/12_육군박물관_삼원삼안총_011063	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/182_현자총통/13_육군박물관_현자총통_012006	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/183_쌍열식권총/14_육군박물관_쌍열식권총_011071	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/184_불랑기자포/15_육군박물관_불랑기자포_012035	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/185_화약통/19_육군박물관_화약통_021001	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/186_목각제화약통/20_육군박물관_목각제화약통_021008	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/187_조총탄대(오구)/21_육군박물관_조총탄대(오구)_021003	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/188_호신검(대원군진장명 호신도) 1/28_육군박물관_호신검(대원군진장명 호신도)_034028-1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/189_호신검(대원군진장명 호신도) 2/28_육군박물관_호신검(대원군진장명 호신도)_034028-2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/190_편곤/31_육군박물관_편곤_072002	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/191_차폭/33_육군박물관_차폭_072014	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/192_띠돈/43_육군박물관_띠돈_043029	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/193_전통,용두형전통(용머리모양)/46_육군박물관_전통,용두형전통(용머리모양)_051018	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/194_전통/47_육군박물관_전통_051033	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/195_흑각궁,윤동신각궁/48_육군박물관_흑각궁,윤동신각궁_052010	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/196_호미각궁 1/49_육군박물관_호미각궁_000000-1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/197_호미각궁 2/49_육군박물관_호미각궁_000000-2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/198_촉돌이/52_육군박물관_촉돌이_054010	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/199_오각재촉돌이/53_육군박물관_오각재촉돌이_054007	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/200_숫깍지/55_육군박물관_숫깍지_054003	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/201_은도금 용여의주 등자 1/61_육군박물관_은도금 용여의주 등자_062012-1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/202_은도금 용여의주 등자 2/61_육군박물관_은도금 용여의주 등자_062012-2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/203_철제 용두 은도금 등자 1/61_육군박물관_철제 용두 은도금 등자_062018-1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/204_철제 용두 은도금 등자 2/61_육군박물관_철제 용두 은도금 등자_062018-2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/205_철제 용두 은도금 등자 3/62_육군박물관_철제 용두 은도금 등자_062018-1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/206_철제 용두 은도금 등자 4/62_육군박물관_철제 용두 은도금 등자_062018-2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/207_청자마상배/64_육군박물관_청자마상배_063027	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/208_어마요령/67_육군박물관_어마요령_063028	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/209_홍천 괘석리 사사자 삼층석탑(보물)/01_홍천 괘석리 사사자 삼층석탑(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/210_홍천 희망리 삼층석탑(보물)/02_홍천 희망리 삼층석탑(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/211_홍천 희망리 당간지주(보물)/03_홍천 희망리 당간지주(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/212_홍천물걸리 석조여래좌상(보 541)/04-1_홍천물걸리 석조여래좌상(보 541)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/213_홍천물걸리 석조비로자나불좌상(보 542)/04-2_홍천물걸리 석조비로자나불좌상(보 542)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/214_홍천물걸리 석조대좌(보 543)/04-3_홍천물걸리 석조대좌(보 543)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/215_홍천 물걸리 석조대좌 및 광배/04-4_홍천 물걸리 석조대좌 및 광배	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/216_홍천물걸리 대좌편1/04-5_홍천물걸리 대좌편1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/217_홍천물걸리 대좌편2/04-6_홍천물걸리 대좌편2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/218_홍천물걸리 대좌편3/04-7_홍천물걸리 대좌편3	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/219_홍천물걸리 대좌편 4(국립춘천박물관 소장)/04-8_홍천물걸리 대좌편 4(국립춘천박물관 소장)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/220_홍천물걸리 광배편/04-9_홍천물걸리 광배편	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/221_홍천 물걸리 석조대좌(보물)/05_홍천 물걸리 석조대좌(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/222_홍천 물걸리 석조대좌 및 광배(보물)/06_홍천 물걸리 석조대좌 및 광배(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/223_홍천 물걸리 석조비로자나불좌상(보물)/07_홍천 물걸리 석조비로자나불좌상(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/224_홍천 물걸리 삼층석탑(보물)/08_홍천 물걸리 삼층석탑(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/225_홍천 물걸리 석조여래좌상(보물)/09_홍천 물걸리 석조여래좌상(보물)	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/226_창원의집 - 촛대/창원의집-촛대	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/227_수원화성 홍이포/SM_Cannon	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/228_수원화성 홍이포_부품1/SM_CannonParts_001	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/229_수원화성 홍이포_부품2/SM_CannonParts_002	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/230_수원화성 홍이포_부품3/SM_CannonParts_003	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/231_수원화성 장안위 영기/SM_Flag_Wind_1	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/232_수원화성 장안위 순시기/SM_Flag_Wind_2	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/233_수원화성 장안위 깃발/SM_Flag_Wind_3	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/234_수원화성 팔달위 영기/SM_Flag_Wind_4	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/235_수원화성 팔달위 순시기/SM_Flag_Wind_5	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
+object	HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/236_수원화성 팔달위 깃발/SM_Flag_Wind_6	문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통
