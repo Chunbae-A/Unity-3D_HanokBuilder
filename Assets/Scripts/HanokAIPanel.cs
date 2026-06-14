@@ -120,9 +120,6 @@ public partial class HanokUIManager
 
     void ToggleRightPanel() => SetAIOverlayVisible(!(_aiOverlayRT?.gameObject.activeSelf ?? false));
 
-    // 우측 편집 패널은 항상 고정 표시 — 이 함수는 호환성 유지용
-    void SetRightPanelVisible(bool visible) { }
-
     // 자유 텍스트 입력 필드 (검색창과 동일한 구성, placeholder만 다름)
     TMP_InputField MakeAIInputField(Transform parent)
     {

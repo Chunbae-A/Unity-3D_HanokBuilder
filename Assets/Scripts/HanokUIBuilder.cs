@@ -55,6 +55,7 @@ public partial class HanokUIManager
         BuildToast(root);
         BuildAIPromptWidget(root);
         BuildLeftToggleButton(root);
+        BuildRightToggleButton(root);
         BuildAIOverlay(root);
 
         // 기본 상태: 우측 편집 패널 고정 표시, 왼쪽 패널 열림
@@ -157,7 +158,7 @@ public partial class HanokUIManager
         searchInput.onValueChanged.AddListener(OnSearchChanged);
     }
 
-    // ── 오른쪽 헤더 (편집 패널 — 항상 고정 표시) ─────────
+    // ── 오른쪽 헤더 (편집 패널 — 접기 버튼 포함) ─────────
     void BuildRightHeader(RectTransform panel)
     {
         var hdr = NewRT(panel, "Hdr");
@@ -169,8 +170,40 @@ public partial class HanokUIManager
         var t = MakeLabel(hdr, "선택 부재 편집", 13, Color.white, bold: true);
         var tRT = t.GetComponent<RectTransform>();
         tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = Vector2.zero;
+        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-44, 0);
         t.alignment = TextAlignmentOptions.Left;
+
+        // 패널 접기 버튼 (▶) — 오른쪽 상단에 배치
+        var foldRT = NewRT(hdr, "FoldBtn");
+        foldRT.anchorMin = new Vector2(1, 0.5f); foldRT.anchorMax = new Vector2(1, 0.5f);
+        foldRT.pivot = new Vector2(1, 0.5f);
+        foldRT.offsetMin = new Vector2(-40, -14); foldRT.offsetMax = new Vector2(-12, 14);
+
+        var foldImg = foldRT.GetComponent<Image>();
+        foldImg.sprite = AICircleSprite();
+        foldImg.type = Image.Type.Simple;
+        foldImg.color = new Color(1, 1, 1, 0.12f);
+
+        var foldBtn = foldRT.gameObject.AddComponent<Button>();
+        foldBtn.targetGraphic = foldImg;
+        var fcs = foldBtn.colors;
+        fcs.normalColor = new Color(1, 1, 1, 0.12f);
+        fcs.highlightedColor = new Color(1, 1, 1, 0.24f);
+        fcs.pressedColor = new Color(1, 1, 1, 0.36f);
+        foldBtn.colors = fcs;
+        foldBtn.onClick.AddListener(() => SetRightPanelVisible(false));
+
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(foldRT, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRT.sizeDelta = new Vector2(11, 11);
+        var arrowT = arrowGO.AddComponent<TextMeshProUGUI>();
+        arrowT.text = "▶"; arrowT.fontSize = 9f;
+        arrowT.color = new Color(1, 1, 1, 0.92f);
+        arrowT.alignment = TextAlignmentOptions.Center;
+        arrowT.raycastTarget = false;
+        KorFont(arrowT);
     }
 
     // ── 뷰포트 툴바 (가운데 왼쪽 플로팅) ─────────────────
@@ -773,5 +806,55 @@ public partial class HanokUIManager
         // 뷰포트 힌트 바 왼쪽 오프셋
         float hintL = visible ? 284f : 4f;
         viewportHintRT.offsetMin = new Vector2(hintL, viewportHintRT.offsetMin.y);
+    }
+
+    // ── 오른쪽 패널 표시/숨김 ───────────────────────────────
+    void SetRightPanelVisible(bool visible)
+    {
+        rightPanelRT.gameObject.SetActive(visible);
+        _rightToggleBtnRT?.gameObject.SetActive(!visible);
+
+        // 뷰포트 힌트 바 오른쪽 오프셋
+        float hintR = visible ? -284f : -4f;
+        viewportHintRT.offsetMax = new Vector2(hintR, viewportHintRT.offsetMax.y);
+    }
+
+    // ── 오른쪽 패널 숨겼을 때 나타나는 플로팅 토글 버튼 ──
+    void BuildRightToggleButton(Transform root)
+    {
+        var btn = NewRT(root, "RightToggleBtn");
+        btn.anchorMin = new Vector2(1, 0.5f); btn.anchorMax = new Vector2(1, 0.5f);
+        btn.pivot     = new Vector2(1, 0.5f);
+        btn.offsetMin = new Vector2(-28, -20);
+        btn.offsetMax = new Vector2(-4,   20);
+        _rightToggleBtnRT = btn;
+
+        var img = btn.GetComponent<Image>();
+        img.color = new Color(0.10f, 0.12f, 0.16f, 0.88f);
+        var ol = btn.gameObject.AddComponent<Outline>();
+        ol.effectColor = new Color(1f, 1f, 1f, 0.12f); ol.effectDistance = new Vector2(1, -1);
+
+        var togBtn = btn.gameObject.AddComponent<Button>();
+        togBtn.targetGraphic = img;
+        var cs = togBtn.colors;
+        cs.normalColor      = new Color(0.10f, 0.12f, 0.16f, 0.88f);
+        cs.highlightedColor = new Color(0.18f, 0.22f, 0.30f, 0.95f);
+        cs.pressedColor     = new Color(0.08f, 0.20f, 0.40f, 0.95f);
+        togBtn.colors = cs;
+        togBtn.onClick.AddListener(() => SetRightPanelVisible(true));
+
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(btn, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = Vector2.zero; arrowRT.anchorMax = Vector2.one;
+        arrowRT.offsetMin = arrowRT.offsetMax = Vector2.zero;
+        var arrowT = arrowGO.AddComponent<TextMeshProUGUI>();
+        arrowT.text = "◀"; arrowT.fontSize = 9f;
+        arrowT.color = new Color(1, 1, 1, 0.9f);
+        arrowT.alignment = TextAlignmentOptions.Center;
+        arrowT.raycastTarget = false;
+        KorFont(arrowT);
+
+        btn.gameObject.SetActive(false); // 오른쪽 패널 기본 표시 상태에서는 숨김
     }
 }

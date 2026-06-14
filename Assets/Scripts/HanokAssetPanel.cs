@@ -720,7 +720,8 @@ public partial class HanokUIManager
         if (_thumbCam != null) return;
 
         var go = new GameObject("_HanokThumbCam");
-        go.hideFlags  = HideFlags.HideAndDontSave;
+        // HideAndDontSave 대신 HideInHierarchy만 설정: URP는 Camera.allCameras에서 HideAndDontSave 카메라를 제외하므로 렌더링이 안 됨
+        go.hideFlags  = HideFlags.HideInHierarchy;
         _thumbCam     = go.AddComponent<Camera>();
         _thumbCam.enabled          = false;
         _thumbCam.clearFlags       = CameraClearFlags.SolidColor;

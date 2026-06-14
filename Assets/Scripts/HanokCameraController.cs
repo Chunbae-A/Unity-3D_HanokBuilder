@@ -251,7 +251,7 @@ public class HanokCameraController : MonoBehaviour
     public void FocusObject(GameObject target)
     {
         if (target == null) return;
-        var rends = target.GetComponentsInChildren<Renderer>();
+        var rends = target.GetComponentsInChildren<Renderer>(true);
         if (rends.Length == 0) { _tPivot = target.transform.position; _tDist = 8f; }
         else
         {

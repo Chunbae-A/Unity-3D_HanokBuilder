@@ -30,8 +30,9 @@ public partial class HanokUIManager : MonoBehaviour
     RectTransform  viewSwitcherRT;
     RectTransform  viewportHintRT;
     RectTransform  _toolbarPanelRT;
-    RectTransform  _leftToggleBtnRT;   // 왼쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
-    RectTransform  _aiOverlayRT;       // AI 추천 오버레이 패널 (편집 패널 위에 표시)
+    RectTransform  _leftToggleBtnRT;    // 왼쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
+    RectTransform  _rightToggleBtnRT;   // 오른쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
+    RectTransform  _aiOverlayRT;        // AI 추천 오버레이 패널 (편집 패널 위에 표시)
 
     // ── 편집 패널 UI 참조 ─────────────────────────────────
     TMP_Text       infoNameText;
