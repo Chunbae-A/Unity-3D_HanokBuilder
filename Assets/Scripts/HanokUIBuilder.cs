@@ -54,8 +54,7 @@ public partial class HanokUIManager
         BuildToast(root);
         BuildAIPromptWidget(root);
 
-        // 기본 상태: 우측 패널 숨김 → 가운데 뷰 영역 확장
-        SetRightPanelVisible(false);
+        SetRightPanelVisible(true);
     }
 
     // ── 왼쪽 헤더 (제목 + 검색창) ────────────────────────
