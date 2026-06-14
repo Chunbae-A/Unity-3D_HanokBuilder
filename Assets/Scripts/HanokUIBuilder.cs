@@ -38,6 +38,7 @@ public partial class HanokUIManager
         rightRT.anchorMin = new Vector2(1, 0); rightRT.anchorMax = new Vector2(1, 1);
         rightRT.pivot = new Vector2(1, 0.5f);
         rightRT.offsetMin = new Vector2(-280, 0); rightRT.offsetMax = Vector2.zero;
+        rightPanelRT = rightRT;
         StylePanel(rightRT.gameObject);
         BuildRightHeader(rightRT);
         var rScroll = MakeScroll(rightRT, 56);
@@ -243,6 +244,7 @@ public partial class HanokUIManager
         // 4버튼×82px + 3gap×3px + padding6 = 343px, 높이 68px
         bar.offsetMin = new Vector2(-171, -72);
         bar.offsetMax = new Vector2( 171,  -4);
+        viewSwitcherRT = bar;
         bar.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.96f);
         AddRoundOutline(bar, BORDER);
 
@@ -317,6 +319,7 @@ public partial class HanokUIManager
         // 좌우 패널 안쪽에만 표시 (280px 오프셋)
         bg.offsetMin = new Vector2(284, 0);
         bg.offsetMax = new Vector2(-284, 22);
+        viewportHintRT = bg;
         bg.GetComponent<Image>().color = new Color(0.05f, 0.05f, 0.1f, 0.45f);
 
         const string HINT =
@@ -389,7 +392,7 @@ public partial class HanokUIManager
         _toastText.color = new Color(1f, 1f, 1f, 0f);
         _toastText.alignment = TextAlignmentOptions.Center;
         _toastText.overflowMode = TextOverflowModes.Ellipsis;
-        _toastText.enableWordWrapping = false;
+        _toastText.textWrappingMode = TextWrappingModes.NoWrap;
         _toastText.raycastTarget = false;
         KorFont(_toastText);
         _toastGO = toast.gameObject;
