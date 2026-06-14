@@ -1,8 +1,10 @@
+using System.IO;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.TextCore.LowLevel;
 
 /// <summary>
 /// HanokBuilder — 메인 관리자 (상태·로직)
@@ -105,16 +107,22 @@ public partial class HanokUIManager : MonoBehaviour
 
     const string ASSET_PATH  = "HanokAssets";
     const int    THUMB_LAYER = 31;
+    const string KOREAN_FONT_WARMUP = "가나다라마바사아자차카타파하한글한옥배치편집모듈라이브러리검색위치회전크기삭제복제선택해제문화해설";
 
     // ── 생명주기 ──────────────────────────────────────────
     void Start()
     {
-        if (koreanFont == null)
-            koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF")
-                      ?? Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
-
         // ── 한국어 동적 폰트 초기화 ─────────────────────────────
         InitKoreanFont();
+
+        if (!IsUsableKoreanFont(koreanFont))
+        {
+            koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF");
+            if (!IsUsableKoreanFont(koreanFont))
+                koreanFont = Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
+            if (!IsUsableKoreanFont(koreanFont))
+                koreanFont = null;
+        }
 
         // 씬 환경 초기화 (바닥·조명·카메라 배경)
         HanokSceneSetup.Setup();
@@ -258,32 +266,127 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 한국어 폰트 초기화 (다단계 폴백) ────────────────────
     void InitKoreanFont()
     {
+        if (IsUsableKoreanFont(koreanFont))
+        {
+            Debug.Log($"[KorFont] Existing Korean font OK: {koreanFont.name}");
+            return;
+        }
+
         // 1단계: 프로젝트 내 MalgunGothic.ttf로 Dynamic TMP 폰트 생성
         // Resources.Load<Font> → 실제 TTF 바이너리 포함 → FreeType이 한글 글리프를 온디맨드 렌더링
-        Font ttf = Resources.Load<Font>("MalgunGothic");
+        string bundledMalgun = Path.Combine(Application.dataPath, "HanokBuilder/Resources/MalgunGothic.ttf");
+        Font ttf = IsLikelyFontFile(bundledMalgun) ? Resources.Load<Font>("MalgunGothic") : null;
         if (ttf != null)
         {
             var dyn = TMP_FontAsset.CreateFontAsset(ttf);
 
-            if (dyn != null)
+            if (PrepareKoreanFont(dyn))
             {
-                dyn.TryAddCharacters("가이포트브러리");
-                if (dyn.HasCharacter('가') && dyn.HasCharacter('이'))
+                dyn.name = "KorDynamic";
+                koreanFont = dyn;
+                Debug.Log("[KorFont] Dynamic font from MalgunGothic.ttf OK");
+                return;
+            }
+
+            Debug.Log("[KorFont] CreateFontAsset(ttf) returned no usable Korean glyphs");
+        }
+        else Debug.Log("[KorFont] Bundled MalgunGothic.ttf is missing or still a Git LFS pointer; using OS Korean font");
+
+        // 2단계: Git LFS 폰트 파일이 내려오지 않은 경우 OS 기본 한글 폰트로 Dynamic TMP 폰트 생성
+        string[] osKoreanFonts =
+        {
+            "Apple SD Gothic Neo",
+            "AppleGothic",
+            "Malgun Gothic",
+            "맑은 고딕",
+            "Noto Sans CJK KR",
+            "Noto Sans KR",
+            "NanumGothic"
+        };
+
+        string home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+        string[] osKoreanFontFiles =
+        {
+            Path.Combine(home, "Library/Fonts/NotoSansCJKkr-Regular.otf"),
+            Path.Combine(home, "Library/Fonts/Pretendard-Regular.ttf"),
+            Path.Combine(home, "Library/Fonts/NanumSquareNeo-bRg.ttf"),
+            Path.Combine(home, "Library/Fonts/NANUMSQUARER.TTF"),
+            "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+            "/System/Library/Fonts/Supplemental/AppleGothic.ttf",
+            "/System/Library/Fonts/Supplemental/NotoSansGothic-Regular.ttf"
+        };
+
+        foreach (var path in osKoreanFontFiles)
+        {
+            if (!File.Exists(path)) continue;
+
+            for (int faceIndex = 0; faceIndex < 16; faceIndex++)
+            {
+                var dyn = TMP_FontAsset.CreateFontAsset(
+                    path, faceIndex, 90, 9, GlyphRenderMode.SDFAA, 1024, 1024);
+                if (PrepareKoreanFont(dyn))
                 {
-                    dyn.name = "KorDynamic";
+                    dyn.name = "KorDynamicFile";
                     koreanFont = dyn;
-                    Debug.Log("[KorFont] Dynamic font from MalgunGothic.ttf OK");
+                    Debug.Log($"[KorFont] Dynamic font from file OK: {path} face {faceIndex}");
                     return;
                 }
-                Debug.Log("[KorFont] CreateFontAsset(ttf) — Korean check failed");
             }
-            else Debug.Log("[KorFont] CreateFontAsset(ttf) returned null");
         }
-        else Debug.Log("[KorFont] Resources.Load<Font>(MalgunGothic) null — TTF not in Resources?");
 
-        // 2단계: 실패 시 static baked 폰트 그대로 유지 (atlasPopulationMode 등 절대 수정 금지)
-        if (koreanFont == null) { Debug.LogWarning("[KorFont] koreanFont null, UI will use default"); return; }
+        string[] osFontStyles = { "Regular", "Normal", "Medium" };
+        foreach (var family in osKoreanFonts)
+        {
+            foreach (var style in osFontStyles)
+            {
+                var dyn = TMP_FontAsset.CreateFontAsset(family, style, 90);
+                if (PrepareKoreanFont(dyn))
+                {
+                    dyn.name = "KorDynamicOS";
+                    koreanFont = dyn;
+                    Debug.Log($"[KorFont] Dynamic OS font OK: {family} {style}");
+                    return;
+                }
+            }
+        }
+
+        // 3단계: 실패 시 static baked 폰트 그대로 유지 (atlasPopulationMode 등 절대 수정 금지)
+        if (!IsUsableKoreanFont(koreanFont))
+        {
+            string fontName = koreanFont != null ? koreanFont.name : "null";
+            Debug.LogWarning($"[KorFont] No usable Korean TMP font found. Current font: {fontName}");
+            koreanFont = null;
+            return;
+        }
+
         Debug.Log($"[KorFont] Fallback: static font {koreanFont.name} ({koreanFont.characterTable.Count} chars)");
+    }
+
+    bool IsUsableKoreanFont(TMP_FontAsset font)
+    {
+        if (font == null) return false;
+        return font.HasCharacter('가') && font.HasCharacter('한');
+    }
+
+    bool PrepareKoreanFont(TMP_FontAsset font)
+    {
+        if (font == null) return false;
+        if (IsUsableKoreanFont(font)) return true;
+        if (font.atlasPopulationMode == AtlasPopulationMode.Static) return false;
+        font.TryAddCharacters(KOREAN_FONT_WARMUP);
+        return IsUsableKoreanFont(font);
+    }
+
+    bool IsLikelyFontFile(string path)
+    {
+        try
+        {
+            return File.Exists(path) && new FileInfo(path).Length > 1024;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     void OnDestroy()
@@ -901,7 +1004,13 @@ public partial class HanokUIManager : MonoBehaviour
             System.Globalization.CultureInfo.InvariantCulture,
             out float v) ? v : 0f;
 
-    void KorFont(TMP_Text t)  { if (koreanFont) t.font = koreanFont; }
+    void KorFont(TMP_Text t)
+    {
+        if (!IsUsableKoreanFont(koreanFont))
+            InitKoreanFont();
+
+        if (koreanFont) t.font = koreanFont;
+    }
 
     TMP_FontAsset _lat;
     TMP_FontAsset LatinFont =>
