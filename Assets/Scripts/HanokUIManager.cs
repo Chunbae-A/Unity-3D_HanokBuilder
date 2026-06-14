@@ -61,6 +61,13 @@ public partial class HanokUIManager : MonoBehaviour
     HanokRotationGizmo _rotGizmo;
     HanokScaleGizmo    _scaleGizmo;
 
+    // ── 편집 패널 UI 필드 ────────────────────────────────
+    TextMeshProUGUI infoNameText;
+    TMP_Text        _infoUsage, _infoPeriod, _infoMaterial, _infoSource;
+    TMP_InputField  posX, posY, posZ;
+    TMP_InputField  rotX, rotY, rotZ;
+    TMP_InputField  scaleF;
+
     // ── 캡처·토스트·뷰 배지·격자 ─────────────────────────
     GameObject  _captureFlash;
     GameObject  _toastGO;
@@ -92,11 +99,21 @@ public partial class HanokUIManager : MonoBehaviour
     // 버튼
     static readonly Color BTN_PRI    = Hex("#1B3A6B");
     static readonly Color BTN_GHOST  = Hex("#E8E4DC");
+    static readonly Color BTN_SEC    = Hex("#3D6B4F");
+    static readonly Color BTN_DANGER = Hex("#C0392B");
+
+    // 액센트
+    static readonly Color GOLD       = Hex("#B8960C");
+
+    // 축 색상
+    static readonly Color COL_X      = Hex("#E05252");
+    static readonly Color COL_Y      = Hex("#52B052");
+    static readonly Color COL_Z      = Hex("#5252E0");
 
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
     const string ASSETINFO_PATH = "HanokAssetInfo";
-    const int    THUMB_LAYER = 31;
+    const int    THUMB_LAYER = 30;
 
     // ── 생명주기 ──────────────────────────────────────────
     // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)
