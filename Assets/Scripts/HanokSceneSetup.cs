@@ -1,11 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <summary>
-/// Procedural Korean traditional architecture scene setup.
-/// All geometry built from Unity primitives only — no external assets required.
-/// Joseon-era proportions: 1 kan = 3.3 m, column height 3.2–4.0 m.
-/// </summary>
+
 public static class HanokSceneSetup
 {
     // ── Architectural constants (Joseon proportions) ──────────────────────────
