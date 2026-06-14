@@ -375,7 +375,7 @@ public partial class HanokUIManager
                     var entry = filtered[pi];
                     var prefab = entry.prefab;
                     var rawImg = MakeGridCell(row.transform, entry.displayName, () => Spawn(prefab));
-                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
+                    StartCoroutine(CaptureThumbnail(prefab, rawImg, pi));
                 }
                 else
                 {
@@ -563,14 +563,20 @@ public partial class HanokUIManager
 
     // ── 썸네일 캡처 ──────────────────────────────────────
     // 카메라 시야 밖 먼 곳에 prefab을 임시 인스턴스화해 전용 카메라로 찍은 뒤 RenderTexture로 표시
-    IEnumerator CaptureThumbnail(GameObject prefab, RawImage target)
+    IEnumerator CaptureThumbnail(GameObject prefab, RawImage target, int index)
     {
-        yield return null;
+        // 같은 프레임에 캡처가 몰려서 발생하는 끊김을 막기 위해 배치 단위로 분산 대기
+        int batch = index / 6;
+        for (int k = 0; k <= batch; k++)
+            yield return null;
+
         if (target == null) yield break;
         EnsureThumbCam();
 
+        // 캡처마다 고유한 먼 위치를 사용 — Destroy()가 프레임 끝까지 지연되는 동안
+        // 이전 캡처의 잔여 인스턴스와 같은 카메라 화면에 겹쳐 찍히는 것을 방지
         const float FAR = 8000f;
-        var inst = Instantiate(prefab, new Vector3(FAR, 0f, FAR), Quaternion.identity);
+        var inst = Instantiate(prefab, new Vector3(FAR + index * 1000f, 0f, FAR), Quaternion.identity);
         inst.hideFlags = HideFlags.HideAndDontSave;
         SetLayerAll(inst, THUMB_LAYER);
 
@@ -580,12 +586,6 @@ public partial class HanokUIManager
         var rends = inst.GetComponentsInChildren<Renderer>();
         var bounds = GetRendererBounds(rends, inst.transform.position);
         FitThumbnailCamera(bounds);
-
-        // 아이소메트릭 스타일 각도 (약간 옆+위)
-        float dist = Mathf.Max(bounds.size.magnitude * 1.35f, 0.5f);
-        _thumbCam.transform.position =
-            bounds.center + new Vector3(1.1f, 0.85f, -1.05f).normalized * dist;
-        _thumbCam.transform.LookAt(bounds.center);
 
         // 해상도 128×128 + 4x MSAA (선명도 개선)
         var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
@@ -673,6 +673,10 @@ public partial class HanokUIManager
             maxZ = Mathf.Max(maxZ, Mathf.Abs(local.z));
         }
 
+        float padding = 1.18f;
+        _thumbCam.orthographicSize = Mathf.Max(maxY, maxX, 0.5f) * padding;
+        _thumbCam.transform.rotation = viewRot;
+        _thumbCam.transform.position = cen + viewDir * Mathf.Max(maxZ + 10f, 10f);
         _thumbCam.nearClipPlane = 0.01f;
         _thumbCam.farClipPlane  = Mathf.Max(maxZ + 30f, 50f);
     }
@@ -687,9 +691,9 @@ public partial class HanokUIManager
         _thumbCam.enabled          = false;
         _thumbCam.clearFlags       = CameraClearFlags.SolidColor;
         _thumbCam.backgroundColor  = Hex("#EEE8DC");
-        _thumbCam.fieldOfView      = 28f;
-        _thumbCam.nearClipPlane    = 0.05f;
-        _thumbCam.farClipPlane     = 20000f;
+        _thumbCam.orthographic     = true;
+        _thumbCam.nearClipPlane    = 0.01f;
+        _thumbCam.farClipPlane     = 100f;
         _thumbCam.cullingMask      = 1 << THUMB_LAYER;
         _thumbCam.allowMSAA        = true;
 

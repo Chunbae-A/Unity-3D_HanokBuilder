@@ -32,26 +32,27 @@ public partial class HanokUIManager
         BuildLeftHeader(leftRT);
         var lScroll = MakeScroll(leftRT, 104);
         assetContent = lScroll.transform.Find("Viewport/Content");
+        leftPanelRT = leftRT;
 
-        // ── 오른쪽 패널 (280px) ───────────────────────────
+        // ── 오른쪽 패널 (280px, 배치 편집) ────────────────
         var rightRT = NewRT(root, "Right");
         rightRT.anchorMin = new Vector2(1, 0); rightRT.anchorMax = new Vector2(1, 1);
         rightRT.pivot = new Vector2(1, 0.5f);
         rightRT.offsetMin = new Vector2(-280, 0); rightRT.offsetMax = Vector2.zero;
-        rightPanelRT = rightRT;
         StylePanel(rightRT.gameObject);
         BuildRightHeader(rightRT);
         var rScroll = MakeScroll(rightRT, 56);
         BuildEditPanel(rScroll.transform.Find("Viewport/Content"));
 
-        // ── 가운데 뷰포트 툴바 + 배경 선택 + 하단 조작 힌트 + 스케일 핸들 ──
+        // ── 가운데 뷰포트 툴바 + 배경 선택 + 스케일 핸들 ──────
         BuildViewportToolbar(root);
         BuildBackgroundSelector(root);
         BuildViewOrientationBadge(root);
-        BuildViewportHint(root);
         BuildScaleHandle(root);
         BuildCaptureFlash(root);
         BuildToast(root);
+        BuildAIPromptWidget(root);
+        BuildLeftExpandButton(root);
     }
 
     // ── 왼쪽 헤더 (제목 + 검색창) ────────────────────────
@@ -67,28 +68,87 @@ public partial class HanokUIManager
         var title = MakeLabel(hdr, "모듈 라이브러리", 13, Color.white, bold: true);
         var tRT = title.GetComponent<RectTransform>();
         tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-12, 0);
+        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-44, 0);
         title.alignment = TextAlignmentOptions.Left;
 
-        // 검색창
+        // 패널 접기 버튼 — 반투명 원형 배경 + 흰색 화살표(◀)
+        var foldRT = NewRT(hdr, "FoldBtn");
+        foldRT.anchorMin = new Vector2(1, 0.5f); foldRT.anchorMax = new Vector2(1, 0.5f);
+        foldRT.pivot = new Vector2(1, 0.5f);
+        foldRT.offsetMin = new Vector2(-40, -14); foldRT.offsetMax = new Vector2(-12, 14);
+
+        var foldImg = foldRT.GetComponent<Image>();
+        foldImg.sprite = AICircleSprite();
+        foldImg.type = Image.Type.Simple;
+        foldImg.color = new Color(1, 1, 1, 0.12f);
+
+        var foldBtn = foldRT.gameObject.AddComponent<Button>();
+        foldBtn.targetGraphic = foldImg;
+        var fcs = foldBtn.colors;
+        fcs.normalColor = new Color(1, 1, 1, 0.12f);
+        fcs.highlightedColor = new Color(1, 1, 1, 0.24f);
+        fcs.pressedColor = new Color(1, 1, 1, 0.36f);
+        foldBtn.colors = fcs;
+        foldBtn.onClick.AddListener(() => SetLeftPanelVisible(false));
+
+        // 화살표 아이콘 — 180도 회전 → ◀
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(foldRT, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRT.sizeDelta = new Vector2(11, 11);
+        arrowRT.localEulerAngles = new Vector3(0, 0, 180);
+        var arrowImg = arrowGO.AddComponent<Image>();
+        arrowImg.sprite = AITriangleSprite();
+        arrowImg.type = Image.Type.Simple;
+        arrowImg.color = new Color(1, 1, 1, 0.92f);
+        arrowImg.raycastTarget = false;
+
+        // 검색창 — 실제 입력 가능한 TMP_InputField로 구성
         var searchBar = NewRT(panel, "SearchBar");
         searchBar.anchorMin = new Vector2(0, 1); searchBar.anchorMax = new Vector2(1, 1);
         searchBar.pivot = new Vector2(0.5f, 1);
         searchBar.offsetMin = new Vector2(10, -100); searchBar.offsetMax = new Vector2(-10, -60);
-        searchBar.GetComponent<Image>().color = BG_INPUT;
+        var sbImg = searchBar.GetComponent<Image>();
+        sbImg.color = BG_INPUT;
         AddRoundOutline(searchBar, BORDER);
 
-        // 검색 플레이스홀더 — NewRT 대신 순수 TextMeshProUGUI 자식으로 생성
-        // (NewRT 는 Image를 추가하므로 같은 GO에 TMP 추가 불가)
-        var sText = new GameObject("SText");
-        sText.transform.SetParent(searchBar, false);
-        var sRT = sText.AddComponent<RectTransform>();
-        sRT.anchorMin = new Vector2(0, 0); sRT.anchorMax = new Vector2(1, 1);
-        sRT.offsetMin = new Vector2(12, 2); sRT.offsetMax = new Vector2(-8, -2);
-        var ph = sText.AddComponent<TextMeshProUGUI>();
-        ph.text = "검색..."; ph.fontSize = 11; ph.color = TEXT_HINT;
-        ph.alignment = TextAlignmentOptions.Left;
-        KorFont(ph);
+        var area = new GameObject("Area");
+        area.transform.SetParent(searchBar, false);
+        var aRT = area.AddComponent<RectTransform>();
+        aRT.anchorMin = Vector2.zero; aRT.anchorMax = Vector2.one;
+        aRT.offsetMin = new Vector2(12, 2); aRT.offsetMax = new Vector2(-8, -2);
+        area.AddComponent<RectMask2D>();
+
+        var sTextGO = new GameObject("Text");
+        sTextGO.transform.SetParent(area.transform, false);
+        var sTextRT = sTextGO.AddComponent<RectTransform>();
+        sTextRT.anchorMin = Vector2.zero; sTextRT.anchorMax = Vector2.one;
+        sTextRT.offsetMin = sTextRT.offsetMax = Vector2.zero;
+        var sText = sTextGO.AddComponent<TextMeshProUGUI>();
+        sText.fontSize = 11; sText.color = TEXT_MAIN;
+        sText.alignment = TextAlignmentOptions.Left;
+        KorFont(sText);
+
+        var sPhGO = new GameObject("Placeholder");
+        sPhGO.transform.SetParent(area.transform, false);
+        var sPhRT = sPhGO.AddComponent<RectTransform>();
+        sPhRT.anchorMin = Vector2.zero; sPhRT.anchorMax = Vector2.one;
+        sPhRT.offsetMin = sPhRT.offsetMax = Vector2.zero;
+        var sPh = sPhGO.AddComponent<TextMeshProUGUI>();
+        sPh.text = "검색..."; sPh.fontSize = 11; sPh.color = TEXT_HINT;
+        sPh.alignment = TextAlignmentOptions.Left;
+        KorFont(sPh);
+
+        searchInput = searchBar.gameObject.AddComponent<TMP_InputField>();
+        searchInput.targetGraphic = sbImg;
+        searchInput.textViewport  = aRT;
+        searchInput.textComponent = sText;
+        searchInput.placeholder   = sPh;
+        searchInput.contentType   = TMP_InputField.ContentType.Standard;
+        searchInput.caretColor    = NAVY;
+        searchInput.selectionColor = new Color(NAVY.r, NAVY.g, NAVY.b, 0.25f);
+        searchInput.onValueChanged.AddListener(OnSearchChanged);
     }
 
     // ── 오른쪽 헤더 ───────────────────────────────────────
@@ -241,10 +301,9 @@ public partial class HanokUIManager
         bar.anchorMin = new Vector2(0.5f, 1f);
         bar.anchorMax = new Vector2(0.5f, 1f);
         bar.pivot     = new Vector2(0.5f, 1f);
-        // 4버튼×82px + 3gap×3px + padding6 = 343px, 높이 68px
+        // 화면 가운데 상단에 고정 — 4버튼 행, 높이 68px
         bar.offsetMin = new Vector2(-171, -72);
         bar.offsetMax = new Vector2( 171,  -4);
-        viewSwitcherRT = bar;
         bar.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.96f);
         AddRoundOutline(bar, BORDER);
 
@@ -308,33 +367,6 @@ public partial class HanokUIManager
         }
     }
 
-    // ── 뷰포트 하단 조작 힌트 바 ─────────────────────────
-    void BuildViewportHint(Transform root)
-    {
-        // 패널 위에 뜨는 반투명 힌트 바
-        var bg = NewRT(root, "ViewHintBar");
-        bg.anchorMin = new Vector2(0, 0);
-        bg.anchorMax = new Vector2(1, 0);
-        bg.pivot     = new Vector2(0.5f, 0f);
-        // 좌우 패널 안쪽에만 표시 (280px 오프셋)
-        bg.offsetMin = new Vector2(284, 0);
-        bg.offsetMax = new Vector2(-284, 22);
-        viewportHintRT = bg;
-        bg.GetComponent<Image>().color = new Color(0.05f, 0.05f, 0.1f, 0.45f);
-
-        const string HINT =
-            "클릭=선택  드래그=이동  |  우클릭: 카메라회전  |  휠: 줌  |  " +
-            "중간버튼: 패닝  |  F: 포커스  |  H: 뷰초기화  |  Ctrl+Z: Undo  |  Ctrl+D: 복제  |  " +
-            "1이동  2회전  3크기  4삭제";
-
-        var t = MakeLabel(bg, HINT, 7.5f, new Color(1f, 1f, 1f, 0.85f));
-        var tRT = t.GetComponent<RectTransform>();
-        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(8, 0); tRT.offsetMax = new Vector2(-8, 0);
-        t.alignment = TextAlignmentOptions.Center;
-        KorFont(t);
-    }
-
     void BuildViewOrientationBadge(Transform root)
     {
         var badge = NewRT(root, "ViewBadge");
@@ -373,11 +405,11 @@ public partial class HanokUIManager
     void BuildToast(Transform root)
     {
         var toast = NewRT(root, "Toast");
-        toast.anchorMin = new Vector2(0.5f, 0f);
-        toast.anchorMax = new Vector2(0.5f, 0f);
-        toast.pivot     = new Vector2(0.5f, 0f);
-        toast.offsetMin = new Vector2(-210, 28);
-        toast.offsetMax = new Vector2( 210, 62);
+        toast.anchorMin = new Vector2(0.5f, 0.5f);
+        toast.anchorMax = new Vector2(0.5f, 0.5f);
+        toast.pivot     = new Vector2(0.5f, 0.5f);
+        toast.offsetMin = new Vector2(-210, -17);
+        toast.offsetMax = new Vector2( 210,  17);
         var toastImg = toast.gameObject.GetComponent<Image>();
         toastImg.color = new Color(0.08f, 0.08f, 0.12f, 0f);
         toastImg.raycastTarget = false;
@@ -392,7 +424,7 @@ public partial class HanokUIManager
         _toastText.color = new Color(1f, 1f, 1f, 0f);
         _toastText.alignment = TextAlignmentOptions.Center;
         _toastText.overflowMode = TextOverflowModes.Ellipsis;
-        _toastText.textWrappingMode = TextWrappingModes.NoWrap;
+        _toastText.enableWordWrapping = false;
         _toastText.raycastTarget = false;
         KorFont(_toastText);
         _toastGO = toast.gameObject;
@@ -435,46 +467,42 @@ public partial class HanokUIManager
         return go;
     }
 
-    // ── 공통 헬퍼 ─────────────────────────────────────────
-    RectTransform NewRT(Transform parent, string name)
+    // ── 가로 스크롤뷰 (AI 추천 결과 한 줄) ────────────────
+    GameObject MakeHorizontalScroll(RectTransform panel)
     {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
+        var go = new GameObject("HScroll");
+        go.transform.SetParent(panel, false);
+        var rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+        rt.offsetMin = rt.offsetMax = Vector2.zero;
         go.AddComponent<Image>().color = Color.clear;
-        return go.GetComponent<RectTransform>(); // Image가 RectTransform을 이미 추가함
+        var sr = go.AddComponent<ScrollRect>();
+        sr.horizontal = true; sr.vertical = false; sr.scrollSensitivity = 30f;
+
+        var vp = new GameObject("Viewport");
+        vp.transform.SetParent(go.transform, false);
+        var vpRT = vp.AddComponent<RectTransform>();
+        vpRT.anchorMin = Vector2.zero; vpRT.anchorMax = Vector2.one;
+        vpRT.offsetMin = vpRT.offsetMax = Vector2.zero;
+        vp.AddComponent<RectMask2D>();
+
+        var ct = new GameObject("Content");
+        ct.transform.SetParent(vp.transform, false);
+        var cRT = ct.AddComponent<RectTransform>();
+        cRT.anchorMin = new Vector2(0, 0); cRT.anchorMax = new Vector2(0, 1);
+        cRT.pivot = new Vector2(0, 0.5f);
+        cRT.offsetMin = cRT.offsetMax = Vector2.zero;
+        var hlg = ct.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 6; hlg.padding = new RectOffset(8, 8, 8, 8);
+        hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
+        ct.AddComponent<ContentSizeFitter>().horizontalFit =
+            ContentSizeFitter.FitMode.PreferredSize;
+
+        sr.viewport = vpRT; sr.content = cRT;
+        return go;
     }
 
-    void StylePanel(GameObject go)
-    {
-        go.GetComponent<Image>().color = BG_PANEL;
-        // 오른쪽/왼쪽 그림자 효과 (outline으로 대체)
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = new Color(0, 0, 0, 0.08f);
-        outline.effectDistance = new Vector2(2, -2);
-    }
-
-    void AddRoundOutline(RectTransform rt, Color col)
-    {
-        var outline = rt.gameObject.AddComponent<Outline>();
-        outline.effectColor = col;
-        outline.effectDistance = new Vector2(1, -1);
-    }
-
-    TMP_Text MakeLabel(Transform parent, string text, float size,
-        Color col, bool bold = false)
-    {
-        var go = new GameObject("Lbl");
-        go.transform.SetParent(parent, false);
-        go.AddComponent<RectTransform>();
-        var t = go.AddComponent<TextMeshProUGUI>();
-        t.text = text; t.fontSize = size; t.color = col;
-        if (bold) t.fontStyle = FontStyles.Bold;
-        t.alignment = TextAlignmentOptions.Center;
-        if (HasKorean(text)) KorFont(t); else LatFont(t);
-        return t;
-    }
-
-    // InputField 생성
+    // ── 숫자 입력 필드 ────────────────────────────────────
     TMP_InputField MakeInputField(Transform parent)
     {
         var go = new GameObject("IF");
@@ -520,6 +548,45 @@ public partial class HanokUIManager
         f.caretColor     = NAVY;
         f.selectionColor = new Color(NAVY.r, NAVY.g, NAVY.b, 0.25f);
         return f;
+    }
+
+    // ── 공통 헬퍼 ─────────────────────────────────────────
+    RectTransform NewRT(Transform parent, string name)
+    {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        go.AddComponent<Image>().color = Color.clear;
+        return go.GetComponent<RectTransform>(); // Image가 RectTransform을 이미 추가함
+    }
+
+    void StylePanel(GameObject go)
+    {
+        go.GetComponent<Image>().color = BG_PANEL;
+        // 오른쪽/왼쪽 그림자 효과 (outline으로 대체)
+        var outline = go.AddComponent<Outline>();
+        outline.effectColor = new Color(0, 0, 0, 0.08f);
+        outline.effectDistance = new Vector2(2, -2);
+    }
+
+    void AddRoundOutline(RectTransform rt, Color col)
+    {
+        var outline = rt.gameObject.AddComponent<Outline>();
+        outline.effectColor = col;
+        outline.effectDistance = new Vector2(1, -1);
+    }
+
+    TMP_Text MakeLabel(Transform parent, string text, float size,
+        Color col, bool bold = false)
+    {
+        var go = new GameObject("Lbl");
+        go.transform.SetParent(parent, false);
+        go.AddComponent<RectTransform>();
+        var t = go.AddComponent<TextMeshProUGUI>();
+        t.text = text; t.fontSize = size; t.color = col;
+        if (bold) t.fontStyle = FontStyles.Bold;
+        t.alignment = TextAlignmentOptions.Center;
+        if (HasKorean(text)) KorFont(t); else LatFont(t);
+        return t;
     }
 
     void Spacer(Transform p, float h)
@@ -579,6 +646,50 @@ public partial class HanokUIManager
         LatFont(_scaleHandleText);
 
         go.SetActive(false);
+    }
+
+    // ── 좌측 패널 표시/숨김 ───────────────────────────────
+    void SetLeftPanelVisible(bool visible)
+    {
+        leftPanelRT.gameObject.SetActive(visible);
+        _leftExpandBtnRT.gameObject.SetActive(!visible);
+    }
+
+    // ── 좌측 패널 펼치기 버튼 (화면 좌상단, 패널이 접혔을 때만 노출) ──
+    void BuildLeftExpandButton(Transform root)
+    {
+        var btnRT = NewRT(root, "LeftExpandBtn");
+        btnRT.anchorMin = new Vector2(0, 1); btnRT.anchorMax = new Vector2(0, 1);
+        btnRT.pivot = new Vector2(0, 1);
+        btnRT.offsetMin = new Vector2(8, -36); btnRT.offsetMax = new Vector2(36, -8);
+
+        var img = btnRT.GetComponent<Image>();
+        img.sprite = AICircleSprite();
+        img.type = Image.Type.Simple;
+        img.color = new Color(NAVY.r, NAVY.g, NAVY.b, 0.92f);
+
+        var btn = btnRT.gameObject.AddComponent<Button>();
+        btn.targetGraphic = img;
+        var cs = btn.colors;
+        cs.highlightedColor = NAVY_LIGHT;
+        cs.pressedColor = Hex("#0F2547");
+        btn.colors = cs;
+        btn.onClick.AddListener(() => SetLeftPanelVisible(true));
+
+        // 화살표 아이콘 — 우측(▶), "펼치기"
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(btnRT, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRT.sizeDelta = new Vector2(11, 11);
+        var arrowImg = arrowGO.AddComponent<Image>();
+        arrowImg.sprite = AITriangleSprite();
+        arrowImg.type = Image.Type.Simple;
+        arrowImg.color = new Color(1, 1, 1, 0.92f);
+        arrowImg.raycastTarget = false;
+
+        _leftExpandBtnRT = btnRT;
+        btnRT.gameObject.SetActive(false);
     }
 
     void EnsureEventSystem()

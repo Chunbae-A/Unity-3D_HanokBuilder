@@ -24,13 +24,17 @@ public partial class HanokUIManager : MonoBehaviour
 
     // ── 내부 상태 ─────────────────────────────────────────
     GameObject     selectedObject;
-    TMP_Text       infoNameText;
-    TMP_InputField posX, posY, posZ;
-    TMP_InputField rotX, rotY, rotZ;
-    TMP_InputField scaleF;
     Transform      assetContent;
     Button[]       toolBtns;
     Button[]       _bgBtns;
+
+    RectTransform leftPanelRT;
+    RectTransform _leftExpandBtnRT;
+
+    TMP_Text infoNameText;
+    TMP_InputField posX, posY, posZ;
+    TMP_InputField rotX, rotY, rotZ;
+    TMP_InputField scaleF;
 
     // ── 실행 취소 ─────────────────────────────────────────
     struct UndoEntry
@@ -105,24 +109,33 @@ public partial class HanokUIManager : MonoBehaviour
     static readonly Color COL_Y = Hex("#27AE60");
     static readonly Color COL_Z = Hex("#2980B9");
 
-    const string ASSET_PATH  = "HanokAssets";
+    const string ASSET_PATH     = "HanokAssets";
+    const string CATEGORY_PATH  = "HanokCategories";
+    const string ASSETINFO_PATH = "HanokAssetInfo";
     const int    THUMB_LAYER = 31;
     const string KOREAN_FONT_WARMUP = "가나다라마바사아자차카타파하한글한옥배치편집모듈라이브러리검색위치회전크기삭제복제선택해제문화해설";
 
     // ── 생명주기 ──────────────────────────────────────────
+    // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)
+    // 두 번째 이후 인스턴스는 UI·씬 환경을 다시 만들지 않도록 비활성화한다.
+    static HanokUIManager _activeInstance;
+
     void Start()
     {
-        // ── 한국어 동적 폰트 초기화 ─────────────────────────────
-        InitKoreanFont();
+        if (_activeInstance != null && _activeInstance != this)
+        {
+            Debug.LogWarning($"[HanokUIManager] 씬에 중복된 HanokUIManager('{name}')가 있어 비활성화합니다.");
+            enabled = false;
+            return;
+        }
+        _activeInstance = this;
 
         if (!IsUsableKoreanFont(koreanFont))
-        {
-            koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF");
-            if (!IsUsableKoreanFont(koreanFont))
-                koreanFont = Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
-            if (!IsUsableKoreanFont(koreanFont))
-                koreanFont = null;
-        }
+            koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF")
+                      ?? Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
+
+        // ── 한국어 동적 폰트 초기화 ─────────────────────────────
+        InitKoreanFont();
 
         // 씬 환경 초기화 (바닥·조명·카메라 배경)
         HanokSceneSetup.Setup();
@@ -490,15 +503,12 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
-
-        // 기본 스케일 23 (뷰포트 기준 적정 건물 크기)
-        obj.transform.localScale = Vector3.one * 23f;
 
         OptimizeRenderers(obj);
 
@@ -512,6 +522,22 @@ public partial class HanokUIManager : MonoBehaviour
         var camCtrl = Camera.main?.GetComponent<HanokCameraController>();
         // bounds 계산은 다음 프레임에 — 동일 프레임 내 transform 변경 후 bounds가 미갱신되는 문제 방지
         StartCoroutine(FinishSpawn(obj, camCtrl));
+    }
+
+    // 지정한 위치에 배치 — AI 추천 다중 배치에 사용
+    public GameObject SpawnAt(GameObject prefab, Vector3 position)
+    {
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
+        obj.name = prefab.name;
+        if (obj.transform.localScale.magnitude > 50f)
+            obj.transform.localScale = Vector3.one;
+        OptimizeRenderers(obj);
+        obj.transform.position = position;
+        PlaceOnFloor(obj);
+        EnsureCollider(obj);
+        AttachSelectable(obj);
+        PushUndoSpawn(obj);
+        return obj;
     }
 
     IEnumerator FinishSpawn(GameObject obj, HanokCameraController camCtrl)
@@ -589,6 +615,7 @@ public partial class HanokUIManager : MonoBehaviour
 
     void EnsureCollider(GameObject obj)
     {
+        FixNegativeBoxColliders(obj);
         if (obj.GetComponentInChildren<Collider>() != null) return;
         var col = obj.AddComponent<BoxCollider>();
         var rs  = obj.GetComponentsInChildren<Renderer>();
@@ -596,7 +623,25 @@ public partial class HanokUIManager : MonoBehaviour
         var b = rs[0].bounds;
         for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
         col.center = obj.transform.InverseTransformPoint(b.center);
-        col.size   = obj.transform.InverseTransformVector(b.size);
+        var raw = obj.transform.InverseTransformVector(b.size);
+        col.size = new Vector3(Mathf.Abs(raw.x), Mathf.Abs(raw.y), Mathf.Abs(raw.z));
+    }
+
+    void FixNegativeBoxColliders(GameObject root)
+    {
+        foreach (var bc in root.GetComponentsInChildren<BoxCollider>())
+        {
+            var ls = bc.transform.lossyScale;
+            if (ls.x >= 0f && ls.y >= 0f && ls.z >= 0f) continue;
+            var mf = bc.GetComponent<MeshFilter>();
+            if (mf != null && mf.sharedMesh != null)
+            {
+                var mc = bc.gameObject.AddComponent<MeshCollider>();
+                mc.convex    = true;
+                mc.sharedMesh = mf.sharedMesh;
+            }
+            Destroy(bc);
+        }
     }
 
     void AttachSelectable(GameObject root)
@@ -638,7 +683,7 @@ public partial class HanokUIManager : MonoBehaviour
             {
                 var b = rends[0].bounds;
                 foreach (var r in rends) b.Encapsulate(r.bounds);
-                if (b.min.y < -0.02f)          // 명확히 바닥 아래로 박혀 있을 때만
+                if (b.min.y < -0.02f)
                     obj.transform.position += Vector3.up * (-b.min.y);
             }
         }
@@ -743,7 +788,7 @@ public partial class HanokUIManager : MonoBehaviour
         Destroy(selectedObject);
         selectedObject = null;
         RefreshInfoPanel();
-        SyncGizmo(); // Rotate 모드 기즈모 즉시 해제
+        SyncGizmo();
     }
 
     public void ClearSelection()
