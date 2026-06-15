@@ -45,6 +45,7 @@ public partial class HanokUIManager
     // ── 상태 필드 ────────────────────────────────────────
     Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
     readonly Dictionary<GameObject, Texture> _editorPreviewCache = new Dictionary<GameObject, Texture>();
+    Dictionary<string, GameObject> _culturePrefabLookup;
 
     const string LABEL_ALL = "전체";
     const string CULTURE_INDEX_PATH = "HanokAssets/CultureMetaverse/culture_metaverse_index";
@@ -102,6 +103,7 @@ public partial class HanokUIManager
 
         _assetEntries.Clear();
         _aiCatalog = null;
+        _culturePrefabLookup = null;
         var addedPrefabs = new HashSet<GameObject>();
         var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
         foreach (var prefab in raw)
@@ -290,7 +292,7 @@ public partial class HanokUIManager
             var subCategory = GetCultureSubCategory(categoryKey);
             if (subCategory == null) continue;
 
-            var prefab = Resources.Load<GameObject>(resourcePath);
+            var prefab = LoadCulturePrefab(resourcePath);
             if (prefab == null)
             {
                 Debug.LogWarning($"[HanokBuilder] CultureMetaverse index asset not found: {resourcePath}");
@@ -303,6 +305,41 @@ public partial class HanokUIManager
 
         Debug.Log($"[HanokBuilder] {loaded} CultureMetaverse indexed assets loaded");
         return loaded > 0;
+    }
+
+    GameObject LoadCulturePrefab(string resourcePath)
+    {
+        var prefab = Resources.Load<GameObject>(resourcePath);
+        if (prefab != null) return prefab;
+
+        EnsureCulturePrefabLookup();
+        string fileName = resourcePath;
+        int slash = fileName.LastIndexOf('/');
+        if (slash >= 0) fileName = fileName[(slash + 1)..];
+        string key = CultureLookupKey(fileName);
+        return _culturePrefabLookup.TryGetValue(key, out prefab) ? prefab : null;
+    }
+
+    void EnsureCulturePrefabLookup()
+    {
+        if (_culturePrefabLookup != null) return;
+
+        _culturePrefabLookup = new Dictionary<string, GameObject>();
+        foreach (var prefab in Resources.LoadAll<GameObject>("HanokAssets/CultureMetaverse"))
+        {
+            if (prefab == null) continue;
+
+            string key = CultureLookupKey(prefab.name);
+            if (!_culturePrefabLookup.ContainsKey(key))
+                _culturePrefabLookup[key] = prefab;
+        }
+    }
+
+    string CultureLookupKey(string value)
+    {
+        return StripExtension(value)
+            .Normalize(NormalizationForm.FormC)
+            .ToLowerInvariant();
     }
 
     HanokAssetCategory GetCultureSubCategory(string key)
