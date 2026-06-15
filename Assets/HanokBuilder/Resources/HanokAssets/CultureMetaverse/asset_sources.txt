@@ -1,36 +1,18 @@
 Culture Metaverse asset additions
 
-Downloaded from culture.go.kr Metaverse Data Lab on 2026-06-13.
+Downloaded from culture.go.kr Metaverse Data Lab.
+Last sync: 2026-06-15.
 
-Characters
-- Korean character 01: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=1
-- Korean character 02: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=2
-- Korean character 03: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=3
-- Merchant male: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=20
-- Merchant female: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=19
-- Korean character 05: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=5
-- Korean character 04: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&wr_id=4
+Sources
+- Digital human / Korean characters: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=digitalhuman&sca=%ED%95%9C%EA%B5%AD%EC%A0%81+%EC%BA%90%EB%A6%AD%ED%84%B0
+- Object board / props: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object
 
-Props
-- Gimpo Tongjin dure nori Unity assets: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=82&page=4
-- Merchant female clothing: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=237
-- Merchant male clothing: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=238
-- Merchant female jeogori: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=239
-- Merchant male jeogori: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=240
-- Merchant female skirt: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=241
-- Merchant male pants: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=242
-- Merchant male ankle bands: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=243
-- Merchant female front skirt: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=244
-- Merchant female pants: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=245
-- Merchant male straw hat: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=246
-- Merchant male headband: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=247
-- Merchant male shoes: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=248
-- Merchant female shoes: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=249
-- Merchant male traditional socks: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=250
-- Merchant female traditional socks: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=251
-- Merchant female chest cover: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=252
-- Merchant male backpack: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=253
-- Suwon Hwaseong Haenggung pine tree: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=254
-- Suwon Hwaseong Haenggung willow tree: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object&wr_id=255
-- Object direct FBX batch: https://www.culture.go.kr/datametaverse/bbs/board.php?bo_table=object
-  See Props/ObjectDirectFBX/object_direct_fbx_sources.tsv for per-file source URLs.
+Local naming policy
+- Runtime-loadable CultureMetaverse object FBX files use ASCII-safe Unity names like SM_CM_Object_001.
+- Original Korean titles and source URLs are preserved in culture_object_board_sources.tsv and object_direct_fbx_sources.tsv.
+- culture_metaverse_index.txt supplies the display name shown in the module library, so local filenames can stay safe without losing the source names.
+
+Package handling
+- KoreanTraditionalFestival Unity package is represented by expanded prefabs under Props/KoreanTraditionalFestival/Prefabs.
+- Merchant/environment FBX files are represented under Props/MerchantAndEnvironment.
+- Interactive Unity/Unreal engine packages are recorded in culture_object_board_sources.tsv but are not expanded into module-library FBX entries.

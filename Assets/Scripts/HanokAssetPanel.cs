@@ -50,6 +50,8 @@ public partial class HanokUIManager
     readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
     readonly Dictionary<HanokAssetCategory, List<HanokAssetCategory>> _childCategories =
         new Dictionary<HanokAssetCategory, List<HanokAssetCategory>>();
+    readonly Dictionary<string, HanokAssetCategory> _cultureCategoriesByKey =
+        new Dictionary<string, HanokAssetCategory>();
     HanokAssetCategory _cultureCategory;
     HanokAssetCategory _cultureCharactersCategory;
     HanokAssetCategory _cultureMerchantCategory;
@@ -168,21 +170,47 @@ public partial class HanokUIManager
 
     void EnsureCultureCategories()
     {
+        _cultureCategoriesByKey.Clear();
+
         _cultureCategory = RuntimeCategory(_cultureCategory, "culture_metaverse", "문화포털", null, 9000);
-        _cultureCharactersCategory = RuntimeCategory(_cultureCharactersCategory, "culture_characters", "캐릭터", _cultureCategory, 9010);
-        _cultureMerchantCategory = RuntimeCategory(_cultureMerchantCategory, "culture_merchant", "상인/공간", _cultureCategory, 9020);
-        _cultureFestivalCategory = RuntimeCategory(_cultureFestivalCategory, "culture_festival", "전통축제", _cultureCategory, 9030);
-        _cultureObjectCategory = RuntimeCategory(_cultureObjectCategory, "culture_object", "문화재/소품", _cultureCategory, 9040);
 
         AddRuntimeCategory(_cultureCategory);
-        AddRuntimeCategory(_cultureCharactersCategory);
-        AddRuntimeCategory(_cultureMerchantCategory);
-        AddRuntimeCategory(_cultureFestivalCategory);
-        AddRuntimeCategory(_cultureObjectCategory);
+
+        _cultureCharactersCategory = RegisterCultureSubCategory(
+            _cultureCharactersCategory, "characters", "캐릭터", 9010);
+        _cultureMerchantCategory = RegisterCultureSubCategory(
+            _cultureMerchantCategory, "merchant", "상인/공간", 9020);
+        _cultureFestivalCategory = RegisterCultureSubCategory(
+            _cultureFestivalCategory, "festival", "전통축제", 9030);
+        _cultureObjectCategory = RegisterCultureSubCategory(
+            _cultureObjectCategory, "object", "문화재/소품", 9040);
+
+        RegisterCultureSubCategory(null, "object_weapon", "무기류", 9050);
+        RegisterCultureSubCategory(null, "object_equipment", "시설/장비류", 9060);
+        RegisterCultureSubCategory(null, "object_nature", "자연물", 9070);
+        RegisterCultureSubCategory(null, "object_clothing", "의복류", 9080);
+        RegisterCultureSubCategory(null, "object_changwon", "창원의집", 9090);
+        RegisterCultureSubCategory(null, "object_gugak_clothing", "국악원 의복", 9100);
+        RegisterCultureSubCategory(null, "object_gugak_instrument", "국악원 악기", 9110);
+        RegisterCultureSubCategory(null, "object_army_weapon", "육군박물관 무기", 9120);
+        RegisterCultureSubCategory(null, "object_stone_pagoda", "석탑", 9130);
+        RegisterCultureSubCategory(null, "object_interactive", "상호작용", 9140);
 
         _mainCategories.Sort((a, b) => a.order.CompareTo(b.order));
         foreach (var children in _childCategories.Values)
             children.Sort((a, b) => a.order.CompareTo(b.order));
+    }
+
+    HanokAssetCategory RegisterCultureSubCategory(
+        HanokAssetCategory category,
+        string key,
+        string label,
+        int order)
+    {
+        category = RuntimeCategory(category, key, label, _cultureCategory, order);
+        _cultureCategoriesByKey[key] = category;
+        AddRuntimeCategory(category);
+        return category;
     }
 
     HanokAssetCategory RuntimeCategory(
@@ -285,6 +313,7 @@ public partial class HanokUIManager
             string categoryKey = parts[0].Trim();
             string resourcePath = parts[1].Trim();
             string broadTags = parts[2].Trim();
+            string displayNameOverride = parts.Length >= 4 ? parts[3].Trim() : null;
             var subCategory = GetCultureSubCategory(categoryKey);
             if (subCategory == null) continue;
 
@@ -295,7 +324,8 @@ public partial class HanokUIManager
                 continue;
             }
 
-            if (AddCultureAsset(prefab, resourcePath, subCategory, broadTags, assetInfoByKey, addedPrefabs, objectTitles))
+            if (AddCultureAsset(prefab, resourcePath, subCategory, broadTags, assetInfoByKey,
+                    addedPrefabs, objectTitles, displayNameOverride))
                 loaded++;
         }
 
@@ -340,6 +370,9 @@ public partial class HanokUIManager
 
     HanokAssetCategory GetCultureSubCategory(string key)
     {
+        if (_cultureCategoriesByKey.TryGetValue(key, out var category))
+            return category;
+
         return key switch
         {
             "characters" => _cultureCharactersCategory,
@@ -361,7 +394,7 @@ public partial class HanokUIManager
         foreach (var prefab in Resources.LoadAll<GameObject>(resourcePath))
         {
             AddCultureAsset(prefab, resourcePath + "/" + prefab.name, subCategory, broadTags,
-                assetInfoByKey, addedPrefabs, objectTitles);
+                assetInfoByKey, addedPrefabs, objectTitles, null);
         }
     }
 
@@ -372,12 +405,15 @@ public partial class HanokUIManager
         string broadTags,
         Dictionary<string, HanokAssetInfo> assetInfoByKey,
         HashSet<GameObject> addedPrefabs,
-        Dictionary<string, string> objectTitles)
+        Dictionary<string, string> objectTitles,
+        string displayNameOverride)
     {
         if (prefab == null || addedPrefabs.Contains(prefab)) return false;
 
         assetInfoByKey.TryGetValue(prefab.name, out var info);
-        string displayName = GetCultureDisplayName(prefab.name, info, objectTitles);
+        string displayName = !string.IsNullOrEmpty(displayNameOverride)
+            ? displayNameOverride
+            : GetCultureDisplayName(prefab.name, info, objectTitles);
         string[] searchTags = BuildCultureSearchTags(prefab.name, displayName, broadTags, info);
         _assetEntries.Add(new HanokAssetEntry(
             prefab,
