@@ -80,6 +80,7 @@ public partial class HanokUIManager : MonoBehaviour
     // 기반 — 화이트 반투명 글래스
     static readonly Color BG_PANEL = HexA("#FFFFFF", 0.45f); // 패널 배경 — 화이트 글래스
     static readonly Color BG_CARD  = HexA("#FFFFFF", 0.60f); // 카드/그리드 셀 — 패널 위에 또렷하게 뜬 화이트 유리
+    static readonly Color BG_CARD_SOLID = HexA("#FFFFFF", 0.85f); // 에셋 그리드 셀 — 라벨 가독성을 위해 더 불투명한 화이트
     static readonly Color BG_INPUT = HexA("#FFFFFF", 0.70f); // 입력창 — 카드보다 한 단계 더 밝은 화이트 유리
     static readonly Color HDR_BG   = HexA("#FFFFFF", 0.60f); // 헤더 바("모듈 라이브러리"/"부재 정보") — 패널보다 진하고 불투명한 화이트
     static readonly Color BORDER   = HexA("#FFFFFF", 0.12f); // 옅은 구분선 색상 (Divider)

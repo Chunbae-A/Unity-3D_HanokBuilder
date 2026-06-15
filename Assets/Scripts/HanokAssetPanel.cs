@@ -527,16 +527,16 @@ public partial class HanokUIManager
         var img = go.AddComponent<Image>();
         img.sprite = RoundedRectSprite(8f);
         img.type = Image.Type.Sliced;
-        img.color = BG_CARD;
+        img.color = BG_CARD_SOLID;
         img.material = GlassMaterial();
         AddInnerGlow(go, 8f);
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor = BG_CARD;
-        cs.highlightedColor = HexA("#FFFFFF", 0.55f);
-        cs.pressedColor = HexA("#FFFFFF", 0.70f);
+        cs.normalColor = BG_CARD_SOLID;
+        cs.highlightedColor = HexA("#FFFFFF", 0.92f);
+        cs.pressedColor = HexA("#FFFFFF", 0.98f);
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
