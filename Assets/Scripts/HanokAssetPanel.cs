@@ -4,9 +4,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 /// <summary>
 /// Left asset library panel for HanokUIManager.
@@ -44,7 +41,6 @@ public partial class HanokUIManager
 
     // ── 상태 필드 ────────────────────────────────────────
     Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
-    readonly Dictionary<GameObject, Texture> _editorPreviewCache = new Dictionary<GameObject, Texture>();
     Dictionary<string, GameObject> _culturePrefabLookup;
 
     const string LABEL_ALL = "전체";
@@ -925,42 +921,20 @@ public partial class HanokUIManager
 
         if (target == null) yield break;
 
-#if UNITY_EDITOR
-        if (_editorPreviewCache.TryGetValue(prefab, out var cachedPreview) && cachedPreview != null)
-        {
-            AssignThumbnail(target, cachedPreview);
-            yield break;
-        }
-
-        for (int tries = 0; tries < 45; tries++)
-        {
-            Texture preview = AssetPreview.GetAssetPreview(prefab);
-            if (preview == null && tries > 8)
-                preview = AssetPreview.GetMiniThumbnail(prefab);
-
-            if (preview != null && !AssetPreview.IsLoadingAssetPreview(prefab.GetInstanceID()))
-            {
-                _editorPreviewCache[prefab] = preview;
-                AssignThumbnail(target, preview);
-                yield break;
-            }
-
-            yield return null;
-            if (target == null) yield break;
-        }
-#endif
-
         EnsureThumbCam();
 
         // 캡처마다 고유한 먼 위치를 사용 — Destroy()가 프레임 끝까지 지연되는 동안
         // 이전 캡처의 잔여 인스턴스와 같은 카메라 화면에 겹쳐 찍히는 것을 방지
         const float FAR = 8000f;
-        var inst = Instantiate(prefab, new Vector3(FAR + index * 1000f, 0f, FAR), Quaternion.identity);
+        Vector3 previewOrigin = new Vector3(FAR + index * 1000f, 0f, FAR);
+        var inst = Instantiate(prefab, previewOrigin, Quaternion.identity);
         inst.hideFlags = HideFlags.HideAndDontSave;
         SetLayerAll(inst, THUMB_LAYER);
 
         // FBX 재질 색상 보존: 깨진 셰이더를 URP/Lit으로 교체하면서 원본 색상 유지
         FixMaterialColors(inst);
+        ImproveThumbnailMaterialContrast(inst);
+        NormalizeThumbnailInstance(inst, previewOrigin);
 
         var rends = inst.GetComponentsInChildren<Renderer>();
         var bounds = GetRendererBounds(rends, inst.transform.position);
@@ -976,6 +950,29 @@ public partial class HanokUIManager
         if (target != null) AssignThumbnail(target, rt);
         else { rt.Release(); Destroy(rt); }
         Destroy(inst);
+    }
+
+    void NormalizeThumbnailInstance(GameObject inst, Vector3 origin)
+    {
+        if (inst.transform.localScale.magnitude > 50f)
+            inst.transform.localScale = Vector3.one;
+
+        var rends = inst.GetComponentsInChildren<Renderer>();
+        if (rends.Length == 0) return;
+
+        var bounds = GetRendererBounds(rends, inst.transform.position);
+        float maxSize = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+        if (maxSize > 0.001f)
+        {
+            const float TARGET_THUMB_SIZE = 2.2f;
+            float scale = TARGET_THUMB_SIZE / maxSize;
+            inst.transform.localScale *= Mathf.Clamp(scale, 0.001f, 1000f);
+        }
+
+        rends = inst.GetComponentsInChildren<Renderer>();
+        bounds = GetRendererBounds(rends, inst.transform.position);
+        Vector3 centeredBottom = new Vector3(bounds.center.x, bounds.min.y, bounds.center.z);
+        inst.transform.position += origin - centeredBottom;
     }
 
     void AssignThumbnail(RawImage target, Texture texture)
@@ -1022,6 +1019,36 @@ public partial class HanokUIManager
                     if (m.HasProperty("_BaseMap"))  m.SetTexture("_BaseMap",  tx);
                     if (m.HasProperty("_MainTex"))  m.SetTexture("_MainTex",  tx);
                 }
+            }
+        }
+    }
+
+    static void ImproveThumbnailMaterialContrast(GameObject obj)
+    {
+        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        {
+            var mats = r.materials;
+            for (int i = 0; i < mats.Length; i++)
+            {
+                var m = mats[i];
+                if (m == null) continue;
+
+                bool hasTexture =
+                    (m.HasProperty("_BaseMap") && m.GetTexture("_BaseMap") != null) ||
+                    (m.HasProperty("_MainTex") && m.GetTexture("_MainTex") != null);
+                if (hasTexture) continue;
+
+                Color color = Color.white;
+                if (m.HasProperty("_BaseColor")) color = m.GetColor("_BaseColor");
+                else if (m.HasProperty("_Color")) color = m.GetColor("_Color");
+
+                bool nearlyWhite = color.r > 0.92f && color.g > 0.92f && color.b > 0.92f;
+                if (!nearlyWhite) continue;
+
+                Color thumbnailTint = Hex("#D4C8B8");
+                thumbnailTint.a = color.a;
+                if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", thumbnailTint);
+                if (m.HasProperty("_Color")) m.SetColor("_Color", thumbnailTint);
             }
         }
     }
