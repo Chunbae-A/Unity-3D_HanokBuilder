@@ -685,11 +685,20 @@ public partial class HanokUIManager : MonoBehaviour
 
     void AttachSelectable(GameObject root)
     {
-        if (!root.GetComponent<SelectableAsset>())
-            root.AddComponent<SelectableAsset>().Init(this, root);
+        if (root == null) return;
+
+        var rootSelectable = root.GetComponent<SelectableAsset>();
+        if (rootSelectable == null)
+            rootSelectable = root.AddComponent<SelectableAsset>();
+        rootSelectable.Init(this, root);
+
         foreach (var col in root.GetComponentsInChildren<Collider>())
-            if (!col.gameObject.GetComponent<SelectableAsset>())
-                col.gameObject.AddComponent<SelectableAsset>().Init(this, root);
+        {
+            var selectable = col.gameObject.GetComponent<SelectableAsset>();
+            if (selectable == null)
+                selectable = col.gameObject.AddComponent<SelectableAsset>();
+            selectable.Init(this, root);
+        }
     }
 
     // ── 선택 ─────────────────────────────────────────────
@@ -936,12 +945,13 @@ public partial class HanokUIManager : MonoBehaviour
                     var sa = hit.collider.GetComponent<SelectableAsset>();
                     if (sa != null)
                     {
-                        SelectObject(sa.Root);
+                        var root = sa.ResolveRoot();
+                        SelectObject(root);
                         _pendingDrag    = true;
                         _dragStartMouse = mp;
-                        _dragPlane      = MakeDragPlane(sa.Root.transform.position);
+                        _dragPlane      = MakeDragPlane(root.transform.position);
                         if (_dragPlane.Raycast(ray, out float e))
-                            _dragOffset = sa.Root.transform.position - ray.GetPoint(e);
+                            _dragOffset = root.transform.position - ray.GetPoint(e);
                         else _dragOffset = Vector3.zero;
                     }
                     else ClearSelection();
@@ -992,7 +1002,7 @@ public partial class HanokUIManager : MonoBehaviour
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     var sa = hit.collider.GetComponent<SelectableAsset>();
-                    if (sa != null) SelectObject(sa.Root);
+                    if (sa != null) SelectObject(sa.ResolveRoot());
                     else ClearSelection();
                 }
                 else ClearSelection();
@@ -1012,7 +1022,7 @@ public partial class HanokUIManager : MonoBehaviour
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     var sa = hit.collider.GetComponent<SelectableAsset>();
-                    if (sa != null) SelectObject(sa.Root);
+                    if (sa != null) SelectObject(sa.ResolveRoot());
                 }
             }
             return;
@@ -1028,7 +1038,7 @@ public partial class HanokUIManager : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
             {
                 var sa = hit.collider.GetComponent<SelectableAsset>();
-                if (sa != null) { SelectObject(sa.Root); DeleteSelected(); }
+                if (sa != null) { SelectObject(sa.ResolveRoot()); DeleteSelected(); }
             }
         }
     }
