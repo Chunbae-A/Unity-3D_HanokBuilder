@@ -106,31 +106,19 @@ public partial class HanokUIManager
         lblRT.offsetMin = lblRT.offsetMax = Vector2.zero;
 
         _aiButtonRT = btnRT;
-        btn.onClick.AddListener(ToggleRightPanel);
+        btn.onClick.AddListener(() => SetAIOverlayVisible(true));
     }
 
-    // ── 우측 패널 표시/숨김 + 가운데 뷰 영역·버튼 위치 갱신 ──
-    void ToggleRightPanel() => SetRightPanelVisible(!rightPanelRT.gameObject.activeSelf);
-
-    void SetRightPanelVisible(bool visible)
+    // ── AI 오버레이 창 표시/숨김 ──────────────────────────
+    void SetAIOverlayVisible(bool visible)
     {
-        rightPanelRT.gameObject.SetActive(visible);
-        _aiButtonRT.gameObject.SetActive(!visible);
-
-        if (visible)
-        {
-            viewportHintRT.offsetMax = new Vector2(-284, 22);
-            viewSwitcherRT.offsetMin = new Vector2(-522, -36);
-            viewSwitcherRT.offsetMax = new Vector2(-284, -4);
-            _aiInputField?.ActivateInputField();
-        }
-        else
-        {
-            viewportHintRT.offsetMax = new Vector2(-4, 22);
-            viewSwitcherRT.offsetMin = new Vector2(-242, -36);
-            viewSwitcherRT.offsetMax = new Vector2(-4, -4);
-        }
+        if (_aiOverlayRT == null) return;
+        _aiOverlayRT.gameObject.SetActive(visible);
+        _aiButtonRT?.gameObject.SetActive(!visible);
+        if (visible) _aiInputField?.ActivateInputField();
     }
+
+    void ToggleRightPanel() => SetAIOverlayVisible(!(_aiOverlayRT?.gameObject.activeSelf ?? false));
 
     // 자유 텍스트 입력 필드 (검색창과 동일한 구성, placeholder만 다름)
     TMP_InputField MakeAIInputField(Transform parent)
@@ -393,7 +381,7 @@ public partial class HanokUIManager
                 {
                     var prefab = matches[idx].prefab;
                     var rawImg = MakeGridCell(row.transform, matches[idx].displayName, () => Spawn(prefab));
-                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
+                    EnqueueThumbnail(prefab, rawImg);
                 }
                 else
                 {

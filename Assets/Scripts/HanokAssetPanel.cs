@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Rendering.Universal;
 using TMPro;
 
 /// <summary>
@@ -30,6 +31,11 @@ public partial class HanokUIManager
 
     // ── 상태 필드 ────────────────────────────────────────
     Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
+
+    // 썸네일 순차 캡처 큐 — 한 번에 1개씩 처리해 프레임 스파이크 방지
+    readonly Queue<(GameObject prefab, RawImage target)> _thumbQueue =
+        new Queue<(GameObject, RawImage)>();
+    bool _thumbQueueRunning = false;
 
     const string LABEL_ALL = "전체";
 
@@ -62,7 +68,10 @@ public partial class HanokUIManager
     const int COLS = 3;
 
     // ── 에셋 로딩 ────────────────────────────────────────
-    // Resources/HanokAssets를 한 번에 스캔해 HanokAssetTags가 붙은 prefab만 라이브러리로 채택
+    // Resources/HanokAssets를 스캔해 라이브러리로 채택:
+    //   1) HanokAssetTags 있는 경우 → 해당 카테고리로 분류
+    //   2) HanokAssetTags 없는 FBX/Prefab이라도 Renderer가 있으면 '전체' 카테고리로 포함
+    //      (FBX를 직접 HanokAssets 폴더에 넣으면 자동 인식)
     void LoadAssets()
     {
         if (assetContent == null)
@@ -83,25 +92,29 @@ public partial class HanokUIManager
         var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
         foreach (var prefab in raw)
         {
-            var assetTags = prefab.GetComponent<HanokAssetTags>();
-            if (assetTags == null || assetTags.categories == null || assetTags.categories.Length == 0)
-                continue;
-
             assetInfoByKey.TryGetValue(prefab.name, out var info);
-            string displayName = prefab.name;
-            string[] searchTags = System.Array.Empty<string>();
-            if (info != null)
+            string displayName = (info != null && !string.IsNullOrEmpty(info.displayName))
+                ? info.displayName : prefab.name;
+            string[] searchTags = (info?.tags) ?? System.Array.Empty<string>();
+
+            var assetTags = prefab.GetComponent<HanokAssetTags>();
+            if (assetTags != null && assetTags.categories != null && assetTags.categories.Length > 0)
             {
-                if (!string.IsNullOrEmpty(info.displayName)) displayName = info.displayName;
-                if (info.tags != null) searchTags = info.tags;
+                // 카테고리 태그 있는 정식 에셋
+                _assetEntries.Add(new HanokAssetEntry(prefab, assetTags.categories, displayName, searchTags));
             }
-            _assetEntries.Add(new HanokAssetEntry(prefab, assetTags.categories, displayName, searchTags));
+            else
+            {
+                // HanokAssetTags 없는 FBX 직접 임포트 — Renderer 있는 것만 '전체' 카테고리로 포함
+                if (prefab.GetComponentInChildren<Renderer>(true) == null) continue;
+                _assetEntries.Add(new HanokAssetEntry(prefab, System.Array.Empty<HanokAssetCategory>(), displayName, searchTags));
+            }
         }
 
         _assetEntries.Sort((a, b) =>
             string.Compare(a.prefab.name, b.prefab.name, System.StringComparison.OrdinalIgnoreCase));
 
-        Debug.Log($"[HanokBuilder] {_assetEntries.Count} assets loaded");
+        Debug.Log($"[HanokBuilder] {_assetEntries.Count} assets loaded (HanokAssets 폴더 내 전체)");
         RefreshAssetList();
     }
 
@@ -328,6 +341,9 @@ public partial class HanokUIManager
     {
         if (assetContent == null) return;
 
+        // 이전 캡처 요청 취소 — 카테고리/검색 변경 시 불필요한 작업 방지
+        _thumbQueue.Clear();
+
         var children = new List<GameObject>();
         foreach (Transform ch in assetContent)
         {
@@ -375,7 +391,7 @@ public partial class HanokUIManager
                     var entry = filtered[pi];
                     var prefab = entry.prefab;
                     var rawImg = MakeGridCell(row.transform, entry.displayName, () => Spawn(prefab));
-                    StartCoroutine(CaptureThumbnail(prefab, rawImg));
+                    EnqueueThumbnail(prefab, rawImg);
                 }
                 else
                 {
@@ -561,37 +577,56 @@ public partial class HanokUIManager
         return raw;
     }
 
+    // ── 썸네일 순차 큐 ───────────────────────────────────
+    // RefreshAssetList·AI 패널 모두 이 메서드로 요청 → 프레임당 1개씩 순차 처리
+    void EnqueueThumbnail(GameObject prefab, RawImage target)
+    {
+        _thumbQueue.Enqueue((prefab, target));
+        if (!_thumbQueueRunning)
+            StartCoroutine(ProcessThumbnailQueue());
+    }
+
+    IEnumerator ProcessThumbnailQueue()
+    {
+        _thumbQueueRunning = true;
+        while (_thumbQueue.Count > 0)
+        {
+            var (prefab, target) = _thumbQueue.Dequeue();
+            yield return StartCoroutine(CaptureThumbnail(prefab, target));
+            yield return null; // 캡처 사이 1프레임 여유
+        }
+        _thumbQueueRunning = false;
+    }
+
     // ── 썸네일 캡처 ──────────────────────────────────────
-    // 카메라 시야 밖 먼 곳에 prefab을 임시 인스턴스화해 전용 카메라로 찍은 뒤 RenderTexture로 표시
+    // orthographic 카메라로 prefab을 먼 곳에 임시 인스턴스화해 찍은 뒤 RenderTexture로 표시
     IEnumerator CaptureThumbnail(GameObject prefab, RawImage target)
     {
         yield return null;
         if (target == null) yield break;
         EnsureThumbCam();
 
+        // 메인 카메라 clipping 범위(~1000) 밖에 배치 + layer 30 → 메인 카메라에 보이지 않음
         const float FAR = 8000f;
         var inst = Instantiate(prefab, new Vector3(FAR, 0f, FAR), Quaternion.identity);
-        inst.hideFlags = HideFlags.HideAndDontSave;
+        // hideFlags 미설정: URP가 오브젝트를 씬 그래프에서 정상적으로 인식해야 Camera.Render 동작
         SetLayerAll(inst, THUMB_LAYER);
-
-        // FBX 재질 색상 보존: 깨진 셰이더를 URP/Lit으로 교체하면서 원본 색상 유지
         FixMaterialColors(inst);
 
-        var rends = inst.GetComponentsInChildren<Renderer>();
+        var rends = inst.GetComponentsInChildren<Renderer>(true);
         var bounds = GetRendererBounds(rends, inst.transform.position);
         FitThumbnailCamera(bounds);
 
-        // 아이소메트릭 스타일 각도 (약간 옆+위)
-        float dist = Mathf.Max(bounds.size.magnitude * 1.35f, 0.5f);
-        _thumbCam.transform.position =
-            bounds.center + new Vector3(1.1f, 0.85f, -1.05f).normalized * dist;
-        _thumbCam.transform.LookAt(bounds.center);
-
-        // 해상도 128×128 + 4x MSAA (선명도 개선)
         var rt = new RenderTexture(128, 128, 24, RenderTextureFormat.ARGB32);
-        rt.antiAliasing = 4;
+        rt.Create();
         _thumbCam.targetTexture = rt;
-        _thumbCam.Render();
+        _thumbCam.enabled = true;
+        // Unity 6 URP Render Graph는 Camera.Render()를 지원하지 않음.
+        // 카메라를 enabled=true로 두고 yield null로 URP가 다음 프레임에 카메라 목록을 갱신한 뒤,
+        // WaitForEndOfFrame으로 그 프레임의 모든 카메라 렌더링이 끝난 시점에 RT를 읽음.
+        yield return null;
+        yield return new WaitForEndOfFrame();
+        _thumbCam.enabled = false;
         _thumbCam.targetTexture = null;
 
         if (target != null) { target.texture = rt; target.color = Color.white; }
@@ -673,6 +708,10 @@ public partial class HanokUIManager
             maxZ = Mathf.Max(maxZ, Mathf.Abs(local.z));
         }
 
+        float padding = 1.18f;
+        _thumbCam.orthographicSize = Mathf.Max(maxY, maxX, 0.5f) * padding;
+        _thumbCam.transform.rotation = viewRot;
+        _thumbCam.transform.position = cen + viewDir * Mathf.Max(maxZ + 10f, 10f);
         _thumbCam.nearClipPlane = 0.01f;
         _thumbCam.farClipPlane  = Mathf.Max(maxZ + 30f, 50f);
     }
@@ -682,16 +721,21 @@ public partial class HanokUIManager
         if (_thumbCam != null) return;
 
         var go = new GameObject("_HanokThumbCam");
-        go.hideFlags  = HideFlags.HideAndDontSave;
+        // HideInHierarchy만 설정: 하이어라키에서 숨기되 Camera.allCameras에는 포함됨
+        go.hideFlags  = HideFlags.HideInHierarchy;
         _thumbCam     = go.AddComponent<Camera>();
-        _thumbCam.enabled          = false;
+        _thumbCam.enabled          = false;  // 캡처 직전에만 활성화
         _thumbCam.clearFlags       = CameraClearFlags.SolidColor;
         _thumbCam.backgroundColor  = Hex("#EEE8DC");
-        _thumbCam.fieldOfView      = 28f;
-        _thumbCam.nearClipPlane    = 0.05f;
-        _thumbCam.farClipPlane     = 20000f;
-        _thumbCam.cullingMask      = 1 << THUMB_LAYER;
-        _thumbCam.allowMSAA        = true;
+        _thumbCam.orthographic     = true;
+        _thumbCam.nearClipPlane    = 0.01f;
+        _thumbCam.farClipPlane     = 100f;
+        _thumbCam.cullingMask      = 1 << THUMB_LAYER;  // layer 30 (31은 int overflow)
+        _thumbCam.allowMSAA        = false;
+        // URP가 이 카메라를 Base Camera로 정식 인식하도록 필수 컴포넌트 추가
+        var urpData = go.AddComponent<UniversalAdditionalCameraData>();
+        urpData.renderType = CameraRenderType.Base;
+        urpData.renderShadows = false;  // 썸네일용 — 그림자 불필요, 성능 최적화
 
         var lightGO = new GameObject("ThumbnailLight");
         lightGO.transform.SetParent(go.transform, false);

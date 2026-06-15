@@ -26,8 +26,20 @@ public partial class HanokUIManager : MonoBehaviour
     Button[]       toolBtns;
     Button[]       _bgBtns;
     RectTransform  rightPanelRT;
+    RectTransform  leftPanelRT;
     RectTransform  viewSwitcherRT;
     RectTransform  viewportHintRT;
+    RectTransform  _toolbarPanelRT;
+    RectTransform  _leftToggleBtnRT;    // 왼쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
+    RectTransform  _rightToggleBtnRT;   // 오른쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
+    RectTransform  _aiOverlayRT;        // AI 추천 오버레이 패널 (편집 패널 위에 표시)
+
+    // ── 편집 패널 UI 참조 ─────────────────────────────────
+    TMP_Text       infoNameText;
+    TMP_Text       _infoUsage, _infoPeriod, _infoMaterial, _infoSource;
+    TMP_InputField posX, posY, posZ;
+    TMP_InputField rotX, rotY, rotZ;
+    TMP_InputField scaleF;
 
     // ── 실행 취소 ─────────────────────────────────────────
     struct UndoEntry
@@ -92,11 +104,18 @@ public partial class HanokUIManager : MonoBehaviour
     // 버튼
     static readonly Color BTN_PRI    = Hex("#1B3A6B");
     static readonly Color BTN_GHOST  = Hex("#E8E4DC");
+    static readonly Color BTN_SEC    = Hex("#3D6B4F");
+    static readonly Color BTN_DANGER = Hex("#B03030");
+    static readonly Color TEXT_H     = Hex("#1A1A1A");
+    static readonly Color GOLD       = Hex("#9A7228");
+    static readonly Color COL_X      = Hex("#C0392B");
+    static readonly Color COL_Y      = Hex("#27AE60");
+    static readonly Color COL_Z      = Hex("#2980B9");
 
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
     const string ASSETINFO_PATH = "HanokAssetInfo";
-    const int    THUMB_LAYER = 31;
+    const int    THUMB_LAYER = 30;
 
     // ── 생명주기 ──────────────────────────────────────────
     // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)
@@ -391,7 +410,7 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
@@ -418,7 +437,7 @@ public partial class HanokUIManager : MonoBehaviour
     // 지정한 위치에 배치 — AI 추천 다중 배치에 사용
     public GameObject SpawnAt(GameObject prefab, Vector3 position)
     {
-        var obj = Instantiate(prefab, Vector3.zero, Quaternion.Euler(-90f, 0f, 0f));
+        var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
@@ -441,10 +460,10 @@ public partial class HanokUIManager : MonoBehaviour
         camCtrl?.FocusObject(obj);
     }
 
-    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정
+    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정 (비활성 자식 포함)
     public void PlaceOnFloor(GameObject obj)
     {
-        var rends = obj.GetComponentsInChildren<Renderer>();
+        var rends = obj.GetComponentsInChildren<Renderer>(true);
         if (rends.Length == 0) return;
         var b = rends[0].bounds;
         foreach (var r in rends) b.Encapsulate(r.bounds);
@@ -465,35 +484,33 @@ public partial class HanokUIManager : MonoBehaviour
         return pt;
     }
 
-    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존
+    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존 (비활성 자식 포함)
     void OptimizeRenderers(GameObject obj)
     {
         var urpLit = Shader.Find("Universal Render Pipeline/Lit");
 
-        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        foreach (var r in obj.GetComponentsInChildren<Renderer>(true))
         {
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             r.receiveShadows    = true;
 
             if (urpLit == null) continue;
 
-            // sharedMaterials 로 깨진 셰이더 여부만 확인 (인스턴스 미생성)
             bool needFix = false;
             foreach (var sm in r.sharedMaterials)
             {
                 if (sm == null) continue;
                 var sn = sm.shader?.name ?? "";
-                if (sn == "Hidden/InternalErrorShader" || sn == "")
+                if (sn == "Hidden/InternalErrorShader" || sn == "Standard" || sn == "")
                 { needFix = true; break; }
             }
             if (!needFix) continue;
 
-            // r.materials → 인스턴스 생성 (원본 프리팹 재질 보호)
             foreach (var m in r.materials)
             {
                 if (m == null) continue;
                 var sn = m.shader?.name ?? "";
-                if (sn != "Hidden/InternalErrorShader" && sn != "") continue;
+                if (sn != "Hidden/InternalErrorShader" && sn != "Standard" && sn != "") continue;
                 Color   col = m.HasProperty("_Color")   ? m.GetColor("_Color")     : Color.white;
                 Texture tx  = m.HasProperty("_MainTex") ? m.GetTexture("_MainTex") : null;
                 m.shader = urpLit;
@@ -510,7 +527,7 @@ public partial class HanokUIManager : MonoBehaviour
         FixNegativeBoxColliders(obj);
         if (obj.GetComponentInChildren<Collider>() != null) return;
         var col = obj.AddComponent<BoxCollider>();
-        var rs  = obj.GetComponentsInChildren<Renderer>();
+        var rs  = obj.GetComponentsInChildren<Renderer>(true);
         if (rs.Length == 0) return;
         var b = rs[0].bounds;
         for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
@@ -567,10 +584,10 @@ public partial class HanokUIManager : MonoBehaviour
             hl.Show();
         }
 
-        // 바닥 아래로 박힌 오브젝트 자동 보정 (b.min.y < 0 이면 올려서 바닥에 정렬)
+        // 바닥 아래로 박힌 오브젝트 자동 보정 (비활성 자식 포함)
         if (obj != null)
         {
-            var rends = obj.GetComponentsInChildren<Renderer>();
+            var rends = obj.GetComponentsInChildren<Renderer>(true);
             if (rends.Length > 0)
             {
                 var b = rends[0].bounds;
@@ -947,6 +964,96 @@ public partial class HanokUIManager : MonoBehaviour
         }
         _toastGO.SetActive(false);
     }
+
+    // ── 편집 패널 동기화 ──────────────────────────────────
+    void RefreshInfoPanel()
+    {
+        if (infoNameText == null) return;
+        bool has = selectedObject != null;
+        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
+        infoNameText.color = has ? TEXT_H : TEXT_HINT;
+    }
+
+    void SyncTransformInputs()
+    {
+        if (selectedObject == null || posX == null) return;
+        var t = selectedObject.transform;
+        if (!posX.isFocused)  posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
+        if (!posY.isFocused)  posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
+        if (!posZ.isFocused)  posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
+        if (!rotX.isFocused)  rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
+        if (!rotY.isFocused)  rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
+        if (!rotZ.isFocused)  rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
+        if (!scaleF.isFocused) scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
+    }
+
+    void ForceSyncTransform()
+    {
+        if (selectedObject == null || posX == null) return;
+        var t = selectedObject.transform;
+        posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
+        posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
+        posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
+        rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
+        rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
+        rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
+        scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
+    }
+
+    // ── Transform 적용 ───────────────────────────────────
+    public void ApplyPos()
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.position =
+            new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
+    }
+
+    public void ApplyRot()
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.eulerAngles =
+            new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
+    }
+
+    public void ApplyScale()
+    {
+        if (!selectedObject) return;
+        float s = Mathf.Max(0.001f, Pf(scaleF.text));
+        selectedObject.transform.localScale = Vector3.one * s;
+    }
+
+    public void QuickRot(float deg)
+    {
+        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
+    }
+
+    public void ResetRot()
+    {
+        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
+    }
+
+    public void SetScale(float s)
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.localScale = Vector3.one * s;
+        scaleF?.SetTextWithoutNotify(s.ToString("F2"));
+    }
+
+    public void Duplicate()
+    {
+        if (!selectedObject) return;
+        var c = Instantiate(selectedObject);
+        c.name = selectedObject.name + "_복사";
+        c.transform.position += Vector3.right * 2f;
+        AttachSelectable(c);
+        SelectObject(c);
+    }
+
+    static float Pf(string s) =>
+        float.TryParse(s,
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out float v) ? v : 0f;
 
     // ── 뷰 배지 갱신 (매 프레임) ─────────────────────────────
     void UpdateViewBadge()
