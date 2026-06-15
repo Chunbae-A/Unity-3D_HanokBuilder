@@ -14,21 +14,15 @@ public partial class HanokUIManager
     {
         // ══ A. 선택 부재 정보 카드 ════════════════════════
 
-        Spacer(content, 12);
+        Spacer(content, 16);
 
         // 이름 카드
-        var nameCard = RowBox(content, "NameCard", 52, BG_PANEL);
+        var nameCard = RowBox(content, "NameCard", 52, BG_CARD);
         var nameCardImg = nameCard.GetComponent<Image>();
-        var ncOutline = nameCard.gameObject.AddComponent<Outline>();
-        ncOutline.effectColor = BORDER; ncOutline.effectDistance = new Vector2(1,-1);
-
-        // 왼쪽 네이비 액센트 바
-        var accentBar = new GameObject("Accent");
-        accentBar.transform.SetParent(nameCard, false);
-        var abRT = accentBar.AddComponent<RectTransform>();
-        abRT.anchorMin = new Vector2(0,0); abRT.anchorMax = new Vector2(0,1);
-        abRT.offsetMin = Vector2.zero; abRT.offsetMax = new Vector2(4, 0);
-        accentBar.AddComponent<Image>().color = NAVY;
+        nameCardImg.sprite = RoundedRectSprite(8f);
+        nameCardImg.type = Image.Type.Sliced;
+        nameCardImg.material = GlassMaterial();
+        AddInnerGlow(nameCard.gameObject, 8f);
 
         var nt = new GameObject("NameT"); nt.transform.SetParent(nameCard, false);
         var ntRT = nt.AddComponent<RectTransform>();
@@ -43,12 +37,13 @@ public partial class HanokUIManager
         infoNameText.overflowMode = TextOverflowModes.Ellipsis;
         infoNameText.enableWordWrapping = false;
         KorFont(infoNameText);
+        AddTextHalo(infoNameText);
 
-        Spacer(content, 8);
+        Spacer(content, 10);
         Divider(content);
 
         // ── 문화 정보 테이블 ──────────────────────────────
-        Spacer(content, 8);
+        Spacer(content, 10);
         InfoSectionLabel(content, "문화해설");
 
         _infoUsage    = InfoRow(content, "용도", "—");
@@ -56,16 +51,16 @@ public partial class HanokUIManager
         _infoMaterial = InfoRow(content, "재질", "—");
         _infoSource   = InfoRow(content, "출처", "—");
 
-        Spacer(content, 4);
+        Spacer(content, 8);
         Divider(content);
 
         // ══ B. Transform 편집 ═════════════════════════════
 
-        Spacer(content, 8);
+        Spacer(content, 10);
         InfoSectionLabel(content, "배치 편집");
 
         // 위치
-        Spacer(content, 4);
+        Spacer(content, 6);
         SubLabel(content, "위 치");
         posX = AxisInput(content, "X", COL_X);
         posY = AxisInput(content, "Y", COL_Y);
@@ -75,7 +70,7 @@ public partial class HanokUIManager
         posZ.onEndEdit.AddListener(_ => ApplyPos());
 
         // 회전
-        Spacer(content, 6);
+        Spacer(content, 10);
         SubLabel(content, "회 전");
         rotX = AxisInput(content, "X", COL_X);
         rotY = AxisInput(content, "Y", COL_Y);
@@ -83,35 +78,35 @@ public partial class HanokUIManager
         rotX.onEndEdit.AddListener(_ => ApplyRot());
         rotY.onEndEdit.AddListener(_ => ApplyRot());
         rotZ.onEndEdit.AddListener(_ => ApplyRot());
-        Spacer(content, 4);
+        Spacer(content, 6);
         ActionRow(content, 28,
             ("-90", () => QuickRot(-90f), BTN_GHOST, TEXT_MAIN),
             ("+90", () => QuickRot( 90f), BTN_GHOST, TEXT_MAIN),
             ("초기화", ResetRot,           BTN_GHOST, TEXT_MAIN));
 
         // 크기
-        Spacer(content, 6);
+        Spacer(content, 10);
         SubLabel(content, "크 기");
-        scaleF = AxisInput(content, "S", GOLD);
+        scaleF = AxisInput(content, "S", TEXT_SUB);
         scaleF.onEndEdit.AddListener(_ => ApplyScale());
-        Spacer(content, 4);
+        Spacer(content, 6);
         ActionRow(content, 28,
-            (" 0.5× ", () => SetScale(0.5f), BTN_GHOST, TEXT_MAIN),
-            (" 1× ",   () => SetScale(1f),   NAVY,      Color.white),
-            (" 2× ",   () => SetScale(2f),   BTN_GHOST, TEXT_MAIN),
-            (" 3× ",   () => SetScale(3f),   BTN_GHOST, TEXT_MAIN));
+            (" 0.5× ", () => SetScale(0.5f), BTN_GHOST,  TEXT_MAIN),
+            (" 1× ",   () => SetScale(1f),   BTN_ACTIVE, TEXT_ON_ACCENT),
+            (" 2× ",   () => SetScale(2f),   BTN_GHOST,  TEXT_MAIN),
+            (" 3× ",   () => SetScale(3f),   BTN_GHOST,  TEXT_MAIN));
 
         // ── 액션 버튼 ──────────────────────────────────────
-        Spacer(content, 12);
+        Spacer(content, 16);
         Divider(content);
-        Spacer(content, 8);
+        Spacer(content, 10);
         ActionRow(content, 40,
-            ("복  제", Duplicate,      BTN_SEC,    Color.white),
-            ("삭  제", DeleteSelected, BTN_DANGER, Color.white));
-        Spacer(content, 6);
+            ("복  제", Duplicate,      BTN_GHOST, TEXT_MAIN),
+            ("삭  제", DeleteSelected, BTN_GHOST, TEXT_MAIN));
+        Spacer(content, 10);
         ActionRow(content, 30,
             ("선택 해제", ClearSelection, BTN_GHOST, TEXT_MAIN));
-        Spacer(content, 24);
+        Spacer(content, 28);
     }
 
     // ── 섹션 라벨 ─────────────────────────────────────────
@@ -121,14 +116,14 @@ public partial class HanokUIManager
         go.transform.SetParent(parent, false);
         var le = go.AddComponent<LayoutElement>();
         le.preferredHeight = 26; le.flexibleWidth = 1;
-        go.AddComponent<Image>().color = BG_ROOT;
+        go.AddComponent<Image>().color = Color.clear;
         var tgo = new GameObject("T"); tgo.transform.SetParent(go.transform, false);
         var tRT = tgo.AddComponent<RectTransform>();
         tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
         tRT.offsetMin = new Vector2(12, 0); tRT.offsetMax = Vector2.zero;
         var t = tgo.AddComponent<TextMeshProUGUI>();
         t.text = kor; t.fontSize = 10; t.fontStyle = FontStyles.Bold;
-        t.color = NAVY; t.alignment = TextAlignmentOptions.Left;
+        t.color = TEXT_MAIN; t.alignment = TextAlignmentOptions.Left;
         KorFont(t);
     }
 
@@ -154,7 +149,7 @@ public partial class HanokUIManager
         row.transform.SetParent(parent, false);
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = 24; le.flexibleWidth = 1;
-        row.AddComponent<Image>().color = Color.clear;
+        row.AddComponent<Image>().color = BG_CARD;
 
         // 라벨 (좌측 고정)
         var lgo = new GameObject("Lbl"); lgo.transform.SetParent(row.transform, false);
@@ -189,12 +184,14 @@ public partial class HanokUIManager
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = 26; le.flexibleWidth = 1;
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 4; hlg.padding = new RectOffset(12, 12, 0, 0);
+        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
         hlg.childForceExpandHeight = true; hlg.childForceExpandWidth = false;
 
         var lgo = new GameObject("Lbl"); lgo.transform.SetParent(row.transform, false);
         lgo.AddComponent<LayoutElement>().preferredWidth = 22;
         var lImg = lgo.AddComponent<Image>();
+        lImg.sprite = RoundedRectSprite(8f);
+        lImg.type = Image.Type.Sliced;
         lImg.color = new Color(axisCol.r, axisCol.g, axisCol.b, 0.15f);
         var lt = new GameObject("T"); lt.transform.SetParent(lgo.transform, false);
         var ltRT = lt.AddComponent<RectTransform>();
@@ -219,7 +216,7 @@ public partial class HanokUIManager
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = height; le.flexibleWidth = 1;
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 4; hlg.padding = new RectOffset(12, 12, 0, 0);
+        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
         hlg.childForceExpandHeight = true; hlg.childForceExpandWidth = true;
 
         foreach (var (lbl, action, bg, fg) in btns)
@@ -227,15 +224,21 @@ public partial class HanokUIManager
             var go = new GameObject("Btn");
             go.transform.SetParent(row.transform, false);
             go.AddComponent<RectTransform>();
-            var img = go.AddComponent<Image>(); img.color = bg;
-            var outline = go.AddComponent<Outline>();
-            outline.effectColor = BORDER; outline.effectDistance = new Vector2(1,-1);
+            var img = go.AddComponent<Image>();
+            img.sprite = RoundedRectSprite(8f);
+            img.type = Image.Type.Sliced;
+            img.color = bg;
+            if (bg == BTN_ACTIVE)
+            {
+                var outline = go.AddComponent<Outline>();
+                outline.effectColor = GLOW;
+                outline.effectDistance = new Vector2(1,-1);
+            }
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = img;
             var cs = btn.colors;
-            cs.highlightedColor = new Color(
-                Mathf.Min(bg.r+.06f,1), Mathf.Min(bg.g+.06f,1), Mathf.Min(bg.b+.06f,1));
-            cs.pressedColor = bg * 0.85f;
+            cs.highlightedColor = new Color(bg.r, bg.g, bg.b, Mathf.Min(bg.a + 0.18f, 1f));
+            cs.pressedColor     = new Color(bg.r, bg.g, bg.b, Mathf.Min(bg.a + 0.35f, 1f));
             btn.colors = cs;
             btn.onClick.AddListener(() => action?.Invoke());
 

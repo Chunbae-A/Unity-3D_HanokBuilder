@@ -194,11 +194,11 @@ public partial class HanokUIManager
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = height;
         le.flexibleWidth = 1;
-        row.AddComponent<Image>().color = Hex("#E8E4DC");
+        row.AddComponent<Image>().color = BG_CARD;
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 4;
-        hlg.padding = new RectOffset(8, 8, 4, 4);
+        hlg.spacing = 6;
+        hlg.padding = new RectOffset(10, 10, 6, 6);
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = true;
 
@@ -215,12 +215,12 @@ public partial class HanokUIManager
         le.preferredHeight = height;
         le.flexibleWidth = 1;
 
-        grid.AddComponent<Image>().color = Hex("#E8E4DC");
+        grid.AddComponent<Image>().color = BG_CARD;
 
         var glg = grid.AddComponent<GridLayoutGroup>();
         glg.cellSize = new Vector2(60f, 24f);
-        glg.spacing = new Vector2(4f, 4f);
-        glg.padding = new RectOffset(8, 8, 6, 6);
+        glg.spacing = new Vector2(6f, 6f);
+        glg.padding = new RectOffset(10, 10, 8, 8);
         glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         glg.constraintCount = 4;
 
@@ -234,13 +234,19 @@ public partial class HanokUIManager
         go.AddComponent<RectTransform>();
 
         var img = go.AddComponent<Image>();
+        img.sprite = RoundedRectSprite(8f);
+        img.type = Image.Type.Sliced;
         img.color = BTN_GHOST;
+
+        var outline = go.AddComponent<Outline>();
+        outline.effectColor = Color.clear;
+        outline.effectDistance = new Vector2(1, -1);
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.highlightedColor = Hex("#D0CCC4");
-        cs.pressedColor = NAVY_LIGHT;
+        cs.highlightedColor = BTN_HOVER;
+        cs.pressedColor = BTN_PRESS;
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
@@ -315,11 +321,15 @@ public partial class HanokUIManager
     void SetFilterButtonState(Button btn, bool active)
     {
         if (btn == null) return;
-        btn.GetComponent<Image>().color = active ? NAVY : BTN_GHOST;
+        btn.GetComponent<Image>().color = active ? BTN_ACTIVE : BTN_GHOST;
+
+        var outline = btn.GetComponent<Outline>();
+        if (outline != null)
+            outline.effectColor = active ? GLOW : Color.clear;
 
         var txt = btn.GetComponentInChildren<TMP_Text>();
         if (txt != null)
-            txt.color = active ? Color.white : TEXT_SUB;
+            txt.color = active ? TEXT_ON_ACCENT : TEXT_SUB;
     }
 
     // ── 목록 렌더링 ──────────────────────────────────────
@@ -464,7 +474,7 @@ public partial class HanokUIManager
         le.preferredHeight = 28;
         le.flexibleWidth = 1;
 
-        go.AddComponent<Image>().color = Hex("#E4E0D8");
+        go.AddComponent<Image>().color = Color.clear;
 
         var tgo = new GameObject("T");
         tgo.transform.SetParent(go.transform, false);
@@ -515,31 +525,47 @@ public partial class HanokUIManager
         le.flexibleWidth = 1;
 
         var img = go.AddComponent<Image>();
+        img.sprite = RoundedRectSprite(8f);
+        img.type = Image.Type.Sliced;
         img.color = BG_CARD;
-
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = BORDER;
-        outline.effectDistance = new Vector2(1, -1);
+        img.material = GlassMaterial();
+        AddInnerGlow(go, 8f);
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
         cs.normalColor = BG_CARD;
-        cs.highlightedColor = Hex("#E4E0D8");
-        cs.pressedColor = Hex("#D4D0C8");
+        cs.highlightedColor = HexA("#FFFFFF", 0.55f);
+        cs.pressedColor = HexA("#FFFFFF", 0.70f);
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
+        // 썸네일 모서리를 둥글게 — RoundedRectSprite를 마스크로 사용해 RawImage를 클리핑
+        var thumbMask = new GameObject("ThumbMask");
+        thumbMask.transform.SetParent(go.transform, false);
+        var tmRT = thumbMask.AddComponent<RectTransform>();
+        tmRT.anchorMin = new Vector2(0, 0.26f);
+        tmRT.anchorMax = Vector2.one;
+        tmRT.offsetMin = new Vector2(3, 0);
+        tmRT.offsetMax = new Vector2(-3, -3);
+
+        var tmImg = thumbMask.AddComponent<Image>();
+        tmImg.sprite = RoundedRectSprite(6f);
+        tmImg.type = Image.Type.Sliced;
+        tmImg.color = Color.white;
+        tmImg.raycastTarget = false;
+        var mask = thumbMask.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
         var thumb = new GameObject("Thumb");
-        thumb.transform.SetParent(go.transform, false);
+        thumb.transform.SetParent(thumbMask.transform, false);
         var tRT = thumb.AddComponent<RectTransform>();
-        tRT.anchorMin = new Vector2(0, 0.26f);
+        tRT.anchorMin = Vector2.zero;
         tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(3, 0);
-        tRT.offsetMax = new Vector2(-3, -3);
+        tRT.offsetMin = tRT.offsetMax = Vector2.zero;
 
         var raw = thumb.AddComponent<RawImage>();
-        raw.color = Hex("#D8D4CC");
+        raw.color = Hex("#E4DED4");
 
         var ngo = new GameObject("Name");
         ngo.transform.SetParent(go.transform, false);
@@ -557,6 +583,7 @@ public partial class HanokUIManager
         t.overflowMode = TextOverflowModes.Ellipsis;
         t.textWrappingMode = TextWrappingModes.NoWrap;
         if (HasKorean(label)) KorFont(t); else LatFont(t);
+        AddTextHalo(t);
 
         return raw;
     }
@@ -690,7 +717,7 @@ public partial class HanokUIManager
         _thumbCam     = go.AddComponent<Camera>();
         _thumbCam.enabled          = false;
         _thumbCam.clearFlags       = CameraClearFlags.SolidColor;
-        _thumbCam.backgroundColor  = Hex("#EEE8DC");
+        _thumbCam.backgroundColor  = Hex("#F2EEE6");
         _thumbCam.orthographic     = true;
         _thumbCam.nearClipPlane    = 0.01f;
         _thumbCam.farClipPlane     = 100f;
