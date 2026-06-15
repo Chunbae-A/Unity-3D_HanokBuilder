@@ -35,6 +35,7 @@ public partial class HanokUIManager : MonoBehaviour
     TMP_InputField posX, posY, posZ;
     TMP_InputField rotX, rotY, rotZ;
     TMP_InputField scaleF;
+    TMP_InputField[] _editTabOrder;
 
     // ── 실행 취소 ─────────────────────────────────────────
     struct UndoEntry
@@ -160,6 +161,7 @@ public partial class HanokUIManager : MonoBehaviour
         HandleViewportScale();
         HandleScaleHandleDrag();
         if (!_shDragging) HandleViewportClick();
+        HandleEditPanelTabNavigation();
         HandleKeyboardShortcuts();
         UpdateScaleHandle();
         UpdateViewBadge();
@@ -855,6 +857,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.position =
             new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
+        SyncGizmo();
     }
 
     public void ApplyRot()
@@ -862,6 +865,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.eulerAngles =
             new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
+        SyncGizmo();
     }
 
     public void ApplyScale()
@@ -869,16 +873,23 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         float s = Mathf.Max(0.001f, Pf(scaleF.text));
         selectedObject.transform.localScale = Vector3.one * s;
+        SyncGizmo();
     }
 
     public void QuickRot(float deg)
     {
-        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
+        if (!selectedObject) return;
+        selectedObject.transform.Rotate(0, deg, 0, Space.World);
+        ForceSyncTransform();
+        SyncGizmo();
     }
 
     public void ResetRot()
     {
-        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
+        if (!selectedObject) return;
+        selectedObject.transform.eulerAngles = Vector3.zero;
+        ForceSyncTransform();
+        SyncGizmo();
     }
 
     public void SetScale(float s)
@@ -886,6 +897,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.localScale = Vector3.one * s;
         scaleF?.SetTextWithoutNotify(s.ToString("F2"));
+        SyncGizmo();
     }
 
     public void Duplicate()
