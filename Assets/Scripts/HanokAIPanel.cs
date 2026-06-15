@@ -389,8 +389,9 @@ public partial class HanokUIManager
 
         for (int i = 0; i < matches.Count; i++)
         {
-            var prefab = matches[i].prefab;
-            var rawImg = MakeGridCell(_aiResultContainer, matches[i].displayName, () => Spawn(prefab));
+            var entry = matches[i];
+            var prefab = entry.prefab;
+            var rawImg = MakeGridCell(_aiResultContainer, entry.displayName, () => Spawn(entry));
             StartCoroutine(CaptureThumbnail(prefab, rawImg, i));
         }
 
@@ -434,7 +435,7 @@ public partial class HanokUIManager
             x += UnityEngine.Random.Range(-AI_AUTO_PLACE_JITTER, AI_AUTO_PLACE_JITTER);
             z += UnityEngine.Random.Range(-AI_AUTO_PLACE_JITTER, AI_AUTO_PLACE_JITTER);
 
-            var obj = SpawnAt(pool[i].prefab, center + new Vector3(x, 0f, z));
+            var obj = SpawnAt(pool[i], center + new Vector3(x, 0f, z));
             if (obj == null) continue;
 
             var euler = obj.transform.eulerAngles;

@@ -503,8 +503,20 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
+        Spawn(prefab, null, null);
+    }
+
+    void Spawn(HanokAssetEntry entry)
+    {
+        if (entry == null) return;
+        Spawn(entry.prefab, entry.displayName, entry.assetKey);
+    }
+
+    void Spawn(GameObject prefab, string displayName, string assetKey)
+    {
         var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
+        ApplyPlacedAssetMetadata(obj, prefab, displayName, assetKey);
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
         if (obj.transform.localScale.magnitude > 50f)
@@ -527,8 +539,20 @@ public partial class HanokUIManager : MonoBehaviour
     // 지정한 위치에 배치 — AI 추천 다중 배치에 사용
     public GameObject SpawnAt(GameObject prefab, Vector3 position)
     {
+        return SpawnAt(prefab, position, null, null);
+    }
+
+    GameObject SpawnAt(HanokAssetEntry entry, Vector3 position)
+    {
+        if (entry == null) return null;
+        return SpawnAt(entry.prefab, position, entry.displayName, entry.assetKey);
+    }
+
+    GameObject SpawnAt(GameObject prefab, Vector3 position, string displayName, string assetKey)
+    {
         var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
+        ApplyPlacedAssetMetadata(obj, prefab, displayName, assetKey);
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
         OptimizeRenderers(obj);
@@ -538,6 +562,21 @@ public partial class HanokUIManager : MonoBehaviour
         AttachSelectable(obj);
         PushUndoSpawn(obj);
         return obj;
+    }
+
+    void ApplyPlacedAssetMetadata(GameObject obj, GameObject prefab, string displayName, string assetKey)
+    {
+        if (obj == null) return;
+
+        var metadata = obj.GetComponent<HanokPlacedAssetMetadata>();
+        if (metadata == null) metadata = obj.AddComponent<HanokPlacedAssetMetadata>();
+
+        string prefabName = prefab != null ? prefab.name : CleanPlacedObjectName(obj.name);
+        metadata.prefabName = prefabName;
+        metadata.assetKey = string.IsNullOrWhiteSpace(assetKey) ? prefabName : assetKey;
+        metadata.displayName = !string.IsNullOrWhiteSpace(displayName)
+            ? displayName
+            : GetLibraryDisplayName(prefabName, metadata.assetKey) ?? prefabName;
     }
 
     IEnumerator FinishSpawn(GameObject obj, HanokCameraController camCtrl)
@@ -702,8 +741,76 @@ public partial class HanokUIManager : MonoBehaviour
     {
         if (infoNameText == null) return;
         bool has = selectedObject != null;
-        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
+        infoNameText.text  = has ? GetPlacedAssetDisplayName(selectedObject) : "부재를 선택하세요";
         infoNameText.color = has ? TEXT_H : TEXT_HINT;
+    }
+
+    string GetPlacedAssetDisplayName(GameObject obj)
+    {
+        if (obj == null) return "부재를 선택하세요";
+
+        var metadata = obj.GetComponent<HanokPlacedAssetMetadata>();
+        if (metadata != null && !string.IsNullOrWhiteSpace(metadata.displayName))
+            return metadata.displayName;
+
+        string objectName = CleanPlacedObjectName(obj.name);
+        string displayName = GetLibraryDisplayName(objectName, objectName);
+        return !string.IsNullOrWhiteSpace(displayName) ? displayName : objectName;
+    }
+
+    string GetLibraryDisplayName(string prefabName, string assetKey)
+    {
+        string prefabKey = CleanPlacedObjectName(prefabName);
+        string assetKeyTail = CleanPlacedObjectName(GetPathTail(assetKey));
+
+        foreach (var entry in _assetEntries)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.displayName))
+                continue;
+
+            string entryPrefab = entry.prefab != null ? CleanPlacedObjectName(entry.prefab.name) : "";
+            string entryAsset = CleanPlacedObjectName(entry.assetKey);
+            string entryAssetTail = CleanPlacedObjectName(GetPathTail(entry.assetKey));
+
+            if (NameMatches(entryPrefab, prefabKey)
+                || NameMatches(entryAsset, assetKey)
+                || NameMatches(entryAssetTail, assetKeyTail)
+                || NameMatches(entryAssetTail, prefabKey))
+                return entry.displayName;
+        }
+
+        return null;
+    }
+
+    static bool NameMatches(string a, string b)
+    {
+        return !string.IsNullOrWhiteSpace(a)
+            && !string.IsNullOrWhiteSpace(b)
+            && string.Equals(a, b, System.StringComparison.Ordinal);
+    }
+
+    static string GetPathTail(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return value;
+        int slash = value.LastIndexOf('/');
+        return slash >= 0 ? value[(slash + 1)..] : value;
+    }
+
+    static string CleanPlacedObjectName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return value;
+
+        value = value.Trim();
+        const string cloneSuffix = "(Clone)";
+        const string copySuffix = "_복사";
+
+        if (value.EndsWith(cloneSuffix, System.StringComparison.Ordinal))
+            value = value[..^cloneSuffix.Length].Trim();
+
+        if (value.EndsWith(copySuffix, System.StringComparison.Ordinal))
+            value = value[..^copySuffix.Length].Trim();
+
+        return value;
     }
 
     // ── Transform 동기화 ──────────────────────────────────

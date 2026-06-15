@@ -759,7 +759,7 @@ public partial class HanokUIManager
                 {
                     var entry = filtered[pi];
                     var prefab = entry.prefab;
-                    var rawImg = MakeGridCell(row.transform, entry.displayName, () => Spawn(prefab));
+                    var rawImg = MakeGridCell(row.transform, entry.displayName, () => Spawn(entry));
                     StartCoroutine(CaptureThumbnail(prefab, rawImg, pi));
                 }
                 else
