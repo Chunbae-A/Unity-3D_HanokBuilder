@@ -513,7 +513,7 @@ public partial class HanokUIManager
         {
             var prefab = matches[i].prefab;
             var rawImg = MakeGridCell(_aiResultContainer, matches[i].displayName, () => Spawn(prefab));
-            StartCoroutine(CaptureThumbnail(prefab, rawImg, i));
+            EnqueueThumbnail(prefab, rawImg);
         }
 
         _aiResultsPanelRT.gameObject.SetActive(true);

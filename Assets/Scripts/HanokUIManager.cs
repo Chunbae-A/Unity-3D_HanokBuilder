@@ -66,10 +66,11 @@ public partial class HanokUIManager : MonoBehaviour
     HanokRotationGizmo _rotGizmo;
     HanokScaleGizmo    _scaleGizmo;
 
-    // ── 캡처·토스트·격자 ─────────────────────────────────
+    // ── 캡처·토스트·뷰 배지·격자 ─────────────────────────
     GameObject  _captureFlash;
     GameObject  _toastGO;
     TMP_Text    _toastText;
+    TMP_Text    _viewBadgeText;
     bool        _capturing    = false;
     Coroutine   _toastRoutine;
 
@@ -110,7 +111,7 @@ public partial class HanokUIManager : MonoBehaviour
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
     const string ASSETINFO_PATH = "HanokAssetInfo";
-    const int    THUMB_LAYER = 31;
+    const int    THUMB_LAYER = 30;
 
     // ── 생명주기 ──────────────────────────────────────────
     // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)
@@ -159,6 +160,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!_shDragging) HandleViewportClick();
         HandleKeyboardShortcuts();
         UpdateScaleHandle();
+        UpdateViewBadge();
     }
 
     // ── Ctrl+스크롤 → 선택 오브젝트 크기 조절 ────────────
@@ -449,10 +451,10 @@ public partial class HanokUIManager : MonoBehaviour
         camCtrl?.FocusObject(obj);
     }
 
-    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정
+    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정 (비활성 자식 포함)
     public void PlaceOnFloor(GameObject obj)
     {
-        var rends = obj.GetComponentsInChildren<Renderer>();
+        var rends = obj.GetComponentsInChildren<Renderer>(true);
         if (rends.Length == 0) return;
         var b = rends[0].bounds;
         foreach (var r in rends) b.Encapsulate(r.bounds);
@@ -473,35 +475,33 @@ public partial class HanokUIManager : MonoBehaviour
         return pt;
     }
 
-    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존
+    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존 (비활성 자식 포함)
     void OptimizeRenderers(GameObject obj)
     {
         var urpLit = Shader.Find("Universal Render Pipeline/Lit");
 
-        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        foreach (var r in obj.GetComponentsInChildren<Renderer>(true))
         {
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             r.receiveShadows    = true;
 
             if (urpLit == null) continue;
 
-            // sharedMaterials 로 깨진 셰이더 여부만 확인 (인스턴스 미생성)
             bool needFix = false;
             foreach (var sm in r.sharedMaterials)
             {
                 if (sm == null) continue;
                 var sn = sm.shader?.name ?? "";
-                if (sn == "Hidden/InternalErrorShader" || sn == "")
+                if (sn == "Hidden/InternalErrorShader" || sn == "Standard" || sn == "")
                 { needFix = true; break; }
             }
             if (!needFix) continue;
 
-            // r.materials → 인스턴스 생성 (원본 프리팹 재질 보호)
             foreach (var m in r.materials)
             {
                 if (m == null) continue;
                 var sn = m.shader?.name ?? "";
-                if (sn != "Hidden/InternalErrorShader" && sn != "") continue;
+                if (sn != "Hidden/InternalErrorShader" && sn != "Standard" && sn != "") continue;
                 Color   col = m.HasProperty("_Color")   ? m.GetColor("_Color")     : Color.white;
                 Texture tx  = m.HasProperty("_MainTex") ? m.GetTexture("_MainTex") : null;
                 m.shader = urpLit;
@@ -518,7 +518,7 @@ public partial class HanokUIManager : MonoBehaviour
         FixNegativeBoxColliders(obj);
         if (obj.GetComponentInChildren<Collider>() != null) return;
         var col = obj.AddComponent<BoxCollider>();
-        var rs  = obj.GetComponentsInChildren<Renderer>();
+        var rs  = obj.GetComponentsInChildren<Renderer>(true);
         if (rs.Length == 0) return;
         var b = rs[0].bounds;
         for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
@@ -575,10 +575,10 @@ public partial class HanokUIManager : MonoBehaviour
             hl.Show();
         }
 
-        // 바닥 아래로 박힌 오브젝트 자동 보정 (b.min.y < 0 이면 올려서 바닥에 정렬)
+        // 바닥 아래로 박힌 오브젝트 자동 보정 (비활성 자식 포함)
         if (obj != null)
         {
-            var rends = obj.GetComponentsInChildren<Renderer>();
+            var rends = obj.GetComponentsInChildren<Renderer>(true);
             if (rends.Length > 0)
             {
                 var b = rends[0].bounds;
@@ -1044,5 +1044,22 @@ public partial class HanokUIManager : MonoBehaviour
             yield return null;
         }
         _toastGO.SetActive(false);
+    }
+
+    // ── 뷰 배지 갱신 (매 프레임) ─────────────────────────────
+    void UpdateViewBadge()
+    {
+        if (_viewBadgeText == null) return;
+        var cam = Camera.main?.GetComponent<HanokCameraController>();
+        if (cam == null) return;
+        _viewBadgeText.text = cam.CurrentPreset switch
+        {
+            HanokCameraController.ViewPreset.Top         => "위",
+            HanokCameraController.ViewPreset.Front       => "정면",
+            HanokCameraController.ViewPreset.Back        => "후면",
+            HanokCameraController.ViewPreset.Right       => "우측",
+            HanokCameraController.ViewPreset.Left        => "좌측",
+            _                                            => "3D",
+        };
     }
 }

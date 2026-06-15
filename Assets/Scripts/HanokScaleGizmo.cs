@@ -118,7 +118,12 @@ public class HanokScaleGizmo : MonoBehaviour
     void RefreshVisuals()
     {
         Color[] def    = { C_X, C_Y, C_Z, C_W };
-        Vector3[] axes = { Vector3.right, Vector3.up, Vector3.forward };
+        // 오브젝트 로컬 축 사용 — 회전된 오브젝트에서도 X=X, Y=Y, Z=Z 보장
+        Vector3[] axes = {
+            _target.transform.right,
+            _target.transform.up,
+            _target.transform.forward
+        };
 
         for (int i = 0; i < 3; i++)
         {
@@ -192,18 +197,19 @@ public class HanokScaleGizmo : MonoBehaviour
 
         if (axis == Axis.All)
         {
-            float len = ScreenLen(Vector3.right);
+            float len = ScreenLen(_target.transform.right);
             float f   = (delta.x + delta.y) / Mathf.Max(len, 40f) * 1.8f;
             scale = Vector3.Max(scale * (1f + f), Vector3.one * 0.02f);
         }
         else
         {
+            // 오브젝트 로컬 축으로 계산 — 스폰 시 회전(-90°X)이 있어도 올바르게 동작
             Vector3 worldAxis = axis switch
             {
-                Axis.X => Vector3.right,
-                Axis.Y => Vector3.up,
-                Axis.Z => Vector3.forward,
-                _      => Vector3.right
+                Axis.X => _target.transform.right,
+                Axis.Y => _target.transform.up,
+                Axis.Z => _target.transform.forward,
+                _      => _target.transform.right
             };
             float len  = ScreenLen(worldAxis);
             Vector2 sc = cam.WorldToScreenPoint(_center);
@@ -229,9 +235,9 @@ public class HanokScaleGizmo : MonoBehaviour
         if (Camera.main == null) return Axis.None;
 
         Vector3[] ends = {
-            _center + Vector3.right   * _handleLen,
-            _center + Vector3.up      * _handleLen,
-            _center + Vector3.forward * _handleLen,
+            _center + _target.transform.right   * _handleLen,
+            _center + _target.transform.up      * _handleLen,
+            _center + _target.transform.forward * _handleLen,
         };
 
         float best = HIT_PX;

@@ -52,6 +52,7 @@ public partial class HanokUIManager
         BuildToast(root);
         BuildAIPromptWidget(root);
         BuildLeftExpandButton(root);
+        BuildViewOrientationBadge(root);
     }
 
     // ── 왼쪽 헤더 (제목 + 검색창) ────────────────────────
@@ -158,7 +159,7 @@ public partial class HanokUIManager
         searchInput.onValueChanged.AddListener(OnSearchChanged);
     }
 
-    // ── 오른쪽 헤더 ───────────────────────────────────────
+    // ── 오른쪽 헤더 (편집 패널 — 접기 버튼 포함) ─────────
     void BuildRightHeader(RectTransform panel)
     {
         var hdr = NewRT(panel, "Hdr");
@@ -403,6 +404,30 @@ public partial class HanokUIManager
             d.alignment = TextAlignmentOptions.Center;
             KorFont(d);
         }
+    }
+
+    // ── 뷰 방향 배지 (현재 카메라 시점 표시) ─────────────
+    void BuildViewOrientationBadge(Transform root)
+    {
+        var badge = NewRT(root, "ViewBadge");
+        badge.anchorMin = new Vector2(1f, 1f);
+        badge.anchorMax = new Vector2(1f, 1f);
+        badge.pivot     = new Vector2(1f, 1f);
+        badge.offsetMin = new Vector2(-348, -36);
+        badge.offsetMax = new Vector2(-290,  -6);
+        badge.gameObject.GetComponent<Image>().color = new Color(0.10f, 0.12f, 0.16f, 0.82f);
+        var ol = badge.gameObject.AddComponent<Outline>();
+        ol.effectColor = new Color(1f, 1f, 1f, 0.10f); ol.effectDistance = new Vector2(1, -1);
+        var tgo = new GameObject("T"); tgo.transform.SetParent(badge, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(5, 2); tRT.offsetMax = new Vector2(-5, -2);
+        _viewBadgeText = tgo.AddComponent<TextMeshProUGUI>();
+        _viewBadgeText.text = "3D"; _viewBadgeText.fontSize = 9.5f;
+        _viewBadgeText.fontStyle = FontStyles.Bold;
+        _viewBadgeText.color = new Color(1f, 1f, 1f, 0.65f);
+        _viewBadgeText.alignment = TextAlignmentOptions.Center;
+        KorFont(_viewBadgeText);
     }
 
     void BuildCaptureFlash(Transform root)
