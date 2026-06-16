@@ -136,9 +136,6 @@ public partial class HanokUIManager
         var t = go.AddComponent<TextMeshProUGUI>();
         t.text = kor; t.fontSize = 9; t.fontStyle = FontStyles.Bold;
         t.color = TEXT_SUB; t.alignment = TextAlignmentOptions.Left;
-        // 마진을 위한 RectTransform 오프셋
-        var rt = go.GetComponent<RectTransform>();
-        if (rt == null) rt = go.AddComponent<RectTransform>();
         KorFont(t);
     }
 
