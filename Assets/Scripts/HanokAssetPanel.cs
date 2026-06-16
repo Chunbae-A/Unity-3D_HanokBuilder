@@ -69,9 +69,9 @@ public partial class HanokUIManager
 
     // ── 에셋 로딩 ────────────────────────────────────────
     // Resources/HanokAssets를 스캔해 라이브러리로 채택:
-    //   1) HanokAssetTags 있는 경우 → 해당 카테고리로 분류
-    //   2) HanokAssetTags 없는 FBX/Prefab이라도 Renderer가 있으면 '전체' 카테고리로 포함
-    //      (FBX를 직접 HanokAssets 폴더에 넣으면 자동 인식)
+    //   HanokAssetTags(카테고리)가 지정된 정식 프리팹만 채택.
+    //   Meshes/Part 등 원본 FBX는 정식 프리팹이 참조하는 소스 메시이므로 제외
+    //   (포함 시 같은 부재가 라이브러리에 중복 표시됨)
     void LoadAssets()
     {
         if (assetContent == null)
@@ -98,17 +98,11 @@ public partial class HanokUIManager
             string[] searchTags = (info?.tags) ?? System.Array.Empty<string>();
 
             var assetTags = prefab.GetComponent<HanokAssetTags>();
-            if (assetTags != null && assetTags.categories != null && assetTags.categories.Length > 0)
-            {
-                // 카테고리 태그 있는 정식 에셋
-                _assetEntries.Add(new HanokAssetEntry(prefab, assetTags.categories, displayName, searchTags));
-            }
-            else
-            {
-                // HanokAssetTags 없는 FBX 직접 임포트 — Renderer 있는 것만 '전체' 카테고리로 포함
-                if (prefab.GetComponentInChildren<Renderer>(true) == null) continue;
-                _assetEntries.Add(new HanokAssetEntry(prefab, System.Array.Empty<HanokAssetCategory>(), displayName, searchTags));
-            }
+            if (assetTags == null || assetTags.categories == null || assetTags.categories.Length == 0)
+                continue; // 카테고리 태그 없는 원본 FBX/프리팹 — 라이브러리 중복 표시 방지
+
+            // 카테고리 태그 있는 정식 에셋
+            _assetEntries.Add(new HanokAssetEntry(prefab, assetTags.categories, displayName, searchTags));
         }
 
         _assetEntries.Sort((a, b) =>
@@ -207,11 +201,11 @@ public partial class HanokUIManager
         var le = row.AddComponent<LayoutElement>();
         le.preferredHeight = height;
         le.flexibleWidth = 1;
-        row.AddComponent<Image>().color = Hex("#E8E4DC");
+        row.AddComponent<Image>().color = BG_CARD;
 
         var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 4;
-        hlg.padding = new RectOffset(8, 8, 4, 4);
+        hlg.spacing = 6;
+        hlg.padding = new RectOffset(10, 10, 6, 6);
         hlg.childForceExpandWidth = true;
         hlg.childForceExpandHeight = true;
 
@@ -228,12 +222,12 @@ public partial class HanokUIManager
         le.preferredHeight = height;
         le.flexibleWidth = 1;
 
-        grid.AddComponent<Image>().color = Hex("#E8E4DC");
+        grid.AddComponent<Image>().color = BG_CARD;
 
         var glg = grid.AddComponent<GridLayoutGroup>();
         glg.cellSize = new Vector2(60f, 24f);
-        glg.spacing = new Vector2(4f, 4f);
-        glg.padding = new RectOffset(8, 8, 6, 6);
+        glg.spacing = new Vector2(6f, 6f);
+        glg.padding = new RectOffset(10, 10, 8, 8);
         glg.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         glg.constraintCount = 4;
 
@@ -247,13 +241,19 @@ public partial class HanokUIManager
         go.AddComponent<RectTransform>();
 
         var img = go.AddComponent<Image>();
+        img.sprite = RoundedRectSprite(8f);
+        img.type = Image.Type.Sliced;
         img.color = BTN_GHOST;
+
+        var outline = go.AddComponent<Outline>();
+        outline.effectColor = Color.clear;
+        outline.effectDistance = new Vector2(1, -1);
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.highlightedColor = Hex("#D0CCC4");
-        cs.pressedColor = NAVY_LIGHT;
+        cs.highlightedColor = BTN_HOVER;
+        cs.pressedColor = BTN_PRESS;
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
@@ -328,11 +328,15 @@ public partial class HanokUIManager
     void SetFilterButtonState(Button btn, bool active)
     {
         if (btn == null) return;
-        btn.GetComponent<Image>().color = active ? NAVY : BTN_GHOST;
+        btn.GetComponent<Image>().color = active ? BTN_ACTIVE : BTN_GHOST;
+
+        var outline = btn.GetComponent<Outline>();
+        if (outline != null)
+            outline.effectColor = active ? GLOW : Color.clear;
 
         var txt = btn.GetComponentInChildren<TMP_Text>();
         if (txt != null)
-            txt.color = active ? Color.white : TEXT_SUB;
+            txt.color = active ? TEXT_ON_ACCENT : TEXT_SUB;
     }
 
     // ── 목록 렌더링 ──────────────────────────────────────
@@ -480,7 +484,7 @@ public partial class HanokUIManager
         le.preferredHeight = 28;
         le.flexibleWidth = 1;
 
-        go.AddComponent<Image>().color = Hex("#E4E0D8");
+        go.AddComponent<Image>().color = Color.clear;
 
         var tgo = new GameObject("T");
         tgo.transform.SetParent(go.transform, false);
@@ -531,31 +535,47 @@ public partial class HanokUIManager
         le.flexibleWidth = 1;
 
         var img = go.AddComponent<Image>();
-        img.color = BG_CARD;
-
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = BORDER;
-        outline.effectDistance = new Vector2(1, -1);
+        img.sprite = RoundedRectSprite(8f);
+        img.type = Image.Type.Sliced;
+        img.color = BG_CARD_SOLID;
+        img.material = GlassMaterial();
+        AddInnerGlow(go, 8f);
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor = BG_CARD;
-        cs.highlightedColor = Hex("#E4E0D8");
-        cs.pressedColor = Hex("#D4D0C8");
+        cs.normalColor = BG_CARD_SOLID;
+        cs.highlightedColor = HexA("#FFFFFF", 0.92f);
+        cs.pressedColor = HexA("#FFFFFF", 0.98f);
         btn.colors = cs;
         btn.onClick.AddListener(() => onClick?.Invoke());
 
+        // 썸네일 모서리를 둥글게 — RoundedRectSprite를 마스크로 사용해 RawImage를 클리핑
+        var thumbMask = new GameObject("ThumbMask");
+        thumbMask.transform.SetParent(go.transform, false);
+        var tmRT = thumbMask.AddComponent<RectTransform>();
+        tmRT.anchorMin = new Vector2(0, 0.26f);
+        tmRT.anchorMax = Vector2.one;
+        tmRT.offsetMin = new Vector2(3, 0);
+        tmRT.offsetMax = new Vector2(-3, -3);
+
+        var tmImg = thumbMask.AddComponent<Image>();
+        tmImg.sprite = RoundedRectSprite(6f);
+        tmImg.type = Image.Type.Sliced;
+        tmImg.color = Color.white;
+        tmImg.raycastTarget = false;
+        var mask = thumbMask.AddComponent<Mask>();
+        mask.showMaskGraphic = false;
+
         var thumb = new GameObject("Thumb");
-        thumb.transform.SetParent(go.transform, false);
+        thumb.transform.SetParent(thumbMask.transform, false);
         var tRT = thumb.AddComponent<RectTransform>();
-        tRT.anchorMin = new Vector2(0, 0.26f);
+        tRT.anchorMin = Vector2.zero;
         tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(3, 0);
-        tRT.offsetMax = new Vector2(-3, -3);
+        tRT.offsetMin = tRT.offsetMax = Vector2.zero;
 
         var raw = thumb.AddComponent<RawImage>();
-        raw.color = Hex("#D8D4CC");
+        raw.color = Hex("#E4DED4");
 
         var ngo = new GameObject("Name");
         ngo.transform.SetParent(go.transform, false);
@@ -573,6 +593,7 @@ public partial class HanokUIManager
         t.overflowMode = TextOverflowModes.Ellipsis;
         t.textWrappingMode = TextWrappingModes.NoWrap;
         if (HasKorean(label)) KorFont(t); else LatFont(t);
+        AddTextHalo(t);
 
         return raw;
     }
@@ -583,7 +604,12 @@ public partial class HanokUIManager
     {
         _thumbQueue.Enqueue((prefab, target));
         if (!_thumbQueueRunning)
+        {
+            // 동일 프레임에 다수 호출 시 코루틴이 중복 시작되지 않도록
+            // StartCoroutine 전에 미리 플래그를 세운다
+            _thumbQueueRunning = true;
             StartCoroutine(ProcessThumbnailQueue());
+        }
     }
 
     IEnumerator ProcessThumbnailQueue()
@@ -609,7 +635,8 @@ public partial class HanokUIManager
         // 메인 카메라 clipping 범위(~1000) 밖에 배치 + layer 30 → 메인 카메라에 보이지 않음
         const float FAR = 8000f;
         var inst = Instantiate(prefab, new Vector3(FAR, 0f, FAR), Quaternion.identity);
-        // hideFlags 미설정: URP가 오브젝트를 씬 그래프에서 정상적으로 인식해야 Camera.Render 동작
+        // HideInHierarchy: Hierarchy 창에서 숨기되 씬 그래프에는 포함 → URP Render Graph가 정상 인식
+        inst.hideFlags = HideFlags.HideInHierarchy;
         SetLayerAll(inst, THUMB_LAYER);
         FixMaterialColors(inst);
 

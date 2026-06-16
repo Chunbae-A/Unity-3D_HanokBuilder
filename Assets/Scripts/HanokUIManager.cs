@@ -25,18 +25,11 @@ public partial class HanokUIManager : MonoBehaviour
     Transform      assetContent;
     Button[]       toolBtns;
     Button[]       _bgBtns;
-    RectTransform  rightPanelRT;
-    RectTransform  leftPanelRT;
-    RectTransform  viewSwitcherRT;
-    RectTransform  viewportHintRT;
-    RectTransform  _toolbarPanelRT;
-    RectTransform  _leftToggleBtnRT;    // 왼쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
-    RectTransform  _rightToggleBtnRT;   // 오른쪽 패널 닫혔을 때 나타나는 플로팅 토글 버튼
-    RectTransform  _aiOverlayRT;        // AI 추천 오버레이 패널 (편집 패널 위에 표시)
 
-    // ── 편집 패널 UI 참조 ─────────────────────────────────
-    TMP_Text       infoNameText;
-    TMP_Text       _infoUsage, _infoPeriod, _infoMaterial, _infoSource;
+    RectTransform leftPanelRT;
+    RectTransform _leftExpandBtnRT;
+
+    TMP_Text infoNameText;
     TMP_InputField posX, posY, posZ;
     TMP_InputField rotX, rotY, rotZ;
     TMP_InputField scaleF;
@@ -81,36 +74,39 @@ public partial class HanokUIManager : MonoBehaviour
     bool        _capturing    = false;
     Coroutine   _toastRoutine;
 
-    // ── 라이트 테마 색상 팔레트 ───────────────────────────
+    // ── 화이트 글래스모피즘 팔레트 ────────────────────────────────────
     static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out Color c); return c; }
+    static Color HexA(string h, float a) { var c = Hex(h); c.a = a; return c; }
 
-    // 기반
-    static readonly Color BG_ROOT    = Hex("#EAE6DF");
-    static readonly Color BG_PANEL   = Hex("#FFFFFF");
-    static readonly Color BG_CARD    = Hex("#F7F4EF");
-    static readonly Color BG_INPUT   = Hex("#EDEAE4");
-    static readonly Color BORDER     = Hex("#D4CFC8");
+    // 기반 — 화이트 반투명 글래스
+    static readonly Color BG_PANEL = HexA("#FFFFFF", 0.45f); // 패널 배경 — 화이트 글래스
+    static readonly Color BG_CARD  = HexA("#FFFFFF", 0.60f); // 카드/그리드 셀 — 패널 위에 또렷하게 뜬 화이트 유리
+    static readonly Color BG_CARD_SOLID = HexA("#FFFFFF", 0.85f); // 에셋 그리드 셀 — 라벨 가독성을 위해 더 불투명한 화이트
+    static readonly Color BG_INPUT = HexA("#FFFFFF", 0.70f); // 입력창 — 카드보다 한 단계 더 밝은 화이트 유리
+    static readonly Color HDR_BG   = HexA("#FFFFFF", 0.60f); // 헤더 바("모듈 라이브러리"/"부재 정보") — 패널보다 진하고 불투명한 화이트
+    static readonly Color BORDER   = HexA("#FFFFFF", 0.12f); // 옅은 구분선 색상 (Divider)
 
-    // 브랜드
-    static readonly Color NAVY       = Hex("#1B3A6B");
-    static readonly Color NAVY_LIGHT = Hex("#2C5282");
-    static readonly Color FOREST     = Hex("#3D6B4F");
+    // 버튼/탭 — 화이트 배경 위에서도 구분되도록 옅은 남색 틴트, 활성 상태는 진한 남색 강조
+    static readonly Color BTN_GHOST  = HexA("#1B3A6B", 0.10f); // 기본 버튼/칩 — 화이트 배경과 구분되는 옅은 남색
+    static readonly Color BTN_ACTIVE = HexA("#1B3A6B", 0.55f); // 선택/활성 상태 — 남색 강조
+    static readonly Color BTN_HOVER  = HexA("#1B3A6B", 0.35f); // BTN_GHOST 계열 호버
+    static readonly Color BTN_PRESS  = HexA("#1B3A6B", 0.50f); // BTN_GHOST 계열 프레스
+    static readonly Color BTN_ACTIVE_HOVER = HexA("#1B3A6B", 0.70f); // BTN_ACTIVE 계열 호버
+    static readonly Color BTN_ACTIVE_PRESS = HexA("#1B3A6B", 0.85f); // BTN_ACTIVE 계열 프레스
+    static readonly Color GLOW       = HexA("#FFFFFF", 0.90f); // 활성 요소 테두리 (inner glow)
 
-    // 텍스트
-    static readonly Color TEXT_MAIN  = Hex("#333333");
-    static readonly Color TEXT_SUB   = Hex("#888888");
-    static readonly Color TEXT_HINT  = Hex("#BBBBBB");
+    // 텍스트 — 화이트 글래스 배경 위에서 가독성을 확보하기 위해 전부 블랙 계열
+    static readonly Color TEXT_HDR  = HexA("#000000", 0.90f); // "모듈 라이브러리" / "부재 정보" 헤더 타이틀 전용
+    static readonly Color TEXT_H    = HexA("#000000", 0.90f);
+    static readonly Color TEXT_MAIN = HexA("#000000", 0.80f);
+    static readonly Color TEXT_SUB  = HexA("#000000", 0.50f);
+    static readonly Color TEXT_HINT = HexA("#000000", 0.32f);
+    static readonly Color TEXT_ON_ACCENT = HexA("#FFFFFF", 0.95f); // BTN_ACTIVE(남색) 위에 올라가는 텍스트/아이콘
 
-    // 버튼
-    static readonly Color BTN_PRI    = Hex("#1B3A6B");
-    static readonly Color BTN_GHOST  = Hex("#E8E4DC");
-    static readonly Color BTN_SEC    = Hex("#3D6B4F");
-    static readonly Color BTN_DANGER = Hex("#B03030");
-    static readonly Color TEXT_H     = Hex("#1A1A1A");
-    static readonly Color GOLD       = Hex("#9A7228");
-    static readonly Color COL_X      = Hex("#C0392B");
-    static readonly Color COL_Y      = Hex("#27AE60");
-    static readonly Color COL_Z      = Hex("#2980B9");
+    // 축 (3D 기즈모 색상과 동일 — 유지)
+    static readonly Color COL_X = Hex("#C0392B");
+    static readonly Color COL_Y = Hex("#27AE60");
+    static readonly Color COL_Z = Hex("#2980B9");
 
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
@@ -333,13 +329,14 @@ public partial class HanokUIManager : MonoBehaviour
         for (int i = 0; i < _bgBtns.Length; i++)
         {
             bool sel = (i == idx);
-            _bgBtns[i].GetComponent<Image>().color = sel ? NAVY : BTN_GHOST;
+            // 배경 선택기는 글래스/단청 팔레트 대상이 아니므로 기존 라이트 톤을 그대로 유지
+            _bgBtns[i].GetComponent<Image>().color = sel ? Hex("#1B3A6B") : Hex("#E8E4DC");
             foreach (var txt in _bgBtns[i].GetComponentsInChildren<TMP_Text>())
             {
                 bool bold = txt.fontStyle.HasFlag(FontStyles.Bold);
                 txt.color = sel
                     ? (bold ? Color.white : new Color(1f, 1f, 1f, 0.65f))
-                    : (bold ? TEXT_MAIN   : TEXT_HINT);
+                    : (bold ? Hex("#333333") : Hex("#BBBBBB"));
             }
         }
     }
@@ -383,9 +380,9 @@ public partial class HanokUIManager : MonoBehaviour
             var  tool   = (EditTool)i;
             bool isDel  = (tool == EditTool.Delete);
 
-            // 다크 패널 기반 버튼 색상
+            // 선택된 도구만 남색 강조, 나머지는 패널 배경 그대로
             toolBtns[i].GetComponent<Image>().color =
-                active ? new Color(1f, 1f, 1f, 0.15f) : Color.clear;
+                active ? BTN_ACTIVE : Color.clear;
 
             var texts = toolBtns[i].GetComponentsInChildren<TMP_Text>();
             foreach (var txt in texts)
@@ -393,15 +390,13 @@ public partial class HanokUIManager : MonoBehaviour
                 bool isIcon = txt.fontSize >= 10f; // 메인라벨(12) vs 단축키힌트(8) 구분
                 if (active)
                 {
-                    txt.color = isIcon
-                        ? (isDel ? new Color(1f, 0.55f, 0.52f) : Color.white)
-                        : new Color(1f, 1f, 1f, 0.55f);
+                    txt.color = isIcon ? TEXT_ON_ACCENT : HexA("#FFFFFF", 0.65f);
                 }
                 else
                 {
                     txt.color = isIcon
-                        ? (isDel ? new Color(1f, 0.50f, 0.46f) : new Color(1f, 1f, 1f, 0.35f))
-                        : new Color(1f, 1f, 1f, 0.18f);
+                        ? (isDel ? COL_X : TEXT_MAIN)
+                        : TEXT_HINT;
                 }
             }
         }
@@ -416,9 +411,6 @@ public partial class HanokUIManager : MonoBehaviour
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
-
-        // 기본 스케일 23 (뷰포트 기준 적정 건물 크기)
-        obj.transform.localScale = Vector3.one * 23f;
 
         OptimizeRenderers(obj);
 
@@ -441,7 +433,6 @@ public partial class HanokUIManager : MonoBehaviour
         obj.name = prefab.name;
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
-        obj.transform.localScale = Vector3.one * 23f;
         OptimizeRenderers(obj);
         obj.transform.position = position;
         PlaceOnFloor(obj);
@@ -605,6 +596,90 @@ public partial class HanokUIManager : MonoBehaviour
         if (obj != null)
             Camera.main?.GetComponent<HanokCameraController>()
                         ?.ShiftPivotToward(obj.transform.position);
+    }
+
+    void RefreshInfoPanel()
+    {
+        if (infoNameText == null) return;
+        bool has = selectedObject != null;
+        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
+        infoNameText.color = has ? TEXT_H : TEXT_HINT;
+    }
+
+    // ── Transform 동기화 ──────────────────────────────────
+    void SyncTransformInputs()
+    {
+        if (selectedObject == null || posX == null) return;
+        var t = selectedObject.transform;
+        if (!posX.isFocused)  posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
+        if (!posY.isFocused)  posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
+        if (!posZ.isFocused)  posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
+        if (!rotX.isFocused)  rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
+        if (!rotY.isFocused)  rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
+        if (!rotZ.isFocused)  rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
+        if (!scaleF.isFocused) scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
+    }
+
+    void ForceSyncTransform()
+    {
+        if (selectedObject == null || posX == null) return;
+        var t = selectedObject.transform;
+        posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
+        posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
+        posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
+        rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
+        rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
+        rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
+        scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
+    }
+
+    // ── Transform 적용 ───────────────────────────────────
+    public void ApplyPos()
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.position =
+            new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
+    }
+
+    public void ApplyRot()
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.eulerAngles =
+            new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
+    }
+
+    public void ApplyScale()
+    {
+        if (!selectedObject) return;
+        float s = Mathf.Max(0.001f, Pf(scaleF.text));
+        selectedObject.transform.localScale = Vector3.one * s;
+    }
+
+    public void QuickRot(float deg)
+    {
+        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
+    }
+
+    public void ResetRot()
+    {
+        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
+    }
+
+    public void SetScale(float s)
+    {
+        if (!selectedObject) return;
+        selectedObject.transform.localScale = Vector3.one * s;
+        scaleF?.SetTextWithoutNotify(s.ToString("F2"));
+    }
+
+    public void Duplicate()
+    {
+        if (!selectedObject) return;
+        var c = Instantiate(selectedObject);
+        c.name = selectedObject.name + "_복사";
+        c.transform.position += Vector3.right * 2f;
+        AttachSelectable(c);
+        SelectObject(c);
     }
 
     public void DeleteSelected()
@@ -868,6 +943,12 @@ public partial class HanokUIManager : MonoBehaviour
     }
 
     // ── 유틸 ─────────────────────────────────────────────
+    static float Pf(string s) =>
+        float.TryParse(s,
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out float v) ? v : 0f;
+
     void KorFont(TMP_Text t)  { if (koreanFont) t.font = koreanFont; }
 
     TMP_FontAsset _lat;
@@ -964,96 +1045,6 @@ public partial class HanokUIManager : MonoBehaviour
         }
         _toastGO.SetActive(false);
     }
-
-    // ── 편집 패널 동기화 ──────────────────────────────────
-    void RefreshInfoPanel()
-    {
-        if (infoNameText == null) return;
-        bool has = selectedObject != null;
-        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
-        infoNameText.color = has ? TEXT_H : TEXT_HINT;
-    }
-
-    void SyncTransformInputs()
-    {
-        if (selectedObject == null || posX == null) return;
-        var t = selectedObject.transform;
-        if (!posX.isFocused)  posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
-        if (!posY.isFocused)  posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
-        if (!posZ.isFocused)  posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
-        if (!rotX.isFocused)  rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
-        if (!rotY.isFocused)  rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
-        if (!rotZ.isFocused)  rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
-        if (!scaleF.isFocused) scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
-    }
-
-    void ForceSyncTransform()
-    {
-        if (selectedObject == null || posX == null) return;
-        var t = selectedObject.transform;
-        posX.SetTextWithoutNotify(t.position.x.ToString("F2"));
-        posY.SetTextWithoutNotify(t.position.y.ToString("F2"));
-        posZ.SetTextWithoutNotify(t.position.z.ToString("F2"));
-        rotX.SetTextWithoutNotify(t.eulerAngles.x.ToString("F1"));
-        rotY.SetTextWithoutNotify(t.eulerAngles.y.ToString("F1"));
-        rotZ.SetTextWithoutNotify(t.eulerAngles.z.ToString("F1"));
-        scaleF.SetTextWithoutNotify(t.localScale.x.ToString("F2"));
-    }
-
-    // ── Transform 적용 ───────────────────────────────────
-    public void ApplyPos()
-    {
-        if (!selectedObject) return;
-        selectedObject.transform.position =
-            new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
-    }
-
-    public void ApplyRot()
-    {
-        if (!selectedObject) return;
-        selectedObject.transform.eulerAngles =
-            new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
-    }
-
-    public void ApplyScale()
-    {
-        if (!selectedObject) return;
-        float s = Mathf.Max(0.001f, Pf(scaleF.text));
-        selectedObject.transform.localScale = Vector3.one * s;
-    }
-
-    public void QuickRot(float deg)
-    {
-        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
-    }
-
-    public void ResetRot()
-    {
-        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
-    }
-
-    public void SetScale(float s)
-    {
-        if (!selectedObject) return;
-        selectedObject.transform.localScale = Vector3.one * s;
-        scaleF?.SetTextWithoutNotify(s.ToString("F2"));
-    }
-
-    public void Duplicate()
-    {
-        if (!selectedObject) return;
-        var c = Instantiate(selectedObject);
-        c.name = selectedObject.name + "_복사";
-        c.transform.position += Vector3.right * 2f;
-        AttachSelectable(c);
-        SelectObject(c);
-    }
-
-    static float Pf(string s) =>
-        float.TryParse(s,
-            System.Globalization.NumberStyles.Float,
-            System.Globalization.CultureInfo.InvariantCulture,
-            out float v) ? v : 0f;
 
     // ── 뷰 배지 갱신 (매 프레임) ─────────────────────────────
     void UpdateViewBadge()

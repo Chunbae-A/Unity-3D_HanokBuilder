@@ -8,127 +8,113 @@ using TMPro;
 
 /// <summary>
 /// HanokUIManager — AI 프롬프트 기반 에셋 추천 (partial)
-/// 화면 우측 하단 원형 버튼으로 입력창을 토글하고, Claude(Haiku)에게 카탈로그 중
-/// 적합한 에셋을 추천받아 우측 패널 "AI 추천" 영역에 카드로 표시한다.
+/// 화면 하단 중앙의 둥근 프롬프트 바에 입력 후 전송하면, Claude(Haiku)에게 카탈로그 중
+/// 적합한 에셋을 추천받아 프롬프트 바 바로 위 결과 패널에 가로 한 줄로 표시한다.
 /// </summary>
 public partial class HanokUIManager
 {
     // ── 상태 ─────────────────────────────────────────────
     Transform     _aiResultContainer;
     TMP_InputField _aiInputField;
-    RectTransform _aiButtonRT;
+    RectTransform _aiResultsPanelRT;
     bool          _aiRequestInProgress;
     string        _aiCatalog;
     static Sprite _aiCircleSprite;
     static Sprite _aiTriangleSprite;
+    static readonly Dictionary<float, Sprite> _roundedRectCache = new Dictionary<float, Sprite>();
+    static readonly Dictionary<float, Sprite> _topRoundedRectCache = new Dictionary<float, Sprite>();
+    static readonly Dictionary<float, Sprite> _innerGlowCache = new Dictionary<float, Sprite>();
+    static readonly Dictionary<(float radius, float thickness), Sprite> _ringCache = new Dictionary<(float radius, float thickness), Sprite>();
 
-    // 화면 우하단 모서리에 고정되는 AI 토글 버튼 위치 (우측 패널이 숨겨졌을 때만 보임)
-    static readonly Vector2 AI_BTN_MIN = new Vector2(-72, 30);
-    static readonly Vector2 AI_BTN_MAX = new Vector2(-16, 86);
-
-    // ── 우측 패널: AI 추천 섹션 ───────────────────────────
-    void BuildAIRecommendationSection(Transform content)
+    // ── 화면 하단 중앙: 둥근 모서리 프롬프트 바 (항상 표시) ──
+    void BuildAIPromptWidget(Transform root)
     {
-        InfoSectionLabel(content, "AI 추천");
+        BuildAIResultsPanel(root);
 
-        var resultsRT = NewRT(content, "AIResults");
-        var vlg = resultsRT.gameObject.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 4; vlg.padding = new RectOffset(8, 8, 4, 4);
-        vlg.childForceExpandWidth = true; vlg.childForceExpandHeight = false;
-        resultsRT.gameObject.AddComponent<ContentSizeFitter>().verticalFit =
-            ContentSizeFitter.FitMode.PreferredSize;
+        var barRT = NewRT(root, "AIPromptBar");
+        barRT.anchorMin = new Vector2(0.5f, 0f);
+        barRT.anchorMax = new Vector2(0.5f, 0f);
+        barRT.pivot     = new Vector2(0.5f, 0f);
+        barRT.offsetMin = new Vector2(-220, 14);
+        barRT.offsetMax = new Vector2(220, 58);
 
-        _aiResultContainer = resultsRT;
-        ShowAIMessage("프롬프트를 입력해 보세요");
-    }
+        var barImg = barRT.GetComponent<Image>();
+        barImg.sprite = RoundedRectSprite(18f);
+        barImg.type = Image.Type.Sliced;
+        barImg.color = BG_INPUT;
+        barImg.material = GlassMaterial();
+        AddInnerGlow(barRT, 18f);
+        AddOuterBorder(barRT, 18f);
 
-    // ── 우측 패널 상단: AI 프롬프트 입력 바 ───────────────
-    void BuildAIInputBar(Transform content)
-    {
-        Spacer(content, 8);
-
-        var row = NewRT(content, "AIInputRow");
-        var le = row.gameObject.AddComponent<LayoutElement>();
-        le.preferredHeight = 36; le.flexibleWidth = 1;
-
-        var hlg = row.gameObject.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
+        var hlg = barRT.gameObject.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 8; hlg.padding = new RectOffset(8, 8, 8, 8);
         hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
+        hlg.childAlignment = TextAnchor.MiddleCenter;
 
-        _aiInputField = MakeAIInputField(row);
+        _aiInputField = MakeAIInputField(barRT);
         _aiInputField.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
         _aiInputField.onSubmit.AddListener(_ => OnAIPromptSubmit());
 
         var sendGO = new GameObject("Send");
-        sendGO.transform.SetParent(row, false);
+        sendGO.transform.SetParent(barRT, false);
         sendGO.AddComponent<LayoutElement>().preferredWidth = 48;
         var sendImg = sendGO.AddComponent<Image>();
-        sendImg.color = NAVY;
+        sendImg.sprite = RoundedRectSprite(8f);
+        sendImg.type = Image.Type.Sliced;
+        sendImg.color = BTN_ACTIVE;
+
+        var sendOutline = sendGO.AddComponent<Outline>();
+        sendOutline.effectColor = GLOW;
+        sendOutline.effectDistance = new Vector2(1, -1);
+
         var sendBtn = sendGO.AddComponent<Button>();
         sendBtn.targetGraphic = sendImg;
+        var cs = sendBtn.colors;
+        cs.highlightedColor = BTN_ACTIVE_HOVER;
+        cs.pressedColor = BTN_ACTIVE_PRESS;
+        sendBtn.colors = cs;
         sendBtn.onClick.AddListener(OnAIPromptSubmit);
 
-        var sendLbl = MakeLabel(sendGO.transform, "전송", 11, Color.white, bold: true);
+        var sendLbl = MakeLabel(sendGO.transform, "전송", 11, TEXT_ON_ACCENT, bold: true);
         var sendLblRT = sendLbl.GetComponent<RectTransform>();
         sendLblRT.anchorMin = Vector2.zero; sendLblRT.anchorMax = Vector2.one;
         sendLblRT.offsetMin = sendLblRT.offsetMax = Vector2.zero;
-
-        Spacer(content, 8);
-        Divider(content);
     }
 
-    // ── 화면 우측 하단: 원형 AI 토글 버튼 ─────────────────
-    // 우측 패널이 열려 있는 동안에는 숨겨진다 (SetRightPanelVisible 참고)
-    void BuildAIPromptWidget(Transform root)
+    // ── 프롬프트 바 바로 위: AI 추천 결과 한 줄(가로 스크롤) ──
+    // 제출 전에는 숨겨져 있고, 추천/안내 메시지가 도착하면 표시된다.
+    void BuildAIResultsPanel(Transform root)
     {
-        var btnRT = NewRT(root, "AIButton");
-        btnRT.anchorMin = new Vector2(1, 0);
-        btnRT.anchorMax = new Vector2(1, 0);
-        btnRT.pivot = new Vector2(1, 0);
-        btnRT.offsetMin = AI_BTN_MIN;
-        btnRT.offsetMax = AI_BTN_MAX;
+        var panelRT = NewRT(root, "AIResultsPanel");
+        panelRT.anchorMin = new Vector2(0.5f, 0f);
+        panelRT.anchorMax = new Vector2(0.5f, 0f);
+        panelRT.pivot     = new Vector2(0.5f, 0f);
+        panelRT.offsetMin = new Vector2(-320, 66);
+        panelRT.offsetMax = new Vector2(320, 170);
 
-        var btnImg = btnRT.GetComponent<Image>();
-        btnImg.sprite = AICircleSprite();
-        btnImg.type = Image.Type.Simple;
-        btnImg.color = NAVY;
+        var panelImg = panelRT.GetComponent<Image>();
+        panelImg.sprite = RoundedRectSprite(18f);
+        panelImg.type = Image.Type.Sliced;
+        panelImg.color = BG_PANEL;
+        panelImg.material = GlassMaterial();
+        AddInnerGlow(panelRT, 18f);
+        AddOuterBorder(panelRT, 18f);
 
-        var btn = btnRT.gameObject.AddComponent<Button>();
-        btn.targetGraphic = btnImg;
-        var cs = btn.colors;
-        cs.highlightedColor = NAVY_LIGHT;
-        cs.pressedColor = Hex("#0F2547");
-        btn.colors = cs;
+        var hScroll = MakeHorizontalScroll(panelRT);
+        _aiResultContainer = hScroll.transform.Find("Viewport/Content");
 
-        var lbl = MakeLabel(btnRT, "AI", 14, Color.white, bold: true);
-        var lblRT = lbl.GetComponent<RectTransform>();
-        lblRT.anchorMin = Vector2.zero; lblRT.anchorMax = Vector2.one;
-        lblRT.offsetMin = lblRT.offsetMax = Vector2.zero;
-
-        _aiButtonRT = btnRT;
-        btn.onClick.AddListener(() => SetAIOverlayVisible(true));
+        _aiResultsPanelRT = panelRT;
+        panelRT.gameObject.SetActive(false);
     }
 
-    // ── AI 오버레이 창 표시/숨김 ──────────────────────────
-    void SetAIOverlayVisible(bool visible)
-    {
-        if (_aiOverlayRT == null) return;
-        _aiOverlayRT.gameObject.SetActive(visible);
-        _aiButtonRT?.gameObject.SetActive(!visible);
-        if (visible) _aiInputField?.ActivateInputField();
-    }
-
-    void ToggleRightPanel() => SetAIOverlayVisible(!(_aiOverlayRT?.gameObject.activeSelf ?? false));
-
-    // 자유 텍스트 입력 필드 (검색창과 동일한 구성, placeholder만 다름)
+    // 자유 텍스트 입력 필드 (배경/테두리는 프롬프트 바 자체가 담당하므로 투명 처리)
     TMP_InputField MakeAIInputField(Transform parent)
     {
         var go = new GameObject("AIInput");
         go.transform.SetParent(parent, false);
         go.AddComponent<RectTransform>();
         var img = go.AddComponent<Image>();
-        img.color = BG_INPUT;
-        AddRoundOutline(go.GetComponent<RectTransform>(), BORDER);
+        img.color = Color.clear;
 
         var area = new GameObject("Area");
         area.transform.SetParent(go.transform, false);
@@ -165,8 +151,8 @@ public partial class HanokUIManager
         field.placeholder = ph;
         field.contentType = TMP_InputField.ContentType.Standard;
         field.lineType = TMP_InputField.LineType.SingleLine;
-        field.caretColor = NAVY;
-        field.selectionColor = new Color(NAVY.r, NAVY.g, NAVY.b, 0.25f);
+        field.caretColor = TEXT_MAIN;
+        field.selectionColor = new Color(TEXT_MAIN.r, TEXT_MAIN.g, TEXT_MAIN.b, 0.25f);
         return field;
     }
 
@@ -197,7 +183,7 @@ public partial class HanokUIManager
         return _aiCircleSprite;
     }
 
-    // 우측 패널 "접기" 버튼에 쓰일 흰색 오른쪽 화살표(▶) 스프라이트
+    // 좌측 패널 접기/펼치기 버튼에 쓰일 흰색 오른쪽 화살표(▶) 스프라이트
     static Sprite AITriangleSprite()
     {
         if (_aiTriangleSprite != null) return _aiTriangleSprite;
@@ -221,6 +207,174 @@ public partial class HanokUIManager
 
         _aiTriangleSprite = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         return _aiTriangleSprite;
+    }
+
+    // 모서리가 둥근 9-slice 사각형 스프라이트 (반지름(px)별 캐시) — 패널/카드/버튼/입력창 배경 공용
+    static Sprite RoundedRectSprite(float radius)
+    {
+        if (_roundedRectCache.TryGetValue(radius, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y < radius || y > size - 1 - radius;
+            byte alpha = 255;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = y < radius ? radius : size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                alpha = (byte)Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+            }
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _roundedRectCache[radius] = sprite;
+        return sprite;
+    }
+
+    // 위쪽 모서리만 둥근 9-slice 사각형 스프라이트 — 패널 상단에 딱 맞붙는 헤더 바 전용
+    static Sprite TopRoundedRectSprite(float radius)
+    {
+        if (_topRoundedRectCache.TryGetValue(radius, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y > size - 1 - radius; // 위쪽 모서리만 라운딩 (아래쪽은 사각형 유지)
+            byte alpha = 255;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                alpha = (byte)Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+            }
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _topRoundedRectCache[radius] = sprite;
+        return sprite;
+    }
+
+    // 테두리 쪽으로 갈수록 밝아지는 내부 글로우 스프라이트 — 볼록한(convex) 입체감 표현
+    static Sprite InnerGlowSprite(float radius)
+    {
+        if (_innerGlowCache.TryGetValue(radius, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y < radius || y > size - 1 - radius;
+            float edgeDist;
+            float shapeAlpha = 255f;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = y < radius ? radius : size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                edgeDist = radius - dist;
+                shapeAlpha = Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+            }
+            else
+            {
+                edgeDist = Mathf.Min(Mathf.Min(x, size - 1 - x), Mathf.Min(y, size - 1 - y));
+            }
+
+            float t = Mathf.Clamp01(edgeDist / radius);
+            float glow = (1f - t) * 255f;
+            byte alpha = (byte)Mathf.Min(glow, shapeAlpha);
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _innerGlowCache[radius] = sprite;
+        return sprite;
+    }
+
+    // 모서리가 둥근 9-slice 사각형의 가장자리를 따라가는 고리(ring) 스프라이트 — 패널 외곽 테두리 전용
+    static Sprite RoundedRectRingSprite(float radius, float thickness)
+    {
+        var key = (radius, thickness);
+        if (_ringCache.TryGetValue(key, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y < radius || y > size - 1 - radius;
+            float shapeAlpha = 255f;
+            float edgeDist;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = y < radius ? radius : size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                shapeAlpha = Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+                edgeDist = radius - dist;
+            }
+            else
+            {
+                edgeDist = Mathf.Min(Mathf.Min(x, size - 1 - x), Mathf.Min(y, size - 1 - y));
+            }
+
+            float ringMask = Mathf.Clamp01(thickness - edgeDist + 1f);
+            byte alpha = (byte)(shapeAlpha * ringMask);
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _ringCache[key] = sprite;
+        return sprite;
     }
 
     void OnAIPromptSubmit()
@@ -337,7 +491,7 @@ public partial class HanokUIManager
         EndAIRequest();
     }
 
-    // ── 추천 결과 렌더링 (좌측 패널과 동일한 카드/Spawn 재사용) ──
+    // ── 추천 결과 렌더링: 결과 패널에 가로 한 줄로 표시 (카드/Spawn은 좌측 패널과 동일하게 재사용) ──
     void RenderAIRecommendations(RecommendationItem[] items)
     {
         var matches = new List<HanokAssetEntry>();
@@ -353,97 +507,17 @@ public partial class HanokUIManager
             return;
         }
 
-        SpawnAIRecommendations(matches);
-
         ClearAIResults();
 
-        for (int i = 0; i < matches.Count; i += COLS)
+        for (int i = 0; i < matches.Count; i++)
         {
-            var row = new GameObject("AIRow");
-            row.transform.SetParent(_aiResultContainer, false);
-            row.AddComponent<RectTransform>();
-
-            var rle = row.AddComponent<LayoutElement>();
-            rle.preferredHeight = CELL_H + 4f;
-            rle.flexibleWidth = 1;
-            row.AddComponent<Image>().color = Color.clear;
-
-            var hlg = row.AddComponent<HorizontalLayoutGroup>();
-            hlg.spacing = 4;
-            hlg.padding = new RectOffset(8, 8, 2, 2);
-            hlg.childForceExpandHeight = true;
-            hlg.childForceExpandWidth = true;
-
-            for (int j = 0; j < COLS; j++)
-            {
-                int idx = i + j;
-                if (idx < matches.Count)
-                {
-                    var prefab = matches[idx].prefab;
-                    var rawImg = MakeGridCell(row.transform, matches[idx].displayName, () => Spawn(prefab));
-                    EnqueueThumbnail(prefab, rawImg);
-                }
-                else
-                {
-                    AddAIBlankCell(row.transform);
-                }
-            }
+            var prefab = matches[i].prefab;
+            var rawImg = MakeGridCell(_aiResultContainer, matches[i].displayName, () => Spawn(prefab));
+            EnqueueThumbnail(prefab, rawImg);
         }
 
+        _aiResultsPanelRT.gameObject.SetActive(true);
         StartCoroutine(RebuildAIResultsLayout());
-    }
-
-    // ── 추천 에셋을 가운데 3D 뷰에 동시 배치 ──────────────
-    // 가장 큰 에셋의 footprint를 기준으로 정사각형 격자를 만들어
-    // 카메라 피벗 주변에 서로 겹치지 않게 펼쳐서 배치한다.
-    void SpawnAIRecommendations(List<HanokAssetEntry> matches)
-    {
-        var basePos = GetSpawnPos();
-        var spawned = new List<GameObject>();
-        float maxFootprint = 0f;
-
-        foreach (var entry in matches)
-        {
-            var obj = SpawnAt(entry.prefab, basePos);
-            spawned.Add(obj);
-
-            var rends = obj.GetComponentsInChildren<Renderer>();
-            if (rends.Length == 0) continue;
-            var b = rends[0].bounds;
-            foreach (var r in rends) b.Encapsulate(r.bounds);
-            maxFootprint = Mathf.Max(maxFootprint, b.size.x, b.size.z);
-        }
-
-        float cell = Mathf.Max(maxFootprint + 1.5f, 2.5f);
-        int cols = Mathf.CeilToInt(Mathf.Sqrt(spawned.Count));
-        int rows = Mathf.CeilToInt(spawned.Count / (float)cols);
-        float startX = -(cols - 1) * cell * 0.5f;
-        float startZ = -(rows - 1) * cell * 0.5f;
-
-        for (int i = 0; i < spawned.Count; i++)
-        {
-            int col = i % cols;
-            int row = i / cols;
-            spawned[i].transform.position = new Vector3(
-                basePos.x + startX + col * cell,
-                basePos.y,
-                basePos.z + startZ + row * cell);
-            PlaceOnFloor(spawned[i]);
-        }
-
-        SelectObject(spawned[spawned.Count - 1]);
-        Camera.main?.GetComponent<HanokCameraController>()?.FrameAll();
-    }
-
-    void AddAIBlankCell(Transform parent)
-    {
-        var blank = new GameObject("Blank");
-        blank.transform.SetParent(parent, false);
-        blank.AddComponent<RectTransform>();
-        var le = blank.AddComponent<LayoutElement>();
-        le.preferredWidth = CELL_W;
-        le.flexibleWidth = 1;
-        blank.AddComponent<Image>().color = Color.clear;
     }
 
     void ClearAIResults()
@@ -457,10 +531,12 @@ public partial class HanokUIManager
     void ShowAIMessage(string message)
     {
         ClearAIResults();
+        _aiResultsPanelRT.gameObject.SetActive(true);
 
         var go = new GameObject("AIMsg");
         go.transform.SetParent(_aiResultContainer, false);
-        go.AddComponent<LayoutElement>().preferredHeight = 40;
+        var le = go.AddComponent<LayoutElement>();
+        le.preferredWidth = 600; le.preferredHeight = CELL_H;
         var t = go.AddComponent<TextMeshProUGUI>();
         t.text = message;
         t.fontSize = 10;
@@ -468,6 +544,7 @@ public partial class HanokUIManager
         t.alignment = TextAlignmentOptions.Center;
         t.textWrappingMode = TextWrappingModes.Normal;
         if (HasKorean(message)) KorFont(t); else LatFont(t);
+        AddTextHalo(t);
     }
 
     IEnumerator RebuildAIResultsLayout()

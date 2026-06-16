@@ -1,0 +1,267 @@
+fileFormatVersion: 2
+guid: b50714059985e964d8c8a839504d3f6a
+ModelImporter:
+  serializedVersion: 20200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: h1_house_ground
+    second: {fileID: 2100000, guid: adef17d22e4c0a744bd2e20b250ed709, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Door
+    second: {fileID: 2100000, guid: 5874ff55c03f8d641aa2d085ccaf41a9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_02
+    second: {fileID: 2100000, guid: 46bf53bf25e7da243ba272620ea8706e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_03
+    second: {fileID: 2100000, guid: a6aa694a83cb4af43bd765c7123ad3f5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_04
+    second: {fileID: 2100000, guid: 95e8c1e677a7a55468035ed4e7fdf533, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_01
+    second: {fileID: 2100000, guid: 01c47b2536f85fa489e4fd926f267feb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_02
+    second: {fileID: 2100000, guid: a31678067fc4cc94b98a1ef1682f2360, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_ACC
+    second: {fileID: 2100000, guid: 7f15067e5469d3d498b53488182ffcd9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Stone
+    second: {fileID: 2100000, guid: ad8c4c0f220465a42a0bf6fdd59aa512, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Wood_01
+    second: {fileID: 2100000, guid: 982ae8d6b101e3747b0ff0e108dd0d0c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Wood_02
+    second: {fileID: 2100000, guid: eea25b7f923f7324a8463dd60152421f, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: h1_house_ground_B
+    second: {fileID: 2800000, guid: 74f216d9f14a6ad42ad15069bb54399b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: h1_house_ground_N
+    second: {fileID: 2800000, guid: 255b99136ab80bd4db99f0a76706c46d, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Door_BaseColor
+    second: {fileID: 2800000, guid: 928e1304fe0c159438f69b03b87c23fe, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Door_Normal
+    second: {fileID: 2800000, guid: 9271c8e33ddae3a499c268fb10dd0673, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_02_BaseColor
+    second: {fileID: 2800000, guid: 2bd6d5f2a99bcb442960ee8e64e985f1, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_02_Normal
+    second: {fileID: 2800000, guid: 179e3630be3f7984cb27db09596d60e9, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_03_BaseColor
+    second: {fileID: 2800000, guid: 1a6b37b46d7b7204e86bc3e43064dc2c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_03_Normal
+    second: {fileID: 2800000, guid: 83e967e163db33b44b4ee242762a827a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_04_BaseColor
+    second: {fileID: 2800000, guid: c687a86a0d784b04884195923377b94a, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Ground_04_Normal
+    second: {fileID: 2800000, guid: dcd6caa421e1f9145975356d7056992b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_01_BaseColor
+    second: {fileID: 2800000, guid: 5ada1e7773ba3d048a062a4390f4706e, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_01_Normal
+    second: {fileID: 2800000, guid: dc4351750ef85824286821fa8d6280dc, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_02_BaseColor
+    second: {fileID: 2800000, guid: 24bb01332118852419d351390c8ec2b7, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_02_Normal
+    second: {fileID: 2800000, guid: cd44f4e3d18a6be45bff7d551d70879c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_ACC_BaseColor
+    second: {fileID: 2800000, guid: afea27b03767bbd408516582fa0dd17b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Roof_ACC_Normal
+    second: {fileID: 2800000, guid: ca48abbe5fe63734088fff4443845ceb, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Stone_BaseColor
+    second: {fileID: 2800000, guid: 2914ba34e99f53e49b28a28a962af1ac, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Stone_Normal
+    second: {fileID: 2800000, guid: 758c30082d302dc4fb12ee393e0ab679, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Wood_01_BaseColor
+    second: {fileID: 2800000, guid: d41e2693acc9eab46b0c7e17ad649e7c, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Wood_01_Normal
+    second: {fileID: 2800000, guid: 7d0c68e3618dc3a499892358185d6258, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Wood_02_BaseColor
+    second: {fileID: 2800000, guid: 9003e0299a91abe428d3cc008914cb5b, type: 3}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: house_Re_Wood_02_Normal
+    second: {fileID: 2800000, guid: d024bae2fbab40e42b503612df90d630, type: 3}
+  materials:
+    materialImportMode: 2
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
