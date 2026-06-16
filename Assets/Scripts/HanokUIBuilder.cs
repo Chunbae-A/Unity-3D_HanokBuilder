@@ -464,7 +464,7 @@ public partial class HanokUIManager
         _toastText.color = new Color(1f, 1f, 1f, 0f);
         _toastText.alignment = TextAlignmentOptions.Center;
         _toastText.overflowMode = TextOverflowModes.Ellipsis;
-        _toastText.enableWordWrapping = false;
+        _toastText.textWrappingMode = TextWrappingModes.NoWrap;
         _toastText.raycastTarget = false;
         KorFont(_toastText);
         _toastGO = toast.gameObject;

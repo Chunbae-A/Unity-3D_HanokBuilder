@@ -604,7 +604,12 @@ public partial class HanokUIManager
     {
         _thumbQueue.Enqueue((prefab, target));
         if (!_thumbQueueRunning)
+        {
+            // 동일 프레임에 다수 호출 시 코루틴이 중복 시작되지 않도록
+            // StartCoroutine 전에 미리 플래그를 세운다
+            _thumbQueueRunning = true;
             StartCoroutine(ProcessThumbnailQueue());
+        }
     }
 
     IEnumerator ProcessThumbnailQueue()
@@ -630,7 +635,8 @@ public partial class HanokUIManager
         // 메인 카메라 clipping 범위(~1000) 밖에 배치 + layer 30 → 메인 카메라에 보이지 않음
         const float FAR = 8000f;
         var inst = Instantiate(prefab, new Vector3(FAR, 0f, FAR), Quaternion.identity);
-        // hideFlags 미설정: URP가 오브젝트를 씬 그래프에서 정상적으로 인식해야 Camera.Render 동작
+        // HideInHierarchy: Hierarchy 창에서 숨기되 씬 그래프에는 포함 → URP Render Graph가 정상 인식
+        inst.hideFlags = HideFlags.HideInHierarchy;
         SetLayerAll(inst, THUMB_LAYER);
         FixMaterialColors(inst);
 
