@@ -21,11 +21,10 @@ public partial class HanokUIManager
     string        _aiCatalog;
     static Sprite _aiCircleSprite;
     static Sprite _aiTriangleSprite;
-    static Sprite _aiRoundedRectSprite;
-    const int AI_AUTO_PLACE_MIN = 3;
-    const int AI_AUTO_PLACE_MAX = 12;
-    const float AI_AUTO_PLACE_SPACING = 3.2f;
-    const float AI_AUTO_PLACE_JITTER = 0.65f;
+    static readonly Dictionary<float, Sprite> _roundedRectCache = new Dictionary<float, Sprite>();
+    static readonly Dictionary<float, Sprite> _topRoundedRectCache = new Dictionary<float, Sprite>();
+    static readonly Dictionary<float, Sprite> _innerGlowCache = new Dictionary<float, Sprite>();
+    static readonly Dictionary<(float radius, float thickness), Sprite> _ringCache = new Dictionary<(float radius, float thickness), Sprite>();
 
     // ── 화면 하단 중앙: 둥근 모서리 프롬프트 바 (항상 표시) ──
     void BuildAIPromptWidget(Transform root)
@@ -40,13 +39,15 @@ public partial class HanokUIManager
         barRT.offsetMax = new Vector2(220, 58);
 
         var barImg = barRT.GetComponent<Image>();
-        barImg.sprite = AIRoundedRectSprite();
+        barImg.sprite = RoundedRectSprite(18f);
         barImg.type = Image.Type.Sliced;
         barImg.color = BG_INPUT;
-        AddRoundOutline(barRT, BORDER);
+        barImg.material = GlassMaterial();
+        AddInnerGlow(barRT, 18f);
+        AddOuterBorder(barRT, 18f);
 
         var hlg = barRT.gameObject.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 6; hlg.padding = new RectOffset(6, 6, 6, 6);
+        hlg.spacing = 8; hlg.padding = new RectOffset(8, 8, 8, 8);
         hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
         hlg.childAlignment = TextAnchor.MiddleCenter;
 
@@ -58,18 +59,23 @@ public partial class HanokUIManager
         sendGO.transform.SetParent(barRT, false);
         sendGO.AddComponent<LayoutElement>().preferredWidth = 48;
         var sendImg = sendGO.AddComponent<Image>();
-        sendImg.sprite = AIRoundedRectSprite();
+        sendImg.sprite = RoundedRectSprite(8f);
         sendImg.type = Image.Type.Sliced;
-        sendImg.color = NAVY;
+        sendImg.color = BTN_ACTIVE;
+
+        var sendOutline = sendGO.AddComponent<Outline>();
+        sendOutline.effectColor = GLOW;
+        sendOutline.effectDistance = new Vector2(1, -1);
+
         var sendBtn = sendGO.AddComponent<Button>();
         sendBtn.targetGraphic = sendImg;
         var cs = sendBtn.colors;
-        cs.highlightedColor = NAVY_LIGHT;
-        cs.pressedColor = Hex("#0F2547");
+        cs.highlightedColor = BTN_ACTIVE_HOVER;
+        cs.pressedColor = BTN_ACTIVE_PRESS;
         sendBtn.colors = cs;
         sendBtn.onClick.AddListener(OnAIPromptSubmit);
 
-        var sendLbl = MakeLabel(sendGO.transform, "전송", 11, Color.white, bold: true);
+        var sendLbl = MakeLabel(sendGO.transform, "전송", 11, TEXT_ON_ACCENT, bold: true);
         var sendLblRT = sendLbl.GetComponent<RectTransform>();
         sendLblRT.anchorMin = Vector2.zero; sendLblRT.anchorMax = Vector2.one;
         sendLblRT.offsetMin = sendLblRT.offsetMax = Vector2.zero;
@@ -87,10 +93,12 @@ public partial class HanokUIManager
         panelRT.offsetMax = new Vector2(320, 170);
 
         var panelImg = panelRT.GetComponent<Image>();
-        panelImg.sprite = AIRoundedRectSprite();
+        panelImg.sprite = RoundedRectSprite(18f);
         panelImg.type = Image.Type.Sliced;
         panelImg.color = BG_PANEL;
-        AddRoundOutline(panelRT, BORDER);
+        panelImg.material = GlassMaterial();
+        AddInnerGlow(panelRT, 18f);
+        AddOuterBorder(panelRT, 18f);
 
         var hScroll = MakeHorizontalScroll(panelRT);
         _aiResultContainer = hScroll.transform.Find("Viewport/Content");
@@ -143,8 +151,8 @@ public partial class HanokUIManager
         field.placeholder = ph;
         field.contentType = TMP_InputField.ContentType.Standard;
         field.lineType = TMP_InputField.LineType.SingleLine;
-        field.caretColor = NAVY;
-        field.selectionColor = new Color(NAVY.r, NAVY.g, NAVY.b, 0.25f);
+        field.caretColor = TEXT_MAIN;
+        field.selectionColor = new Color(TEXT_MAIN.r, TEXT_MAIN.g, TEXT_MAIN.b, 0.25f);
         return field;
     }
 
@@ -201,13 +209,13 @@ public partial class HanokUIManager
         return _aiTriangleSprite;
     }
 
-    // 모서리가 둥근 9-slice 사각형 스프라이트 (프롬프트 바 / 결과 패널 / 전송 버튼 배경 공용)
-    static Sprite AIRoundedRectSprite()
+    // 모서리가 둥근 9-slice 사각형 스프라이트 (반지름(px)별 캐시) — 패널/카드/버튼/입력창 배경 공용
+    static Sprite RoundedRectSprite(float radius)
     {
-        if (_aiRoundedRectSprite != null) return _aiRoundedRectSprite;
+        if (_roundedRectCache.TryGetValue(radius, out var cached) && cached != null)
+            return cached;
 
         const int size = 64;
-        const float radius = 20f;
         var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         tex.filterMode = FilterMode.Bilinear;
         tex.wrapMode = TextureWrapMode.Clamp;
@@ -232,9 +240,141 @@ public partial class HanokUIManager
         tex.Apply();
 
         var border = new Vector4(radius, radius, radius, radius);
-        _aiRoundedRectSprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
             new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
-        return _aiRoundedRectSprite;
+        _roundedRectCache[radius] = sprite;
+        return sprite;
+    }
+
+    // 위쪽 모서리만 둥근 9-slice 사각형 스프라이트 — 패널 상단에 딱 맞붙는 헤더 바 전용
+    static Sprite TopRoundedRectSprite(float radius)
+    {
+        if (_topRoundedRectCache.TryGetValue(radius, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y > size - 1 - radius; // 위쪽 모서리만 라운딩 (아래쪽은 사각형 유지)
+            byte alpha = 255;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                alpha = (byte)Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+            }
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _topRoundedRectCache[radius] = sprite;
+        return sprite;
+    }
+
+    // 테두리 쪽으로 갈수록 밝아지는 내부 글로우 스프라이트 — 볼록한(convex) 입체감 표현
+    static Sprite InnerGlowSprite(float radius)
+    {
+        if (_innerGlowCache.TryGetValue(radius, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y < radius || y > size - 1 - radius;
+            float edgeDist;
+            float shapeAlpha = 255f;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = y < radius ? radius : size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                edgeDist = radius - dist;
+                shapeAlpha = Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+            }
+            else
+            {
+                edgeDist = Mathf.Min(Mathf.Min(x, size - 1 - x), Mathf.Min(y, size - 1 - y));
+            }
+
+            float t = Mathf.Clamp01(edgeDist / radius);
+            float glow = (1f - t) * 255f;
+            byte alpha = (byte)Mathf.Min(glow, shapeAlpha);
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _innerGlowCache[radius] = sprite;
+        return sprite;
+    }
+
+    // 모서리가 둥근 9-slice 사각형의 가장자리를 따라가는 고리(ring) 스프라이트 — 패널 외곽 테두리 전용
+    static Sprite RoundedRectRingSprite(float radius, float thickness)
+    {
+        var key = (radius, thickness);
+        if (_ringCache.TryGetValue(key, out var cached) && cached != null)
+            return cached;
+
+        const int size = 64;
+        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        tex.wrapMode = TextureWrapMode.Clamp;
+
+        var pixels = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++)
+        {
+            bool cornerX = x < radius || x > size - 1 - radius;
+            bool cornerY = y < radius || y > size - 1 - radius;
+            float shapeAlpha = 255f;
+            float edgeDist;
+            if (cornerX && cornerY)
+            {
+                float cx = x < radius ? radius : size - 1 - radius;
+                float cy = y < radius ? radius : size - 1 - radius;
+                float dist = Vector2.Distance(new Vector2(x, y), new Vector2(cx, cy));
+                shapeAlpha = Mathf.Clamp(255f * (radius - dist + 1f), 0f, 255f);
+                edgeDist = radius - dist;
+            }
+            else
+            {
+                edgeDist = Mathf.Min(Mathf.Min(x, size - 1 - x), Mathf.Min(y, size - 1 - y));
+            }
+
+            float ringMask = Mathf.Clamp01(thickness - edgeDist + 1f);
+            byte alpha = (byte)(shapeAlpha * ringMask);
+            pixels[y * size + x] = new Color32(255, 255, 255, alpha);
+        }
+        tex.SetPixels32(pixels);
+        tex.Apply();
+
+        var border = new Vector4(radius, radius, radius, radius);
+        var sprite = Sprite.Create(tex, new Rect(0, 0, size, size),
+            new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, border);
+        _ringCache[key] = sprite;
+        return sprite;
     }
 
     void OnAIPromptSubmit()
@@ -389,10 +529,9 @@ public partial class HanokUIManager
 
         for (int i = 0; i < matches.Count; i++)
         {
-            var entry = matches[i];
-            var prefab = entry.prefab;
-            var rawImg = MakeGridCell(_aiResultContainer, entry.displayName, () => Spawn(entry));
-            StartCoroutine(CaptureThumbnail(prefab, rawImg, i));
+            var prefab = matches[i].prefab;
+            var rawImg = MakeGridCell(_aiResultContainer, matches[i].displayName, () => Spawn(prefab));
+            EnqueueThumbnail(prefab, rawImg);
         }
 
         _aiResultsPanelRT.gameObject.SetActive(true);
@@ -569,6 +708,7 @@ public partial class HanokUIManager
         t.alignment = TextAlignmentOptions.Center;
         t.textWrappingMode = TextWrappingModes.Normal;
         if (HasKorean(message)) KorFont(t); else LatFont(t);
+        AddTextHalo(t);
     }
 
     IEnumerator RebuildAIResultsLayout()

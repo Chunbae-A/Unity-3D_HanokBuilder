@@ -77,35 +77,36 @@ public partial class HanokUIManager : MonoBehaviour
     bool        _capturing    = false;
     Coroutine   _toastRoutine;
 
-    // ── 라이트 테마 색상 팔레트 ───────────────────────────
+    // ── 화이트 글래스모피즘 팔레트 ────────────────────────────────────
     static Color Hex(string h) { ColorUtility.TryParseHtmlString(h, out Color c); return c; }
+    static Color HexA(string h, float a) { var c = Hex(h); c.a = a; return c; }
 
-    // 기반
-    static readonly Color BG_ROOT    = Hex("#EAE6DF");
-    static readonly Color BG_PANEL   = Hex("#FFFFFF");
-    static readonly Color BG_CARD    = Hex("#F7F4EF");
-    static readonly Color BG_INPUT   = Hex("#EDEAE4");
-    static readonly Color BORDER     = Hex("#D4CFC8");
+    // 기반 — 화이트 반투명 글래스
+    static readonly Color BG_PANEL = HexA("#FFFFFF", 0.45f); // 패널 배경 — 화이트 글래스
+    static readonly Color BG_CARD  = HexA("#FFFFFF", 0.60f); // 카드/그리드 셀 — 패널 위에 또렷하게 뜬 화이트 유리
+    static readonly Color BG_CARD_SOLID = HexA("#FFFFFF", 0.85f); // 에셋 그리드 셀 — 라벨 가독성을 위해 더 불투명한 화이트
+    static readonly Color BG_INPUT = HexA("#FFFFFF", 0.70f); // 입력창 — 카드보다 한 단계 더 밝은 화이트 유리
+    static readonly Color HDR_BG   = HexA("#FFFFFF", 0.60f); // 헤더 바("모듈 라이브러리"/"부재 정보") — 패널보다 진하고 불투명한 화이트
+    static readonly Color BORDER   = HexA("#FFFFFF", 0.12f); // 옅은 구분선 색상 (Divider)
 
-    // 브랜드
-    static readonly Color NAVY       = Hex("#1B3A6B");
-    static readonly Color NAVY_LIGHT = Hex("#2C5282");
-    static readonly Color FOREST     = Hex("#3D6B4F");
-    static readonly Color GOLD       = Hex("#9A7228");
+    // 버튼/탭 — 화이트 배경 위에서도 구분되도록 옅은 남색 틴트, 활성 상태는 진한 남색 강조
+    static readonly Color BTN_GHOST  = HexA("#1B3A6B", 0.10f); // 기본 버튼/칩 — 화이트 배경과 구분되는 옅은 남색
+    static readonly Color BTN_ACTIVE = HexA("#1B3A6B", 0.55f); // 선택/활성 상태 — 남색 강조
+    static readonly Color BTN_HOVER  = HexA("#1B3A6B", 0.35f); // BTN_GHOST 계열 호버
+    static readonly Color BTN_PRESS  = HexA("#1B3A6B", 0.50f); // BTN_GHOST 계열 프레스
+    static readonly Color BTN_ACTIVE_HOVER = HexA("#1B3A6B", 0.70f); // BTN_ACTIVE 계열 호버
+    static readonly Color BTN_ACTIVE_PRESS = HexA("#1B3A6B", 0.85f); // BTN_ACTIVE 계열 프레스
+    static readonly Color GLOW       = HexA("#FFFFFF", 0.90f); // 활성 요소 테두리 (inner glow)
 
-    // 텍스트
-    static readonly Color TEXT_H     = Hex("#1A1A1A");
-    static readonly Color TEXT_MAIN  = Hex("#333333");
-    static readonly Color TEXT_SUB   = Hex("#888888");
-    static readonly Color TEXT_HINT  = Hex("#BBBBBB");
+    // 텍스트 — 화이트 글래스 배경 위에서 가독성을 확보하기 위해 전부 블랙 계열
+    static readonly Color TEXT_HDR  = HexA("#000000", 0.90f); // "모듈 라이브러리" / "부재 정보" 헤더 타이틀 전용
+    static readonly Color TEXT_H    = HexA("#000000", 0.90f);
+    static readonly Color TEXT_MAIN = HexA("#000000", 0.80f);
+    static readonly Color TEXT_SUB  = HexA("#000000", 0.50f);
+    static readonly Color TEXT_HINT = HexA("#000000", 0.32f);
+    static readonly Color TEXT_ON_ACCENT = HexA("#FFFFFF", 0.95f); // BTN_ACTIVE(남색) 위에 올라가는 텍스트/아이콘
 
-    // 버튼
-    static readonly Color BTN_PRI    = Hex("#1B3A6B");
-    static readonly Color BTN_SEC    = Hex("#3D6B4F");
-    static readonly Color BTN_DANGER = Hex("#B03030");
-    static readonly Color BTN_GHOST  = Hex("#E8E4DC");
-
-    // 축
+    // 축 (3D 기즈모 색상과 동일 — 유지)
     static readonly Color COL_X = Hex("#C0392B");
     static readonly Color COL_Y = Hex("#27AE60");
     static readonly Color COL_Z = Hex("#2980B9");
@@ -113,8 +114,8 @@ public partial class HanokUIManager : MonoBehaviour
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
     const string ASSETINFO_PATH = "HanokAssetInfo";
-    const int    THUMB_LAYER = 31;
     const string KOREAN_FONT_WARMUP = "가나다라마바사아자차카타파하한글한옥배치편집모듈라이브러리검색위치회전크기삭제복제선택해제문화해설";
+    const int    THUMB_LAYER = 30;
 
     // ── 생명주기 ──────────────────────────────────────────
     // 씬에 HanokUIManager가 중복 배치된 경우(머지로 인한 잔존 오브젝트 등)
@@ -428,13 +429,14 @@ public partial class HanokUIManager : MonoBehaviour
         for (int i = 0; i < _bgBtns.Length; i++)
         {
             bool sel = (i == idx);
-            _bgBtns[i].GetComponent<Image>().color = sel ? NAVY : BTN_GHOST;
+            // 배경 선택기는 글래스/단청 팔레트 대상이 아니므로 기존 라이트 톤을 그대로 유지
+            _bgBtns[i].GetComponent<Image>().color = sel ? Hex("#1B3A6B") : Hex("#E8E4DC");
             foreach (var txt in _bgBtns[i].GetComponentsInChildren<TMP_Text>())
             {
                 bool bold = txt.fontStyle.HasFlag(FontStyles.Bold);
                 txt.color = sel
                     ? (bold ? Color.white : new Color(1f, 1f, 1f, 0.65f))
-                    : (bold ? TEXT_MAIN   : TEXT_HINT);
+                    : (bold ? Hex("#333333") : Hex("#BBBBBB"));
             }
         }
     }
@@ -478,9 +480,9 @@ public partial class HanokUIManager : MonoBehaviour
             var  tool   = (EditTool)i;
             bool isDel  = (tool == EditTool.Delete);
 
-            // 다크 패널 기반 버튼 색상
+            // 선택된 도구만 남색 강조, 나머지는 패널 배경 그대로
             toolBtns[i].GetComponent<Image>().color =
-                active ? new Color(1f, 1f, 1f, 0.15f) : Color.clear;
+                active ? BTN_ACTIVE : Color.clear;
 
             var texts = toolBtns[i].GetComponentsInChildren<TMP_Text>();
             foreach (var txt in texts)
@@ -488,15 +490,13 @@ public partial class HanokUIManager : MonoBehaviour
                 bool isIcon = txt.fontSize >= 10f; // 메인라벨(12) vs 단축키힌트(8) 구분
                 if (active)
                 {
-                    txt.color = isIcon
-                        ? (isDel ? new Color(1f, 0.55f, 0.52f) : Color.white)
-                        : new Color(1f, 1f, 1f, 0.55f);
+                    txt.color = isIcon ? TEXT_ON_ACCENT : HexA("#FFFFFF", 0.65f);
                 }
                 else
                 {
                     txt.color = isIcon
-                        ? (isDel ? new Color(1f, 0.50f, 0.46f) : new Color(1f, 1f, 1f, 0.35f))
-                        : new Color(1f, 1f, 1f, 0.18f);
+                        ? (isDel ? COL_X : TEXT_MAIN)
+                        : TEXT_HINT;
                 }
             }
         }
@@ -590,10 +590,10 @@ public partial class HanokUIManager : MonoBehaviour
         camCtrl?.FocusObject(obj);
     }
 
-    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정
+    // 모델 바닥면(bounds.min.y)이 Y=0에 오도록 위치 조정 (비활성 자식 포함)
     public void PlaceOnFloor(GameObject obj)
     {
-        var rends = obj.GetComponentsInChildren<Renderer>();
+        var rends = obj.GetComponentsInChildren<Renderer>(true);
         if (rends.Length == 0) return;
         var b = rends[0].bounds;
         foreach (var r in rends) b.Encapsulate(r.bounds);
@@ -614,35 +614,33 @@ public partial class HanokUIManager : MonoBehaviour
         return pt;
     }
 
-    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존
+    // 배치된 에셋 렌더러 최적화: 그림자 + 재질 색상 보존 (비활성 자식 포함)
     void OptimizeRenderers(GameObject obj)
     {
         var urpLit = Shader.Find("Universal Render Pipeline/Lit");
 
-        foreach (var r in obj.GetComponentsInChildren<Renderer>())
+        foreach (var r in obj.GetComponentsInChildren<Renderer>(true))
         {
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
             r.receiveShadows    = true;
 
             if (urpLit == null) continue;
 
-            // sharedMaterials 로 깨진 셰이더 여부만 확인 (인스턴스 미생성)
             bool needFix = false;
             foreach (var sm in r.sharedMaterials)
             {
                 if (sm == null) continue;
                 var sn = sm.shader?.name ?? "";
-                if (sn == "Hidden/InternalErrorShader" || sn == "")
+                if (sn == "Hidden/InternalErrorShader" || sn == "Standard" || sn == "")
                 { needFix = true; break; }
             }
             if (!needFix) continue;
 
-            // r.materials → 인스턴스 생성 (원본 프리팹 재질 보호)
             foreach (var m in r.materials)
             {
                 if (m == null) continue;
                 var sn = m.shader?.name ?? "";
-                if (sn != "Hidden/InternalErrorShader" && sn != "") continue;
+                if (sn != "Hidden/InternalErrorShader" && sn != "Standard" && sn != "") continue;
                 Color   col = m.HasProperty("_Color")   ? m.GetColor("_Color")     : Color.white;
                 Texture tx  = m.HasProperty("_MainTex") ? m.GetTexture("_MainTex") : null;
                 m.shader = urpLit;
@@ -659,7 +657,7 @@ public partial class HanokUIManager : MonoBehaviour
         FixNegativeBoxColliders(obj);
         if (obj.GetComponentInChildren<Collider>() != null) return;
         var col = obj.AddComponent<BoxCollider>();
-        var rs  = obj.GetComponentsInChildren<Renderer>();
+        var rs  = obj.GetComponentsInChildren<Renderer>(true);
         if (rs.Length == 0) return;
         var b = rs[0].bounds;
         for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
@@ -725,10 +723,10 @@ public partial class HanokUIManager : MonoBehaviour
             hl.Show();
         }
 
-        // 바닥 아래로 박힌 오브젝트 자동 보정 (b.min.y < 0 이면 올려서 바닥에 정렬)
+        // 바닥 아래로 박힌 오브젝트 자동 보정 (비활성 자식 포함)
         if (obj != null)
         {
-            var rends = obj.GetComponentsInChildren<Renderer>();
+            var rends = obj.GetComponentsInChildren<Renderer>(true);
             if (rends.Length > 0)
             {
                 var b = rends[0].bounds;
