@@ -1,8 +1,10 @@
+using System.IO;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.TextCore.LowLevel;
 
 /// <summary>
 /// HanokBuilder — 메인 관리자 (상태·로직)
@@ -33,6 +35,7 @@ public partial class HanokUIManager : MonoBehaviour
     TMP_InputField posX, posY, posZ;
     TMP_InputField rotX, rotY, rotZ;
     TMP_InputField scaleF;
+    TMP_InputField[] _editTabOrder;
 
     // ── 실행 취소 ─────────────────────────────────────────
     struct UndoEntry
@@ -111,6 +114,7 @@ public partial class HanokUIManager : MonoBehaviour
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
     const string ASSETINFO_PATH = "HanokAssetInfo";
+    const string KOREAN_FONT_WARMUP = "가나다라마바사아자차카타파하한글한옥배치편집모듈라이브러리검색위치회전크기삭제복제선택해제문화해설";
     const int    THUMB_LAYER = 30;
 
     // ── 생명주기 ──────────────────────────────────────────
@@ -128,7 +132,7 @@ public partial class HanokUIManager : MonoBehaviour
         }
         _activeInstance = this;
 
-        if (koreanFont == null)
+        if (!IsUsableKoreanFont(koreanFont))
             koreanFont = Resources.Load<TMP_FontAsset>("NotoSansKR-Regular SDF")
                       ?? Resources.Load<TMP_FontAsset>("MalgunGothic SDF");
 
@@ -158,6 +162,7 @@ public partial class HanokUIManager : MonoBehaviour
         HandleViewportScale();
         HandleScaleHandleDrag();
         if (!_shDragging) HandleViewportClick();
+        HandleEditPanelTabNavigation();
         HandleKeyboardShortcuts();
         UpdateScaleHandle();
         UpdateViewBadge();
@@ -277,32 +282,127 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 한국어 폰트 초기화 (다단계 폴백) ────────────────────
     void InitKoreanFont()
     {
+        if (IsUsableKoreanFont(koreanFont))
+        {
+            Debug.Log($"[KorFont] Existing Korean font OK: {koreanFont.name}");
+            return;
+        }
+
         // 1단계: 프로젝트 내 MalgunGothic.ttf로 Dynamic TMP 폰트 생성
         // Resources.Load<Font> → 실제 TTF 바이너리 포함 → FreeType이 한글 글리프를 온디맨드 렌더링
-        Font ttf = Resources.Load<Font>("MalgunGothic");
+        string bundledMalgun = Path.Combine(Application.dataPath, "HanokBuilder/Resources/MalgunGothic.ttf");
+        Font ttf = IsLikelyFontFile(bundledMalgun) ? Resources.Load<Font>("MalgunGothic") : null;
         if (ttf != null)
         {
             var dyn = TMP_FontAsset.CreateFontAsset(ttf);
 
-            if (dyn != null)
+            if (PrepareKoreanFont(dyn))
             {
-                dyn.TryAddCharacters("가이포트브러리");
-                if (dyn.HasCharacter('가') && dyn.HasCharacter('이'))
+                dyn.name = "KorDynamic";
+                koreanFont = dyn;
+                Debug.Log("[KorFont] Dynamic font from MalgunGothic.ttf OK");
+                return;
+            }
+
+            Debug.Log("[KorFont] CreateFontAsset(ttf) returned no usable Korean glyphs");
+        }
+        else Debug.Log("[KorFont] Bundled MalgunGothic.ttf is missing or still a Git LFS pointer; using OS Korean font");
+
+        // 2단계: Git LFS 폰트 파일이 내려오지 않은 경우 OS 기본 한글 폰트로 Dynamic TMP 폰트 생성
+        string[] osKoreanFonts =
+        {
+            "Apple SD Gothic Neo",
+            "AppleGothic",
+            "Malgun Gothic",
+            "맑은 고딕",
+            "Noto Sans CJK KR",
+            "Noto Sans KR",
+            "NanumGothic"
+        };
+
+        string home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+        string[] osKoreanFontFiles =
+        {
+            Path.Combine(home, "Library/Fonts/NotoSansCJKkr-Regular.otf"),
+            Path.Combine(home, "Library/Fonts/Pretendard-Regular.ttf"),
+            Path.Combine(home, "Library/Fonts/NanumSquareNeo-bRg.ttf"),
+            Path.Combine(home, "Library/Fonts/NANUMSQUARER.TTF"),
+            "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+            "/System/Library/Fonts/Supplemental/AppleGothic.ttf",
+            "/System/Library/Fonts/Supplemental/NotoSansGothic-Regular.ttf"
+        };
+
+        foreach (var path in osKoreanFontFiles)
+        {
+            if (!File.Exists(path)) continue;
+
+            for (int faceIndex = 0; faceIndex < 16; faceIndex++)
+            {
+                var dyn = TMP_FontAsset.CreateFontAsset(
+                    path, faceIndex, 90, 9, GlyphRenderMode.SDFAA, 1024, 1024);
+                if (PrepareKoreanFont(dyn))
                 {
-                    dyn.name = "KorDynamic";
+                    dyn.name = "KorDynamicFile";
                     koreanFont = dyn;
-                    Debug.Log("[KorFont] Dynamic font from MalgunGothic.ttf OK");
+                    Debug.Log($"[KorFont] Dynamic font from file OK: {path} face {faceIndex}");
                     return;
                 }
-                Debug.Log("[KorFont] CreateFontAsset(ttf) — Korean check failed");
             }
-            else Debug.Log("[KorFont] CreateFontAsset(ttf) returned null");
         }
-        else Debug.Log("[KorFont] Resources.Load<Font>(MalgunGothic) null — TTF not in Resources?");
 
-        // 2단계: 실패 시 static baked 폰트 그대로 유지 (atlasPopulationMode 등 절대 수정 금지)
-        if (koreanFont == null) { Debug.LogWarning("[KorFont] koreanFont null, UI will use default"); return; }
+        string[] osFontStyles = { "Regular", "Normal", "Medium" };
+        foreach (var family in osKoreanFonts)
+        {
+            foreach (var style in osFontStyles)
+            {
+                var dyn = TMP_FontAsset.CreateFontAsset(family, style, 90);
+                if (PrepareKoreanFont(dyn))
+                {
+                    dyn.name = "KorDynamicOS";
+                    koreanFont = dyn;
+                    Debug.Log($"[KorFont] Dynamic OS font OK: {family} {style}");
+                    return;
+                }
+            }
+        }
+
+        // 3단계: 실패 시 static baked 폰트 그대로 유지 (atlasPopulationMode 등 절대 수정 금지)
+        if (!IsUsableKoreanFont(koreanFont))
+        {
+            string fontName = koreanFont != null ? koreanFont.name : "null";
+            Debug.LogWarning($"[KorFont] No usable Korean TMP font found. Current font: {fontName}");
+            koreanFont = null;
+            return;
+        }
+
         Debug.Log($"[KorFont] Fallback: static font {koreanFont.name} ({koreanFont.characterTable.Count} chars)");
+    }
+
+    bool IsUsableKoreanFont(TMP_FontAsset font)
+    {
+        if (font == null) return false;
+        return font.HasCharacter('가') && font.HasCharacter('한');
+    }
+
+    bool PrepareKoreanFont(TMP_FontAsset font)
+    {
+        if (font == null) return false;
+        if (IsUsableKoreanFont(font)) return true;
+        if (font.atlasPopulationMode == AtlasPopulationMode.Static) return false;
+        font.TryAddCharacters(KOREAN_FONT_WARMUP);
+        return IsUsableKoreanFont(font);
+    }
+
+    bool IsLikelyFontFile(string path)
+    {
+        try
+        {
+            return File.Exists(path) && new FileInfo(path).Length > 1024;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     void OnDestroy()
@@ -405,8 +505,20 @@ public partial class HanokUIManager : MonoBehaviour
     // ── 에셋 배치 ─────────────────────────────────────────
     public void Spawn(GameObject prefab)
     {
+        Spawn(prefab, null, null);
+    }
+
+    void Spawn(HanokAssetEntry entry)
+    {
+        if (entry == null) return;
+        Spawn(entry.prefab, entry.displayName, entry.assetKey);
+    }
+
+    void Spawn(GameObject prefab, string displayName, string assetKey)
+    {
         var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
+        ApplyPlacedAssetMetadata(obj, prefab, displayName, assetKey);
 
         // FBX Scale Factor 100 자동 보정 (단위: cm → m)
         if (obj.transform.localScale.magnitude > 50f)
@@ -429,8 +541,20 @@ public partial class HanokUIManager : MonoBehaviour
     // 지정한 위치에 배치 — AI 추천 다중 배치에 사용
     public GameObject SpawnAt(GameObject prefab, Vector3 position)
     {
+        return SpawnAt(prefab, position, null, null);
+    }
+
+    GameObject SpawnAt(HanokAssetEntry entry, Vector3 position)
+    {
+        if (entry == null) return null;
+        return SpawnAt(entry.prefab, position, entry.displayName, entry.assetKey);
+    }
+
+    GameObject SpawnAt(GameObject prefab, Vector3 position, string displayName, string assetKey)
+    {
         var obj = Instantiate(prefab, Vector3.zero, prefab.transform.rotation);
         obj.name = prefab.name;
+        ApplyPlacedAssetMetadata(obj, prefab, displayName, assetKey);
         if (obj.transform.localScale.magnitude > 50f)
             obj.transform.localScale = Vector3.one;
         OptimizeRenderers(obj);
@@ -440,6 +564,21 @@ public partial class HanokUIManager : MonoBehaviour
         AttachSelectable(obj);
         PushUndoSpawn(obj);
         return obj;
+    }
+
+    void ApplyPlacedAssetMetadata(GameObject obj, GameObject prefab, string displayName, string assetKey)
+    {
+        if (obj == null) return;
+
+        var metadata = obj.GetComponent<HanokPlacedAssetMetadata>();
+        if (metadata == null) metadata = obj.AddComponent<HanokPlacedAssetMetadata>();
+
+        string prefabName = prefab != null ? prefab.name : CleanPlacedObjectName(obj.name);
+        metadata.prefabName = prefabName;
+        metadata.assetKey = string.IsNullOrWhiteSpace(assetKey) ? prefabName : assetKey;
+        metadata.displayName = !string.IsNullOrWhiteSpace(displayName)
+            ? displayName
+            : GetLibraryDisplayName(prefabName, metadata.assetKey) ?? prefabName;
     }
 
     IEnumerator FinishSpawn(GameObject obj, HanokCameraController camCtrl)
@@ -546,11 +685,20 @@ public partial class HanokUIManager : MonoBehaviour
 
     void AttachSelectable(GameObject root)
     {
-        if (!root.GetComponent<SelectableAsset>())
-            root.AddComponent<SelectableAsset>().Init(this, root);
+        if (root == null) return;
+
+        var rootSelectable = root.GetComponent<SelectableAsset>();
+        if (rootSelectable == null)
+            rootSelectable = root.AddComponent<SelectableAsset>();
+        rootSelectable.Init(this, root);
+
         foreach (var col in root.GetComponentsInChildren<Collider>())
-            if (!col.gameObject.GetComponent<SelectableAsset>())
-                col.gameObject.AddComponent<SelectableAsset>().Init(this, root);
+        {
+            var selectable = col.gameObject.GetComponent<SelectableAsset>();
+            if (selectable == null)
+                selectable = col.gameObject.AddComponent<SelectableAsset>();
+            selectable.Init(this, root);
+        }
     }
 
     // ── 선택 ─────────────────────────────────────────────
@@ -602,8 +750,76 @@ public partial class HanokUIManager : MonoBehaviour
     {
         if (infoNameText == null) return;
         bool has = selectedObject != null;
-        infoNameText.text  = has ? selectedObject.name : "부재를 선택하세요";
+        infoNameText.text  = has ? GetPlacedAssetDisplayName(selectedObject) : "부재를 선택하세요";
         infoNameText.color = has ? TEXT_H : TEXT_HINT;
+    }
+
+    string GetPlacedAssetDisplayName(GameObject obj)
+    {
+        if (obj == null) return "부재를 선택하세요";
+
+        var metadata = obj.GetComponent<HanokPlacedAssetMetadata>();
+        if (metadata != null && !string.IsNullOrWhiteSpace(metadata.displayName))
+            return metadata.displayName;
+
+        string objectName = CleanPlacedObjectName(obj.name);
+        string displayName = GetLibraryDisplayName(objectName, objectName);
+        return !string.IsNullOrWhiteSpace(displayName) ? displayName : objectName;
+    }
+
+    string GetLibraryDisplayName(string prefabName, string assetKey)
+    {
+        string prefabKey = CleanPlacedObjectName(prefabName);
+        string assetKeyTail = CleanPlacedObjectName(GetPathTail(assetKey));
+
+        foreach (var entry in _assetEntries)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.displayName))
+                continue;
+
+            string entryPrefab = entry.prefab != null ? CleanPlacedObjectName(entry.prefab.name) : "";
+            string entryAsset = CleanPlacedObjectName(entry.assetKey);
+            string entryAssetTail = CleanPlacedObjectName(GetPathTail(entry.assetKey));
+
+            if (NameMatches(entryPrefab, prefabKey)
+                || NameMatches(entryAsset, assetKey)
+                || NameMatches(entryAssetTail, assetKeyTail)
+                || NameMatches(entryAssetTail, prefabKey))
+                return entry.displayName;
+        }
+
+        return null;
+    }
+
+    static bool NameMatches(string a, string b)
+    {
+        return !string.IsNullOrWhiteSpace(a)
+            && !string.IsNullOrWhiteSpace(b)
+            && string.Equals(a, b, System.StringComparison.Ordinal);
+    }
+
+    static string GetPathTail(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return value;
+        int slash = value.LastIndexOf('/');
+        return slash >= 0 ? value[(slash + 1)..] : value;
+    }
+
+    static string CleanPlacedObjectName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return value;
+
+        value = value.Trim();
+        const string cloneSuffix = "(Clone)";
+        const string copySuffix = "_복사";
+
+        if (value.EndsWith(cloneSuffix, System.StringComparison.Ordinal))
+            value = value[..^cloneSuffix.Length].Trim();
+
+        if (value.EndsWith(copySuffix, System.StringComparison.Ordinal))
+            value = value[..^copySuffix.Length].Trim();
+
+        return value;
     }
 
     // ── Transform 동기화 ──────────────────────────────────
@@ -639,6 +855,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.position =
             new Vector3(Pf(posX.text), Pf(posY.text), Pf(posZ.text));
+        SyncGizmo();
     }
 
     public void ApplyRot()
@@ -646,6 +863,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.eulerAngles =
             new Vector3(Pf(rotX.text), Pf(rotY.text), Pf(rotZ.text));
+        SyncGizmo();
     }
 
     public void ApplyScale()
@@ -653,16 +871,23 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         float s = Mathf.Max(0.001f, Pf(scaleF.text));
         selectedObject.transform.localScale = Vector3.one * s;
+        SyncGizmo();
     }
 
     public void QuickRot(float deg)
     {
-        if (selectedObject) selectedObject.transform.Rotate(0, deg, 0, Space.World);
+        if (!selectedObject) return;
+        selectedObject.transform.Rotate(0, deg, 0, Space.World);
+        ForceSyncTransform();
+        SyncGizmo();
     }
 
     public void ResetRot()
     {
-        if (selectedObject) selectedObject.transform.eulerAngles = Vector3.zero;
+        if (!selectedObject) return;
+        selectedObject.transform.eulerAngles = Vector3.zero;
+        ForceSyncTransform();
+        SyncGizmo();
     }
 
     public void SetScale(float s)
@@ -670,6 +895,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.localScale = Vector3.one * s;
         scaleF?.SetTextWithoutNotify(s.ToString("F2"));
+        SyncGizmo();
     }
 
     public void Duplicate()
@@ -729,12 +955,13 @@ public partial class HanokUIManager : MonoBehaviour
                     var sa = hit.collider.GetComponent<SelectableAsset>();
                     if (sa != null)
                     {
-                        SelectObject(sa.Root);
+                        var root = sa.ResolveRoot();
+                        SelectObject(root);
                         _pendingDrag    = true;
                         _dragStartMouse = mp;
-                        _dragPlane      = MakeDragPlane(sa.Root.transform.position);
+                        _dragPlane      = MakeDragPlane(root.transform.position);
                         if (_dragPlane.Raycast(ray, out float e))
-                            _dragOffset = sa.Root.transform.position - ray.GetPoint(e);
+                            _dragOffset = root.transform.position - ray.GetPoint(e);
                         else _dragOffset = Vector3.zero;
                     }
                     else ClearSelection();
@@ -785,7 +1012,7 @@ public partial class HanokUIManager : MonoBehaviour
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     var sa = hit.collider.GetComponent<SelectableAsset>();
-                    if (sa != null) SelectObject(sa.Root);
+                    if (sa != null) SelectObject(sa.ResolveRoot());
                     else ClearSelection();
                 }
                 else ClearSelection();
@@ -805,7 +1032,7 @@ public partial class HanokUIManager : MonoBehaviour
                 if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
                 {
                     var sa = hit.collider.GetComponent<SelectableAsset>();
-                    if (sa != null) SelectObject(sa.Root);
+                    if (sa != null) SelectObject(sa.ResolveRoot());
                 }
             }
             return;
@@ -821,7 +1048,7 @@ public partial class HanokUIManager : MonoBehaviour
             if (Physics.Raycast(ray, out RaycastHit hit, 1000f))
             {
                 var sa = hit.collider.GetComponent<SelectableAsset>();
-                if (sa != null) { SelectObject(sa.Root); DeleteSelected(); }
+                if (sa != null) { SelectObject(sa.ResolveRoot()); DeleteSelected(); }
             }
         }
     }
@@ -949,7 +1176,13 @@ public partial class HanokUIManager : MonoBehaviour
             System.Globalization.CultureInfo.InvariantCulture,
             out float v) ? v : 0f;
 
-    void KorFont(TMP_Text t)  { if (koreanFont) t.font = koreanFont; }
+    void KorFont(TMP_Text t)
+    {
+        if (!IsUsableKoreanFont(koreanFont))
+            InitKoreanFont();
+
+        if (koreanFont) t.font = koreanFont;
+    }
 
     TMP_FontAsset _lat;
     TMP_FontAsset LatinFont =>

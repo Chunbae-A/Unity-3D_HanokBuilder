@@ -20,6 +20,11 @@
 /Assets/_Recovery/
 /Assets/_Recovery.meta
 
+# CultureMetaverse 대용량 에셋 — git 외부 관리 (LFS 예산 초과 방지)
+# 실제 파일은 별도 공유 스토리지에서 수동으로 복사
+/Assets/HanokBuilder/Resources/HanokAssets/CultureMetaverse/
+/Assets/HanokBuilder/Resources/HanokAssets/CultureMetaverse.meta
+
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
 *.blend1.meta

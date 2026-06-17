@@ -14,4 +14,12 @@ public class SelectableAsset : MonoBehaviour
         _manager = manager;
         Root     = root;
     }
+
+    public GameObject ResolveRoot()
+    {
+        if (Root != null) return Root;
+
+        var metadata = GetComponentInParent<HanokPlacedAssetMetadata>();
+        return metadata != null ? metadata.gameObject : gameObject;
+    }
 }
