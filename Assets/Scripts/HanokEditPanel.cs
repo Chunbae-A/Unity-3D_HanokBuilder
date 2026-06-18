@@ -12,6 +12,7 @@ public partial class HanokUIManager
     float _positionStep = 0.1f;
     float _rotationStep = 5f;
     GameObject _activeStepDropdown;
+    TMP_Text _infoUsage, _infoPeriod, _infoMaterial, _infoSource;
 
     void BuildEditPanel(Transform content)
     {
@@ -153,7 +154,7 @@ public partial class HanokUIManager
         KorFont(t);
     }
 
-    void MiniHint(Transform parent, string text)
+    TMP_Text InfoRow(Transform parent, string labelKor, string defaultVal)
     {
         var row = new GameObject("InfoRow_" + labelKor);
         row.transform.SetParent(parent, false);
@@ -161,7 +162,6 @@ public partial class HanokUIManager
         le.preferredHeight = 24; le.flexibleWidth = 1;
         row.AddComponent<Image>().color = BG_CARD;
 
-        // 라벨 (좌측 고정)
         var lgo = new GameObject("Lbl"); lgo.transform.SetParent(row.transform, false);
         var lRT = lgo.AddComponent<RectTransform>();
         lRT.anchorMin = new Vector2(0, 0); lRT.anchorMax = new Vector2(0.3f, 1);
@@ -171,7 +171,6 @@ public partial class HanokUIManager
         lt.color = TEXT_SUB; lt.alignment = TextAlignmentOptions.Left;
         KorFont(lt);
 
-        // 값 (우측)
         var vgo = new GameObject("Val"); vgo.transform.SetParent(row.transform, false);
         var vRT = vgo.AddComponent<RectTransform>();
         vRT.anchorMin = new Vector2(0.3f, 0); vRT.anchorMax = new Vector2(1, 1);
@@ -221,7 +220,7 @@ public partial class HanokUIManager
         titleText.richText = true;
         titleText.fontSize = 10.5f;
         titleText.fontStyle = FontStyles.Bold;
-        titleText.color = NAVY;
+        titleText.color = TEXT_MAIN;
         titleText.alignment = TextAlignmentOptions.Left;
         KorFont(titleText);
 

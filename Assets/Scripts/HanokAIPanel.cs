@@ -21,6 +21,10 @@ public partial class HanokUIManager
     string        _aiCatalog;
     static Sprite _aiCircleSprite;
     static Sprite _aiTriangleSprite;
+    const int   AI_AUTO_PLACE_MIN     = 3;
+    const int   AI_AUTO_PLACE_MAX     = 12;
+    const float AI_AUTO_PLACE_SPACING = 3.2f;
+    const float AI_AUTO_PLACE_JITTER  = 0.65f;
     static readonly Dictionary<float, Sprite> _roundedRectCache = new Dictionary<float, Sprite>();
     static readonly Dictionary<float, Sprite> _topRoundedRectCache = new Dictionary<float, Sprite>();
     static readonly Dictionary<float, Sprite> _innerGlowCache = new Dictionary<float, Sprite>();
