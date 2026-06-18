@@ -113,10 +113,21 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# HanokBuilder — 3D game assets (FBX, Prefab binaries)
-# Add your own FBX/Prefab to Assets/HanokBuilder/Resources/HanokAssets/ locally
-Assets/HanokBuilder/Resources/HanokAssets/*.fbx
-Assets/HanokBuilder/Resources/HanokAssets/*.FBX
+# HanokBuilder 에셋 바이너리 — Google Drive 별도 관리 (LFS 예산 절약)
+# ⚠ .meta 파일은 GUID 유지를 위해 반드시 git에 포함 — 절대 여기 추가 금지
+# 팀원 셋업: 드라이브의 HanokAssets_Binaries 폴더 내용을
+#             Assets/HanokBuilder/Resources/HanokAssets/ 에 그대로 복사 후 Unity 실행
+Assets/HanokBuilder/Resources/HanokAssets/**/*.fbx
+Assets/HanokBuilder/Resources/HanokAssets/**/*.FBX
+Assets/HanokBuilder/Resources/HanokAssets/**/*.obj
+Assets/HanokBuilder/Resources/HanokAssets/**/*.png
+Assets/HanokBuilder/Resources/HanokAssets/**/*.jpg
+Assets/HanokBuilder/Resources/HanokAssets/**/*.jpeg
+Assets/HanokBuilder/Resources/HanokAssets/**/*.psd
+Assets/HanokBuilder/Resources/HanokAssets/**/*.tga
+Assets/HanokBuilder/Resources/HanokAssets/**/*.tiff
+Assets/HanokBuilder/Resources/HanokAssets/**/*.hdr
+Assets/HanokBuilder/Resources/HanokAssets/**/*.exr
 
 # HanokBuilder — Claude API key (local-only, do not commit)
 Assets/HanokBuilder/Resources/ClaudeApiConfig.asset
