@@ -20,10 +20,8 @@
 /Assets/_Recovery/
 /Assets/_Recovery.meta
 
-# CultureMetaverse 대용량 에셋 — git 외부 관리 (LFS 예산 초과 방지)
-# 실제 파일은 별도 공유 스토리지에서 수동으로 복사
+# CultureMetaverse 대용량 에셋 — Google Drive 별도 관리
 /Assets/HanokBuilder/Resources/HanokAssets/CultureMetaverse/
-/Assets/HanokBuilder/Resources/HanokAssets/CultureMetaverse.meta
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
 *.blend1
@@ -118,10 +116,21 @@ InitTestScene*.unity*
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
-# HanokBuilder — 3D game assets (FBX, Prefab binaries)
-# Add your own FBX/Prefab to Assets/HanokBuilder/Resources/HanokAssets/ locally
-Assets/HanokBuilder/Resources/HanokAssets/*.fbx
-Assets/HanokBuilder/Resources/HanokAssets/*.FBX
+# HanokBuilder 에셋 바이너리 — Google Drive 별도 관리 (LFS 예산 절약)
+# .meta 파일은 GUID 유지 위해 git 포함 — 절대 여기 추가 금지
+# 팀원 셋업: 드라이브 HanokAssets_Binaries 폴더 내용을
+#             Assets/HanokBuilder/Resources/HanokAssets/ 에 복사 후 Unity 실행
+Assets/HanokBuilder/Resources/HanokAssets/**/*.fbx
+Assets/HanokBuilder/Resources/HanokAssets/**/*.FBX
+Assets/HanokBuilder/Resources/HanokAssets/**/*.obj
+Assets/HanokBuilder/Resources/HanokAssets/**/*.png
+Assets/HanokBuilder/Resources/HanokAssets/**/*.jpg
+Assets/HanokBuilder/Resources/HanokAssets/**/*.jpeg
+Assets/HanokBuilder/Resources/HanokAssets/**/*.psd
+Assets/HanokBuilder/Resources/HanokAssets/**/*.tga
+Assets/HanokBuilder/Resources/HanokAssets/**/*.tiff
+Assets/HanokBuilder/Resources/HanokAssets/**/*.hdr
+Assets/HanokBuilder/Resources/HanokAssets/**/*.exr
 
 # HanokBuilder — Claude API key (local-only, do not commit)
 Assets/HanokBuilder/Resources/ClaudeApiConfig.asset
