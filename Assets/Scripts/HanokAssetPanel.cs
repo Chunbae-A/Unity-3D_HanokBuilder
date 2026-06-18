@@ -125,7 +125,7 @@ public partial class HanokUIManager
                 continue; // 카테고리 태그 없는 원본 FBX/프리팹 — 라이브러리 중복 표시 방지
 
             // 카테고리 태그 있는 정식 에셋
-            _assetEntries.Add(new HanokAssetEntry(prefab, assetTags.categories, displayName, searchTags));
+            _assetEntries.Add(new HanokAssetEntry(prefab, prefab.name, assetTags.categories, displayName, searchTags, false));
         }
 
         LoadCultureMetaverseAssets(assetInfoByKey, addedPrefabs);
@@ -1013,7 +1013,8 @@ public partial class HanokUIManager
 
         // 메인 카메라 clipping 범위(~1000) 밖에 배치 + layer 30 → 메인 카메라에 보이지 않음
         const float FAR = 8000f;
-        var inst = Instantiate(prefab, new Vector3(FAR, 0f, FAR), Quaternion.identity);
+        var previewOrigin = new Vector3(FAR, 0f, FAR);
+        var inst = Instantiate(prefab, previewOrigin, Quaternion.identity);
         // HideInHierarchy: Hierarchy 창에서 숨기되 씬 그래프에는 포함 → URP Render Graph가 정상 인식
         inst.hideFlags = HideFlags.HideInHierarchy;
         SetLayerAll(inst, THUMB_LAYER);

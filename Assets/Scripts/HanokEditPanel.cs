@@ -15,12 +15,12 @@ public partial class HanokUIManager
 
     void BuildEditPanel(Transform content)
     {
-        // ══ A. 선택 부재 정보 카드 ════════════════════════
-
-        Spacer(content, 16);
+        Spacer(content, 8);
+        InfoSectionLabel(content, "선택한 에셋");
 
         // 이름 카드
-        var nameCard = RowBox(content, "NameCard", 52, BG_CARD);
+        Spacer(content, 6);
+        var nameCard = RowBox(content, "NameCard", 64, BG_CARD);
         var nameCardImg = nameCard.GetComponent<Image>();
         nameCardImg.sprite = RoundedRectSprite(8f);
         nameCardImg.type = Image.Type.Sliced;
@@ -53,57 +53,35 @@ public partial class HanokUIManager
         KorFont(infoNameText);
         AddTextHalo(infoNameText);
 
+        Spacer(content, 6);
+        MiniHint(content, "라이브러리나 AI 추천으로 배치한 에셋을 선택하면 값이 자동으로 채워집니다.");
         Spacer(content, 10);
         Divider(content);
 
-        // ── 문화 정보 테이블 ──────────────────────────────
-        Spacer(content, 10);
-        InfoSectionLabel(content, "문화해설");
-
-        _infoUsage    = InfoRow(content, "용도", "—");
-        _infoPeriod   = InfoRow(content, "시대", "—");
-        _infoMaterial = InfoRow(content, "재질", "—");
-        _infoSource   = InfoRow(content, "출처", "—");
-
-        Spacer(content, 8);
-        Divider(content);
-
-        // ══ B. Transform 편집 ═════════════════════════════
-
-        Spacer(content, 10);
-        InfoSectionLabel(content, "배치 편집");
+        Spacer(content, 4);
+        InfoSectionLabel(content, "변형 조정");
 
         // 위치
-        Spacer(content, 6);
-        SubLabel(content, "위 치");
-        posX = AxisInput(content, "X", COL_X);
-        posY = AxisInput(content, "Y", COL_Y);
-        posZ = AxisInput(content, "Z", COL_Z);
+        Spacer(content, 4);
+        TransformStepperGroup(content, "위치", false, out posX, out posY, out posZ);
         posX.onEndEdit.AddListener(_ => ApplyPos());
         posY.onEndEdit.AddListener(_ => ApplyPos());
         posZ.onEndEdit.AddListener(_ => ApplyPos());
 
         // 회전
-        Spacer(content, 10);
-        SubLabel(content, "회 전");
-        rotX = AxisInput(content, "X", COL_X);
-        rotY = AxisInput(content, "Y", COL_Y);
-        rotZ = AxisInput(content, "Z", COL_Z);
+        Spacer(content, 8);
+        TransformStepperGroup(content, "회전", true, out rotX, out rotY, out rotZ);
         rotX.onEndEdit.AddListener(_ => ApplyRot());
         rotY.onEndEdit.AddListener(_ => ApplyRot());
         rotZ.onEndEdit.AddListener(_ => ApplyRot());
-        Spacer(content, 6);
-        ActionRow(content, 28,
-            ("-90", () => QuickRot(-90f), BTN_GHOST, TEXT_MAIN),
-            ("+90", () => QuickRot( 90f), BTN_GHOST, TEXT_MAIN),
-            ("초기화", ResetRot,           BTN_GHOST, TEXT_MAIN));
 
         // 크기
-        Spacer(content, 10);
-        SubLabel(content, "크 기");
+        Spacer(content, 6);
+        SubLabel(content, "크기");
         scaleF = AxisInput(content, "S", TEXT_SUB);
         scaleF.onEndEdit.AddListener(_ => ApplyScale());
-        Spacer(content, 6);
+        RegisterEditPanelTabOrder(posX, posY, posZ, rotX, rotY, rotZ, scaleF);
+        Spacer(content, 4);
         ActionRow(content, 28,
             (" 0.5× ", () => SetScale(0.5f), BTN_GHOST,  TEXT_MAIN),
             (" 1× ",   () => SetScale(1f),   BTN_ACTIVE, TEXT_ON_ACCENT),
@@ -113,7 +91,9 @@ public partial class HanokUIManager
         // ── 액션 버튼 ──────────────────────────────────────
         Spacer(content, 16);
         Divider(content);
-        Spacer(content, 10);
+        Spacer(content, 4);
+        InfoSectionLabel(content, "빠른 작업");
+        Spacer(content, 8);
         ActionRow(content, 40,
             ("복  제", Duplicate,      BTN_GHOST, TEXT_MAIN),
             ("삭  제", DeleteSelected, BTN_GHOST, TEXT_MAIN));
@@ -155,45 +135,119 @@ public partial class HanokUIManager
 
     void MiniHint(Transform parent, string text)
     {
-        var row = new GameObject("InfoRow_" + labelKor);
-        row.transform.SetParent(parent, false);
-        var le = row.AddComponent<LayoutElement>();
-        le.preferredHeight = 24; le.flexibleWidth = 1;
-        row.AddComponent<Image>().color = BG_CARD;
+        var go = new GameObject("Hint");
+        go.transform.SetParent(parent, false);
+        var le = go.AddComponent<LayoutElement>();
+        le.preferredHeight = 34;
+        le.flexibleWidth = 1;
+        var hintImg = go.AddComponent<Image>();
+        hintImg.sprite = RoundedRectSprite(6f);
+        hintImg.type = Image.Type.Sliced;
+        hintImg.color = BG_CARD;
 
-        // 라벨 (좌측 고정)
-        var lgo = new GameObject("Lbl"); lgo.transform.SetParent(row.transform, false);
-        var lRT = lgo.AddComponent<RectTransform>();
-        lRT.anchorMin = new Vector2(0, 0); lRT.anchorMax = new Vector2(0.3f, 1);
-        lRT.offsetMin = new Vector2(12, 0); lRT.offsetMax = Vector2.zero;
-        var lt = lgo.AddComponent<TextMeshProUGUI>();
-        lt.text = labelKor; lt.fontSize = 10;
-        lt.color = TEXT_SUB; lt.alignment = TextAlignmentOptions.Left;
-        KorFont(lt);
-
-        // 값 (우측)
-        var vgo = new GameObject("Val"); vgo.transform.SetParent(row.transform, false);
-        var vRT = vgo.AddComponent<RectTransform>();
-        vRT.anchorMin = new Vector2(0.3f, 0); vRT.anchorMax = new Vector2(1, 1);
-        vRT.offsetMin = new Vector2(4, 0); vRT.offsetMax = new Vector2(-12, 0);
-        var vt = vgo.AddComponent<TextMeshProUGUI>();
-        vt.text = defaultVal; vt.fontSize = 10;
-        vt.color = TEXT_MAIN; vt.alignment = TextAlignmentOptions.Left;
-        vt.overflowMode = TextOverflowModes.Ellipsis;
-        vt.textWrappingMode = TextWrappingModes.NoWrap;
-        KorFont(vt);
-
-        return vt;
+        var tgo = new GameObject("T");
+        tgo.transform.SetParent(go.transform, false);
+        var tRT = tgo.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero;
+        tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(12, 4);
+        tRT.offsetMax = new Vector2(-12, -4);
+        var t = tgo.AddComponent<TextMeshProUGUI>();
+        t.text = text;
+        t.fontSize = 9;
+        t.color = TEXT_SUB;
+        t.alignment = TextAlignmentOptions.Left;
+        t.textWrappingMode = TextWrappingModes.Normal;
+        KorFont(t);
     }
 
     // ── 축 입력 행 ────────────────────────────────────────
+    TMP_InputField AxisInput(Transform parent, string axisLabel, Color axisCol)
+    {
+        var row = new GameObject("Row_" + axisLabel);
+        row.transform.SetParent(parent, false);
+        var le = row.AddComponent<LayoutElement>();
+        le.preferredHeight = 26; le.flexibleWidth = 1;
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
+        hlg.childForceExpandHeight = true; hlg.childForceExpandWidth = false;
+
+        var lgo = new GameObject("Lbl"); lgo.transform.SetParent(row.transform, false);
+        lgo.AddComponent<LayoutElement>().preferredWidth = 22;
+        var lImg = lgo.AddComponent<Image>();
+        lImg.sprite = RoundedRectSprite(8f);
+        lImg.type = Image.Type.Sliced;
+        lImg.color = new Color(axisCol.r, axisCol.g, axisCol.b, 0.15f);
+        var lt = new GameObject("T"); lt.transform.SetParent(lgo.transform, false);
+        var ltRT = lt.AddComponent<RectTransform>();
+        ltRT.anchorMin = Vector2.zero; ltRT.anchorMax = Vector2.one;
+        ltRT.offsetMin = ltRT.offsetMax = Vector2.zero;
+        var ltT = lt.AddComponent<TextMeshProUGUI>();
+        ltT.text = axisLabel; ltT.fontSize = 10; ltT.fontStyle = FontStyles.Bold;
+        ltT.color = axisCol; ltT.alignment = TextAlignmentOptions.Center;
+        LatFont(ltT);
+
+        var f = MakeInputField(row.transform);
+        f.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
+        return f;
+    }
+
+    // ── 액션 버튼 행 ──────────────────────────────────────
+    void ActionRow(Transform parent, float height,
+        params (string lbl, System.Action action, Color bg, Color fg)[] btns)
+    {
+        var row = new GameObject("ActRow");
+        row.transform.SetParent(parent, false);
+        var le = row.AddComponent<LayoutElement>();
+        le.preferredHeight = height; le.flexibleWidth = 1;
+        var hlg = row.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
+        hlg.childForceExpandHeight = true; hlg.childForceExpandWidth = true;
+
+        foreach (var (lbl, action, bg, fg) in btns)
+        {
+            var go = new GameObject("Btn");
+            go.transform.SetParent(row.transform, false);
+            go.AddComponent<RectTransform>();
+            var img = go.AddComponent<Image>();
+            img.sprite = RoundedRectSprite(8f);
+            img.type = Image.Type.Sliced;
+            img.color = bg;
+            if (bg == BTN_ACTIVE)
+            {
+                var outline = go.AddComponent<Outline>();
+                outline.effectColor = GLOW;
+                outline.effectDistance = new Vector2(1, -1);
+            }
+            var btn = go.AddComponent<Button>();
+            btn.targetGraphic = img;
+            var cs = btn.colors;
+            cs.highlightedColor = new Color(bg.r, bg.g, bg.b, Mathf.Min(bg.a + 0.18f, 1f));
+            cs.pressedColor     = new Color(bg.r, bg.g, bg.b, Mathf.Min(bg.a + 0.35f, 1f));
+            btn.colors = cs;
+            btn.onClick.AddListener(() => action?.Invoke());
+
+            var tgo = new GameObject("T"); tgo.transform.SetParent(go.transform, false);
+            var tRT = tgo.AddComponent<RectTransform>();
+            tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+            tRT.offsetMin = tRT.offsetMax = Vector2.zero;
+            var t = tgo.AddComponent<TextMeshProUGUI>();
+            t.text = lbl; t.fontSize = 11;
+            t.alignment = TextAlignmentOptions.Center; t.color = fg;
+            if (HasKorean(lbl)) KorFont(t); else LatFont(t);
+        }
+    }
+
+    // ── 스텝퍼 그룹 ───────────────────────────────────────
     void TransformStepperGroup(Transform parent, string title, bool rotation,
         out TMP_InputField x, out TMP_InputField y, out TMP_InputField z)
     {
-        var card = RowBox(parent, "Transform_" + title, 116, Hex("#FBFAF7"));
-        var outline = card.gameObject.AddComponent<Outline>();
-        outline.effectColor = BORDER;
-        outline.effectDistance = new Vector2(1, -1);
+        var card = RowBox(parent, "Transform_" + title, 116, BG_CARD);
+        var cardImg = card.GetComponent<Image>();
+        cardImg.sprite = RoundedRectSprite(8f);
+        cardImg.type = Image.Type.Sliced;
+        cardImg.material = GlassMaterial();
+        AddInnerGlow(card.gameObject, 8f);
 
         var vlg = card.gameObject.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = 6;
@@ -221,7 +275,7 @@ public partial class HanokUIManager
         titleText.richText = true;
         titleText.fontSize = 10.5f;
         titleText.fontStyle = FontStyles.Bold;
-        titleText.color = NAVY;
+        titleText.color = TEXT_MAIN;
         titleText.alignment = TextAlignmentOptions.Left;
         KorFont(titleText);
 
@@ -264,9 +318,9 @@ public partial class HanokUIManager
         colLE.flexibleWidth = 1;
 
         var colImg = col.AddComponent<Image>();
-        colImg.color = Hex("#FFFFFF");
+        colImg.color = new Color(1f, 1f, 1f, 0.6f);
         var colOutline = col.AddComponent<Outline>();
-        colOutline.effectColor = Hex("#DDD8CF");
+        colOutline.effectColor = BORDER;
         colOutline.effectDistance = new Vector2(1, -1);
 
         var vlg = col.AddComponent<VerticalLayoutGroup>();
@@ -309,7 +363,7 @@ public partial class HanokUIManager
         fieldLE.flexibleWidth = 1;
         fieldLE.preferredWidth = 42;
         if (field.targetGraphic is Image fieldImg)
-            fieldImg.color = Hex("#F6F3EC");
+            fieldImg.color = BG_INPUT;
         field.textComponent.alignment = TextAlignmentOptions.Center;
         if (field.placeholder is TMP_Text ph)
             ph.alignment = TextAlignmentOptions.Center;
@@ -326,17 +380,16 @@ public partial class HanokUIManager
         le.preferredWidth = width;
 
         var img = go.AddComponent<Image>();
-        img.color = Hex("#EFEAE1");
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = Hex("#D8D1C5");
-        outline.effectDistance = new Vector2(1, -1);
+        img.sprite = RoundedRectSprite(6f);
+        img.type = Image.Type.Sliced;
+        img.color = BTN_GHOST;
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor = img.color;
-        cs.highlightedColor = Hex("#FFFFFF");
-        cs.pressedColor = Hex("#DED6C9");
+        cs.normalColor = BTN_GHOST;
+        cs.highlightedColor = new Color(BTN_GHOST.r, BTN_GHOST.g, BTN_GHOST.b, Mathf.Min(BTN_GHOST.a + 0.18f, 1f));
+        cs.pressedColor = BTN_ACTIVE;
         btn.colors = cs;
         btn.onClick.AddListener(() => action?.Invoke());
 
@@ -363,17 +416,16 @@ public partial class HanokUIManager
         go.AddComponent<LayoutElement>().preferredWidth = rotation ? 58 : 68;
 
         var img = go.AddComponent<Image>();
-        img.color = Hex("#FFFFFF");
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = Hex("#D8D1C5");
-        outline.effectDistance = new Vector2(1, -1);
+        img.sprite = RoundedRectSprite(6f);
+        img.type = Image.Type.Sliced;
+        img.color = BTN_GHOST;
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor = img.color;
-        cs.highlightedColor = Hex("#FFFDF8");
-        cs.pressedColor = Hex("#E8E1D5");
+        cs.normalColor = BTN_GHOST;
+        cs.highlightedColor = new Color(BTN_GHOST.r, BTN_GHOST.g, BTN_GHOST.b, Mathf.Min(BTN_GHOST.a + 0.18f, 1f));
+        cs.pressedColor = BTN_ACTIVE;
         btn.colors = cs;
 
         var labelGO = new GameObject("T");
@@ -448,10 +500,11 @@ public partial class HanokUIManager
         rt.offsetMax = new Vector2(0, -2f);
 
         var img = menu.AddComponent<Image>();
-        img.color = Hex("#FFFFFF");
-        var outline = menu.AddComponent<Outline>();
-        outline.effectColor = new Color(0f, 0f, 0f, 0.18f);
-        outline.effectDistance = new Vector2(1, -1);
+        img.sprite = RoundedRectSprite(8f);
+        img.type = Image.Type.Sliced;
+        img.color = new Color(1f, 1f, 1f, 0.92f);
+        img.material = GlassMaterial();
+        AddInnerGlow(menu, 8f);
 
         var vlg = menu.AddComponent<VerticalLayoutGroup>();
         vlg.padding = new RectOffset(3, 3, 3, 3);
@@ -493,8 +546,8 @@ public partial class HanokUIManager
         btn.targetGraphic = img;
         var cs = btn.colors;
         cs.normalColor = Color.clear;
-        cs.highlightedColor = Hex("#F1EBDD");
-        cs.pressedColor = Hex("#E4D9C8");
+        cs.highlightedColor = BTN_GHOST;
+        cs.pressedColor = BTN_ACTIVE;
         btn.colors = cs;
         btn.onClick.AddListener(() => action?.Invoke());
 
@@ -521,17 +574,16 @@ public partial class HanokUIManager
         le.preferredWidth = 17;
 
         var img = go.AddComponent<Image>();
-        img.color = Hex("#ECE7DE");
-        var outline = go.AddComponent<Outline>();
-        outline.effectColor = Hex("#D2CCC1");
-        outline.effectDistance = new Vector2(1, -1);
+        img.sprite = RoundedRectSprite(4f);
+        img.type = Image.Type.Sliced;
+        img.color = BTN_GHOST;
 
         var btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         var cs = btn.colors;
-        cs.normalColor = img.color;
-        cs.highlightedColor = Hex("#FFFFFF");
-        cs.pressedColor = Hex("#E7E1D4");
+        cs.normalColor = BTN_GHOST;
+        cs.highlightedColor = new Color(BTN_GHOST.r, BTN_GHOST.g, BTN_GHOST.b, Mathf.Min(BTN_GHOST.a + 0.18f, 1f));
+        cs.pressedColor = BTN_ACTIVE;
         btn.colors = cs;
         btn.onClick.AddListener(() => action?.Invoke());
 
@@ -569,36 +621,6 @@ public partial class HanokUIManager
 
         ForceSyncTransform();
         SyncGizmo();
-    }
-
-    TMP_InputField AxisInput(Transform parent, string axisLabel, Color axisCol)
-    {
-        var row = new GameObject("Row_" + axisLabel);
-        row.transform.SetParent(parent, false);
-        var le = row.AddComponent<LayoutElement>();
-        le.preferredHeight = 26; le.flexibleWidth = 1;
-        var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
-        hlg.childForceExpandHeight = true; hlg.childForceExpandWidth = false;
-
-        var lgo = new GameObject("Lbl"); lgo.transform.SetParent(row.transform, false);
-        lgo.AddComponent<LayoutElement>().preferredWidth = 22;
-        var lImg = lgo.AddComponent<Image>();
-        lImg.sprite = RoundedRectSprite(8f);
-        lImg.type = Image.Type.Sliced;
-        lImg.color = new Color(axisCol.r, axisCol.g, axisCol.b, 0.15f);
-        var lt = new GameObject("T"); lt.transform.SetParent(lgo.transform, false);
-        var ltRT = lt.AddComponent<RectTransform>();
-        ltRT.anchorMin = Vector2.zero; ltRT.anchorMax = Vector2.one;
-        ltRT.offsetMin = ltRT.offsetMax = Vector2.zero;
-        var ltT = lt.AddComponent<TextMeshProUGUI>();
-        ltT.text = axisLabel; ltT.fontSize = 10; ltT.fontStyle = FontStyles.Bold;
-        ltT.color = axisCol; ltT.alignment = TextAlignmentOptions.Center;
-        LatFont(ltT);
-
-        var f = MakeInputField(row.transform);
-        f.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-        return f;
     }
 
     void RegisterEditPanelTabOrder(params TMP_InputField[] fields)
@@ -639,51 +661,5 @@ public partial class HanokUIManager
         EventSystem.current?.SetSelectedGameObject(next.gameObject);
         next.Select();
         next.ActivateInputField();
-    }
-
-    // ── 액션 버튼 행 ──────────────────────────────────────
-    void ActionRow(Transform parent, float height,
-        params (string lbl, System.Action action, Color bg, Color fg)[] btns)
-    {
-        var row = new GameObject("ActRow");
-        row.transform.SetParent(parent, false);
-        var le = row.AddComponent<LayoutElement>();
-        le.preferredHeight = height; le.flexibleWidth = 1;
-        var hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 6; hlg.padding = new RectOffset(12, 12, 0, 0);
-        hlg.childForceExpandHeight = true; hlg.childForceExpandWidth = true;
-
-        foreach (var (lbl, action, bg, fg) in btns)
-        {
-            var go = new GameObject("Btn");
-            go.transform.SetParent(row.transform, false);
-            go.AddComponent<RectTransform>();
-            var img = go.AddComponent<Image>();
-            img.sprite = RoundedRectSprite(8f);
-            img.type = Image.Type.Sliced;
-            img.color = bg;
-            if (bg == BTN_ACTIVE)
-            {
-                var outline = go.AddComponent<Outline>();
-                outline.effectColor = GLOW;
-                outline.effectDistance = new Vector2(1,-1);
-            }
-            var btn = go.AddComponent<Button>();
-            btn.targetGraphic = img;
-            var cs = btn.colors;
-            cs.highlightedColor = new Color(bg.r, bg.g, bg.b, Mathf.Min(bg.a + 0.18f, 1f));
-            cs.pressedColor     = new Color(bg.r, bg.g, bg.b, Mathf.Min(bg.a + 0.35f, 1f));
-            btn.colors = cs;
-            btn.onClick.AddListener(() => action?.Invoke());
-
-            var tgo = new GameObject("T"); tgo.transform.SetParent(go.transform, false);
-            var tRT = tgo.AddComponent<RectTransform>();
-            tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
-            tRT.offsetMin = tRT.offsetMax = Vector2.zero;
-            var t = tgo.AddComponent<TextMeshProUGUI>();
-            t.text = lbl; t.fontSize = 11;
-            t.alignment = TextAlignmentOptions.Center; t.color = fg;
-            if (HasKorean(lbl)) KorFont(t); else LatFont(t);
-        }
     }
 }
