@@ -405,20 +405,14 @@ public partial class HanokUIManager
         if (_aiCatalog != null) return _aiCatalog;
 
         var sb = new StringBuilder();
-        foreach (var entry in GetAICatalogEntries())
+        foreach (var entry in _assetEntries)
         {
-            sb.Append(entry.assetKey).Append('|').Append(entry.displayName).Append('|');
+            sb.Append(entry.prefab.name).Append('|').Append(entry.displayName).Append('|');
             sb.Append(string.Join(",", entry.searchTags));
             sb.Append('\n');
         }
         _aiCatalog = sb.ToString();
         return _aiCatalog;
-    }
-
-    List<HanokAssetEntry> GetAICatalogEntries()
-    {
-        var cultureEntries = _assetEntries.FindAll(e => e.isCultureAsset);
-        return cultureEntries.Count > 0 ? cultureEntries : _assetEntries;
     }
 
     // Claude 응답이 반드시 이 형식을 따르도록 강제하는 JSON Schema (RecommendationList와 1:1 대응)
@@ -441,9 +435,8 @@ public partial class HanokUIManager
             }
             else
             {
-                int placed = RenderAIRecommendations(localItems);
-                if (placed == 0)
-                    ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
+                RenderAIRecommendations(localItems);
+                ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
             }
             EndAIRequest();
             yield break;
@@ -511,14 +504,14 @@ public partial class HanokUIManager
         EndAIRequest();
     }
 
-    // ── 추천 결과 렌더링 + 자동 배치 ─────────────────────
-    int RenderAIRecommendations(RecommendationItem[] items)
+    // ── 추천 결과 렌더링 ────────────────────────────────────
+    void RenderAIRecommendations(RecommendationItem[] items)
     {
         var matches = new List<HanokAssetEntry>();
         var seen = new HashSet<string>();
         foreach (var item in items)
         {
-            var entry = _assetEntries.Find(e => e.assetKey == item.assetKey || e.prefab.name == item.assetKey);
+            var entry = _assetEntries.Find(e => e.prefab.name == item.assetKey);
             if (entry != null && seen.Add(entry.assetKey))
                 matches.Add(entry);
         }
@@ -526,7 +519,7 @@ public partial class HanokUIManager
         if (matches.Count == 0)
         {
             ShowAIMessage("카탈로그에서 일치하는 에셋을 찾지 못했습니다.");
-            return 0;
+            return;
         }
 
         ClearAIResults();
@@ -540,11 +533,6 @@ public partial class HanokUIManager
 
         _aiResultsPanelRT.gameObject.SetActive(true);
         StartCoroutine(RebuildAIResultsLayout());
-
-        int placed = AutoPlaceRecommendationMatches(matches);
-        if (placed > 0)
-            ShowToast($"추천 에셋 {placed}개를 자동 배치했습니다.");
-        return placed;
     }
 
     int AutoPlaceRecommendationMatches(List<HanokAssetEntry> matches)
@@ -601,7 +589,7 @@ public partial class HanokUIManager
 
     RecommendationItem[] BuildLocalRecommendations(string prompt)
     {
-        var catalogEntries = GetAICatalogEntries();
+        var catalogEntries = _assetEntries;
         var tokens = TokenizePrompt(prompt);
         var scored = new List<ScoredAsset>();
 
