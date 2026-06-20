@@ -43,6 +43,7 @@ public partial class HanokUIManager
         BuildRightHeader(rightRT);
         var rScroll = MakeScroll(rightRT, 72);
         BuildEditPanel(rScroll.transform.Find("Viewport/Content"));
+        rightPanelRT = rightRT;
 
         // ── 가운데 뷰포트 툴바 + 배경 선택 + 스케일 핸들 ──────
         BuildViewportToolbar(root);
@@ -52,6 +53,8 @@ public partial class HanokUIManager
         BuildToast(root);
         BuildAIPromptWidget(root);
         BuildLeftExpandButton(root);
+        BuildRightExpandButton(root);
+        BuildBgExpandButton(root);
         BuildViewOrientationBadge(root);
     }
 
@@ -171,21 +174,150 @@ public partial class HanokUIManager
         hdrImg.type = Image.Type.Sliced;
         hdrImg.color = HDR_BG;
 
+        // 접기 버튼 — 상단 왼쪽, 오른쪽 화살표(▶)
+        var foldRT = NewRT(hdr, "FoldBtn");
+        foldRT.anchorMin = new Vector2(0, 0.5f); foldRT.anchorMax = new Vector2(0, 0.5f);
+        foldRT.pivot = new Vector2(0, 0.5f);
+        foldRT.offsetMin = new Vector2(10, -14); foldRT.offsetMax = new Vector2(38, 14);
+        var foldImg = foldRT.GetComponent<Image>();
+        foldImg.sprite = AICircleSprite();
+        foldImg.type = Image.Type.Simple;
+        foldImg.color = new Color(1, 1, 1, 0.12f);
+        var foldBtn = foldRT.gameObject.AddComponent<Button>();
+        foldBtn.targetGraphic = foldImg;
+        var fcs = foldBtn.colors;
+        fcs.normalColor      = new Color(1, 1, 1, 0.12f);
+        fcs.highlightedColor = new Color(1, 1, 1, 0.24f);
+        fcs.pressedColor     = new Color(1, 1, 1, 0.36f);
+        foldBtn.colors = fcs;
+        foldBtn.onClick.AddListener(() => SetRightPanelVisible(false));
+        var fArrowGO = new GameObject("Arrow");
+        fArrowGO.transform.SetParent(foldRT, false);
+        var fArrowRT = fArrowGO.AddComponent<RectTransform>();
+        fArrowRT.anchorMin = fArrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        fArrowRT.sizeDelta = new Vector2(11, 11);
+        // 0도 = ▶ (오른쪽 방향 → 패널이 오른쪽으로 접힘을 의미)
+        var fArrowImg = fArrowGO.AddComponent<Image>();
+        fArrowImg.sprite = AITriangleSprite();
+        fArrowImg.type = Image.Type.Simple;
+        fArrowImg.color = TEXT_HDR;
+        fArrowImg.raycastTarget = false;
+
         var t = MakeLabel(hdr, "부재 정보", 13, TEXT_HDR, bold: true);
         Embolden(t);
         var tRT = t.GetComponent<RectTransform>();
         tRT.anchorMin = new Vector2(0, 0.45f); tRT.anchorMax = Vector2.one;
-        tRT.offsetMin = new Vector2(16, 0); tRT.offsetMax = new Vector2(-12, -4);
+        tRT.offsetMin = new Vector2(48, 0); tRT.offsetMax = new Vector2(-12, -4);
         t.alignment = TextAlignmentOptions.Left;
 
         var sub = MakeLabel(hdr, "선택한 에셋의 위치·회전·크기를 조정합니다", 9.5f,
             new Color(1f, 1f, 1f, 0.68f));
         var subRT = sub.GetComponent<RectTransform>();
         subRT.anchorMin = Vector2.zero; subRT.anchorMax = new Vector2(1, 0.5f);
-        subRT.offsetMin = new Vector2(16, 8); subRT.offsetMax = new Vector2(-12, 0);
+        subRT.offsetMin = new Vector2(48, 8); subRT.offsetMax = new Vector2(-12, 0);
         sub.alignment = TextAlignmentOptions.Left;
         KorFont(sub);
         AddTextHalo(t);
+    }
+
+    // ── 배경 선택기 표시/숨김 ──────────────────────────────
+    void SetBgBarVisible(bool visible)
+    {
+        _bgBarRT.gameObject.SetActive(visible);
+        _bgExpandBtnRT.gameObject.SetActive(!visible);
+    }
+
+    // ── 배경 선택기 펼치기 버튼 (상단 중앙, 접혔을 때만 노출) ──
+    void BuildBgExpandButton(Transform root)
+    {
+        var btnRT = NewRT(root, "BgExpandBtn");
+        btnRT.anchorMin = new Vector2(0.5f, 1f);
+        btnRT.anchorMax = new Vector2(0.5f, 1f);
+        btnRT.pivot     = new Vector2(0.5f, 1f);
+        btnRT.offsetMin = new Vector2(-14, -36);
+        btnRT.offsetMax = new Vector2( 14,  -8);
+
+        var img = btnRT.GetComponent<Image>();
+        img.sprite = AICircleSprite();
+        img.type   = Image.Type.Simple;
+        img.color  = BTN_ACTIVE;
+
+        var outline = btnRT.gameObject.AddComponent<Outline>();
+        outline.effectColor    = GLOW;
+        outline.effectDistance = new Vector2(1, -1);
+
+        var btn = btnRT.gameObject.AddComponent<Button>();
+        btn.targetGraphic = img;
+        var cs = btn.colors;
+        cs.highlightedColor = BTN_ACTIVE_HOVER;
+        cs.pressedColor     = BTN_ACTIVE_PRESS;
+        btn.colors = cs;
+        btn.onClick.AddListener(() => SetBgBarVisible(true));
+
+        // ▼ 펼치기 방향
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(btnRT, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRT.sizeDelta = new Vector2(11, 11);
+        arrowRT.localEulerAngles = new Vector3(0, 0, -90f); // ▼
+        var arrowImg = arrowGO.AddComponent<Image>();
+        arrowImg.sprite = AITriangleSprite();
+        arrowImg.type   = Image.Type.Simple;
+        arrowImg.color  = TEXT_ON_ACCENT;
+        arrowImg.raycastTarget = false;
+
+        _bgExpandBtnRT = btnRT;
+        btnRT.gameObject.SetActive(false);
+    }
+
+    // ── 오른쪽 패널 표시/숨김 ─────────────────────────────
+    void SetRightPanelVisible(bool visible)
+    {
+        rightPanelRT.gameObject.SetActive(visible);
+        _rightExpandBtnRT.gameObject.SetActive(!visible);
+    }
+
+    // ── 오른쪽 패널 펼치기 버튼 (화면 우상단, 패널이 접혔을 때만 노출) ──
+    void BuildRightExpandButton(Transform root)
+    {
+        var btnRT = NewRT(root, "RightExpandBtn");
+        btnRT.anchorMin = new Vector2(1, 1); btnRT.anchorMax = new Vector2(1, 1);
+        btnRT.pivot = new Vector2(1, 1);
+        btnRT.offsetMin = new Vector2(-36, -36); btnRT.offsetMax = new Vector2(-8, -8);
+
+        var img = btnRT.GetComponent<Image>();
+        img.sprite = AICircleSprite();
+        img.type = Image.Type.Simple;
+        img.color = BTN_ACTIVE;
+
+        var outline = btnRT.gameObject.AddComponent<Outline>();
+        outline.effectColor = GLOW;
+        outline.effectDistance = new Vector2(1, -1);
+
+        var btn = btnRT.gameObject.AddComponent<Button>();
+        btn.targetGraphic = img;
+        var cs = btn.colors;
+        cs.highlightedColor = BTN_ACTIVE_HOVER;
+        cs.pressedColor = BTN_ACTIVE_PRESS;
+        btn.colors = cs;
+        btn.onClick.AddListener(() => SetRightPanelVisible(true));
+
+        // 화살표 아이콘 — 180도 = ◀ ("펼치기" 방향)
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(btnRT, false);
+        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        arrowRT.anchorMin = arrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        arrowRT.sizeDelta = new Vector2(11, 11);
+        arrowRT.localEulerAngles = new Vector3(0, 0, 180);
+        var arrowImg = arrowGO.AddComponent<Image>();
+        arrowImg.sprite = AITriangleSprite();
+        arrowImg.type = Image.Type.Simple;
+        arrowImg.color = TEXT_ON_ACCENT;
+        arrowImg.raycastTarget = false;
+
+        _rightExpandBtnRT = btnRT;
+        btnRT.gameObject.SetActive(false);
     }
 
     // ── 뷰포트 툴바 (가운데 왼쪽 플로팅) ─────────────────
@@ -412,6 +544,45 @@ public partial class HanokUIManager
             d.alignment = TextAlignmentOptions.Center;
             KorFont(d);
         }
+
+        // 접기 버튼 (우측 오버레이, HLG 제외)
+        // Image를 먼저 추가해야 RectTransform이 자동 생성됨
+        var foldGO = new GameObject("BgFoldBtn");
+        foldGO.transform.SetParent(bar, false);
+        foldGO.AddComponent<Image>(); // RectTransform 자동 생성
+        var foldLE = foldGO.AddComponent<LayoutElement>();
+        foldLE.ignoreLayout = true;
+        var foldRT2 = foldGO.GetComponent<RectTransform>();
+        foldRT2.anchorMin = new Vector2(1, 0.5f);
+        foldRT2.anchorMax = new Vector2(1, 0.5f);
+        foldRT2.pivot = new Vector2(1, 0.5f);
+        foldRT2.sizeDelta = new Vector2(24, 24);
+        foldRT2.anchoredPosition = new Vector2(-4, 0);
+        var foldImg2 = foldGO.GetComponent<Image>();
+        foldImg2.sprite = AICircleSprite();
+        foldImg2.type = Image.Type.Simple;
+        foldImg2.color = new Color(0f, 0f, 0f, 0.28f);
+        var foldBtn2 = foldGO.AddComponent<Button>();
+        foldBtn2.targetGraphic = foldImg2;
+        var fcs2 = foldBtn2.colors;
+        fcs2.normalColor = new Color(1, 1, 1, 0.12f);
+        fcs2.highlightedColor = new Color(1, 1, 1, 0.28f);
+        fcs2.pressedColor = new Color(1, 1, 1, 0.40f);
+        foldBtn2.colors = fcs2;
+        foldBtn2.onClick.AddListener(() => SetBgBarVisible(false));
+        var bgFoldArrowGO = new GameObject("Arrow");
+        bgFoldArrowGO.transform.SetParent(foldRT2, false);
+        var bgFoldArrowRT = bgFoldArrowGO.AddComponent<RectTransform>();
+        bgFoldArrowRT.anchorMin = bgFoldArrowRT.anchorMax = new Vector2(0.5f, 0.5f);
+        bgFoldArrowRT.sizeDelta = new Vector2(9, 9);
+        bgFoldArrowRT.localEulerAngles = new Vector3(0, 0, 90f); // ▲
+        var bgFoldArrowImg = bgFoldArrowGO.AddComponent<Image>();
+        bgFoldArrowImg.sprite = AITriangleSprite();
+        bgFoldArrowImg.type = Image.Type.Simple;
+        bgFoldArrowImg.color = TEXT_MAIN;
+        bgFoldArrowImg.raycastTarget = false;
+
+        _bgBarRT = bar;
     }
 
     // ── 뷰 방향 배지 (현재 카메라 시점 표시) ─────────────

@@ -182,6 +182,84 @@ public partial class HanokUIManager
         _apiKeyPanel = overlay.gameObject;
     }
 
+    // ── 종료 확인 패널 ────────────────────────────────────────────
+    GameObject _quitPanel;
+
+    void ShowQuitPanel()
+    {
+        if (_quitPanel == null) BuildQuitPanel();
+        _quitPanel.SetActive(true);
+    }
+
+    void HideQuitPanel()
+    {
+        if (_quitPanel != null) _quitPanel.SetActive(false);
+    }
+
+    void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    void BuildQuitPanel()
+    {
+        var canvas = _canvasRT.transform;
+
+        var overlay = NewRT(canvas, "QuitOverlay");
+        overlay.anchorMin = Vector2.zero;
+        overlay.anchorMax = Vector2.one;
+        overlay.offsetMin = overlay.offsetMax = Vector2.zero;
+        overlay.SetAsLastSibling();
+        var overlayImg = overlay.GetComponent<Image>();
+        overlayImg.color = new Color(0f, 0f, 0f, 0.55f);
+
+        var card = NewRT(overlay, "QuitCard");
+        card.anchorMin = card.anchorMax = new Vector2(0.5f, 0.5f);
+        card.pivot = new Vector2(0.5f, 0.5f);
+        card.sizeDelta = new Vector2(300, 150);
+        var cardImg = card.GetComponent<Image>();
+        cardImg.sprite = RoundedRectSprite(18f);
+        cardImg.type   = Image.Type.Sliced;
+        cardImg.color  = BG_PANEL;
+        cardImg.material = GlassMaterial();
+        AddInnerGlow(card, 18f);
+        AddOuterBorder(card, 18f);
+
+        var vlg = card.gameObject.AddComponent<VerticalLayoutGroup>();
+        vlg.padding            = new RectOffset(28, 28, 28, 24);
+        vlg.spacing            = 20;
+        vlg.childForceExpandWidth  = true;
+        vlg.childForceExpandHeight = false;
+        vlg.childAlignment     = TextAnchor.UpperCenter;
+
+        var msgGO = new GameObject("Msg");
+        msgGO.transform.SetParent(card, false);
+        msgGO.AddComponent<LayoutElement>().preferredHeight = 30;
+        var msgT = msgGO.AddComponent<TextMeshProUGUI>();
+        msgT.text = "게임을 종료하시겠습니까?";
+        msgT.fontSize = 14; msgT.color = TEXT_MAIN;
+        msgT.fontStyle = FontStyles.Bold;
+        msgT.alignment = TextAlignmentOptions.Center;
+        KorFont(msgT); AddTextHalo(msgT);
+
+        var btnRow = new GameObject("BtnRow");
+        btnRow.transform.SetParent(card, false);
+        btnRow.AddComponent<LayoutElement>().preferredHeight = 40;
+        var rowHLG = btnRow.AddComponent<HorizontalLayoutGroup>();
+        rowHLG.spacing = 10;
+        rowHLG.childForceExpandWidth  = true;
+        rowHLG.childForceExpandHeight = true;
+
+        MakeDialogBtn(btnRow.transform, "아니오", BTN_GHOST,  TEXT_MAIN,      bold: false, HideQuitPanel);
+        MakeDialogBtn(btnRow.transform, "네",     BTN_ACTIVE, TEXT_ON_ACCENT, bold: true,  QuitGame);
+
+        _quitPanel = overlay.gameObject;
+    }
+
     void MakeDialogBtn(Transform parent, string label, Color bg, Color fg, bool bold, UnityEngine.Events.UnityAction action)
     {
         var go  = new GameObject(label);

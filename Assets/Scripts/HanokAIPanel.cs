@@ -433,8 +433,8 @@ public partial class HanokUIManager
 
         if (_layoutMode)
         {
-            ShowAIMessage("AI가 맵을 생성 중...");
-            StartCoroutine(RequestAIAutoLayout(prompt));
+            ShowAIMessage("AI가 설계 중...");
+            StartCoroutine(RequestAIAgentLayout(prompt));
         }
         else
         {
