@@ -69,27 +69,10 @@ public static class HanokSceneSetup
     //  PRESETS
     // ═════════════════════════════════════════════════════════════════════════
 
-    static void Preset_HanokMadang()
-    {
-        CreateCourtyard();
-        CreateBroadGroves();
-    }
-
-    static void Preset_Sarangchae()
-    {
-        CreateLightTrees();
-    }
-
-    static void Preset_Jangter()
-    {
-        CreatePineGroves();
-    }
-
-    static void Preset_Garden()
-    {
-        CreateGardenElements();
-        CreateGardenTrees();
-    }
+    static void Preset_HanokMadang()   { }
+    static void Preset_Sarangchae()    { }
+    static void Preset_Jangter()       { }
+    static void Preset_Garden()        { }
 
     // ═════════════════════════════════════════════════════════════════════════
     //  ENVIRONMENT — shared
