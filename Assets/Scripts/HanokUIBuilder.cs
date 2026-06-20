@@ -478,10 +478,10 @@ public partial class HanokUIManager
         // 이름 / 설명 / 분위기 색
         var presets = new (string name, string desc, string atmo)[]
         {
-            ("한옥 마당", "청명한 낮",   "#8BBCD4"),
-            ("사랑채",   "온화한 빛",   "#C4A050"),
-            ("조선 장터", "흐린 하늘",   "#8A9FB0"),
-            ("전통 정원", "초록 향기",   "#5CA87A"),
+            ("맑은 날",   "청명한 하늘",  "#88B8D8"),
+            ("저녁노을",  "노을 하늘",   "#E08040"),
+            ("밤",        "달빛 밤하늘", "#0C1828"),
+            ("자연",      "상쾌한 하늘", "#68C8A0"),
         };
 
         _bgBtns = new Button[presets.Length];
@@ -553,11 +553,11 @@ public partial class HanokUIManager
         var foldLE = foldGO.AddComponent<LayoutElement>();
         foldLE.ignoreLayout = true;
         var foldRT2 = foldGO.GetComponent<RectTransform>();
-        foldRT2.anchorMin = new Vector2(1, 0.5f);
-        foldRT2.anchorMax = new Vector2(1, 0.5f);
-        foldRT2.pivot = new Vector2(1, 0.5f);
-        foldRT2.sizeDelta = new Vector2(24, 24);
-        foldRT2.anchoredPosition = new Vector2(-4, 0);
+        foldRT2.anchorMin = new Vector2(0.5f, 0f);
+        foldRT2.anchorMax = new Vector2(0.5f, 0f);
+        foldRT2.pivot     = new Vector2(0.5f, 1f);   // 위쪽 끝이 bar 바닥에 붙음
+        foldRT2.sizeDelta = new Vector2(52, 18);     // 납작한 pill 형태
+        foldRT2.anchoredPosition = new Vector2(0, -4); // bar 4px 아래
         var foldImg2 = foldGO.GetComponent<Image>();
         foldImg2.sprite = AICircleSprite();
         foldImg2.type = Image.Type.Simple;
