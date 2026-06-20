@@ -18,7 +18,7 @@ BASE_URL = "https://www.culture.go.kr/datametaverse"
 BBS_URL  = f"{BASE_URL}/bbs/board.php"
 
 CATEGORIES = {
-    "modeling":     "전통문양3D도음",
+    # "modeling":   "전통문양3D도음",  # 너무 많아서 제외
     "buildings":    "건축물완성형",
     "building":     "건축물부품형",
     "digitalhuman": "디지털휴먼",
