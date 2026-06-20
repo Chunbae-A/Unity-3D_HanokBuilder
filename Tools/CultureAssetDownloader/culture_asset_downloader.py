@@ -23,12 +23,12 @@ CATEGORIES = {
     # "materials":  "스마트머터리얼",  # 제외
 }
 
-# 스크립트 파일 위치 기준으로 경로 설정 (어느 디렉토리에서 실행해도 동작)
+# 스크립트 파일 위치 기준 — 어느 디렉토리에서 실행해도 항상 동일한 위치 사용
 _SCRIPT_DIR = Path(__file__).parent
 
-DOWNLOAD_DIR    = Path("./downloaded_fbx")
-PROGRESS_FILE   = Path("./download_progress.json")
-DRIVE_FOLDER_ID = "1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9"
+DOWNLOAD_DIR     = _SCRIPT_DIR / "downloaded_fbx"
+PROGRESS_FILE    = _SCRIPT_DIR / "download_progress.json"
+DRIVE_FOLDER_ID  = "1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9"
 CREDENTIALS_FILE = str(_SCRIPT_DIR / "credentials.json")
 TOKEN_FILE       = str(_SCRIPT_DIR / "token.json")
 
@@ -37,8 +37,10 @@ MAX_RETRIES            = 3
 
 EXCLUDE_KEYWORD = "언리얼엔진"
 
-# y_view_icon3.png = FBX 아이콘 (건축물: .fbx, 전통문양: _set.zip)
-FBX_ICON = "y_view_icon3.png"
+# 다운로드 대상 아이콘
+# y_view_icon2.png = 유니티 패키지 (.unitypackage)
+# y_view_icon3.png = FBX (건축물: .fbx, 전통문양: _set.zip)
+DOWNLOAD_ICONS = {"y_view_icon2.png", "y_view_icon3.png"}
 # ────────────────────────────────────────────────────────────
 
 logging.basicConfig(
@@ -46,7 +48,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("downloader.log", encoding="utf-8"),
+        logging.FileHandler(str(_SCRIPT_DIR / "downloader.log"), encoding="utf-8"),
     ],
 )
 log = logging.getLogger(__name__)
@@ -171,10 +173,10 @@ def collect_all_assets(session: requests.Session, bo_table: str) -> list[dict]:
 
 
 # ── 상세 페이지 파싱 ──────────────────────────────────────────
-def get_fbx_download_url(session: requests.Session, asset: dict) -> list[str]:
-    """FBX 아이콘(y_view_icon3.png) 버튼 URL 반환
-    - 건축물: .fbx 직접
-    - 전통문양: _set.zip (zip 안에 FBX 포함)
+def get_download_urls(session: requests.Session, asset: dict) -> list[str]:
+    """유니티 패키지(icon2) + FBX(icon3) 다운로드 URL 반환
+    - y_view_icon2.png: .unitypackage
+    - y_view_icon3.png: .fbx 또는 _set.zip (전통문양)
     """
     url = f"{BBS_URL}?bo_table={asset['bo_table']}&wr_id={asset['wr_id']}"
     resp = safe_get(session, url, referer=asset["list_url"])
@@ -182,19 +184,19 @@ def get_fbx_download_url(session: requests.Session, asset: dict) -> list[str]:
         return []
 
     soup = BeautifulSoup(resp.text, "html.parser")
-    fbx_urls = []
+    urls = []
 
     for btn in soup.select("li.downloadBtn a[download]"):
         href = btn.get("href", "")
         if not href:
             continue
         img = btn.find("img")
-        icon_src = img.get("src", "") if img else ""
+        icon_name = img.get("src", "").split("/")[-1] if img else ""
 
-        if FBX_ICON in icon_src or href.lower().endswith(".fbx"):
-            fbx_urls.append(to_absolute_url(href))
+        if icon_name in DOWNLOAD_ICONS:
+            urls.append(to_absolute_url(href))
 
-    return fbx_urls
+    return urls
 
 
 # ── 파일 다운로드 ─────────────────────────────────────────────
@@ -237,14 +239,18 @@ def download_file(session: requests.Session, url: str, dest_path: Path) -> bool:
 
 # ── 진행 상황 저장/로드 ───────────────────────────────────────
 def load_progress() -> dict:
+    default = {"downloaded": [], "failed": [], "skipped": []}
     if PROGRESS_FILE.exists():
-        # [Fix 3] 크래시로 인한 truncated JSON 대응
         try:
             with open(PROGRESS_FILE, encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+            # 기존 파일에 skipped 키 없을 경우 보완
+            for k, v in default.items():
+                data.setdefault(k, v)
+            return data
         except (json.JSONDecodeError, OSError) as e:
             log.warning(f"progress 파일 손상, 초기화: {e}")
-    return {"downloaded": [], "failed": [], "skipped": []}
+    return default
 
 
 def save_progress(progress: dict):
@@ -391,22 +397,19 @@ def main(test_mode=False, test_limit=3):
             log.info(f"\n  [{category_name}] {asset['title']} (wr_id={asset['wr_id']})")
             time.sleep(DELAY_BETWEEN_REQUESTS)
 
-            fbx_urls = get_fbx_download_url(session, asset)
+            download_urls = get_download_urls(session, asset)
 
-            if not fbx_urls:
-                log.warning(f"  FBX 링크 없음: {asset['title']}")
-                # FBX 없음은 사이트 문제이므로 failed에 기록 (재시도 무의미)
-                if key not in progress["failed"]:
-                    progress["failed"].append(key)
-                all_failed.append({"key": key, "title": asset["title"], "reason": "FBX 링크 없음"})
-                stats[bo_table]["fail"] += 1
+            if not download_urls:
+                log.warning(f"  다운로드 링크 없음: {asset['title']}")
+                if key not in progress["skipped"]:
+                    progress["skipped"].append(key)
+                stats[bo_table]["skip"] += 1
                 save_progress(progress)
                 time.sleep(DELAY_BETWEEN_REQUESTS)
                 continue
 
-            # [Fix 6] URL별 성공/실패를 추적해 모든 URL이 성공해야 downloaded 처리
             all_ok = True
-            for fbx_url in fbx_urls:
+            for fbx_url in download_urls:
                 filename = filename_from_url(fbx_url)
                 dest = cat_dir / filename
 
