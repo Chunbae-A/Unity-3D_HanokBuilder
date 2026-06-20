@@ -1,10 +1,3 @@
-"""
-문화재관광부 메타버스데이터랩 FBX 에셋 자동 다운로더 + Google Drive 업로더
-- 대상: https://www.culture.go.kr/datametaverse
-- 언리얼엔진 전용 에셋 제외, FBX만 다운로드
-- Google Drive 폴더 ID: 1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9
-"""
-
 import os
 import sys
 import json
@@ -30,11 +23,14 @@ CATEGORIES = {
     # "materials":  "스마트머터리얼",  # 제외
 }
 
+# 스크립트 파일 위치 기준으로 경로 설정 (어느 디렉토리에서 실행해도 동작)
+_SCRIPT_DIR = Path(__file__).parent
+
 DOWNLOAD_DIR    = Path("./downloaded_fbx")
 PROGRESS_FILE   = Path("./download_progress.json")
 DRIVE_FOLDER_ID = "1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9"
-CREDENTIALS_FILE = "credentials.json"
-TOKEN_FILE       = "token.json"
+CREDENTIALS_FILE = str(_SCRIPT_DIR / "credentials.json")
+TOKEN_FILE       = str(_SCRIPT_DIR / "token.json")
 
 DELAY_BETWEEN_REQUESTS = 1.5
 MAX_RETRIES            = 3
