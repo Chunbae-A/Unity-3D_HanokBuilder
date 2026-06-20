@@ -4,7 +4,6 @@ import json
 import time
 import re
 import logging
-import zipfile
 import threading
 import requests
 from pathlib import Path
@@ -28,7 +27,6 @@ CATEGORIES = {
 
 _SCRIPT_DIR = Path(__file__).parent
 
-DOWNLOAD_DIR     = _SCRIPT_DIR / "downloaded_fbx"
 PROGRESS_FILE    = _SCRIPT_DIR / "download_progress.json"
 DRIVE_FOLDER_ID  = "1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9"
 CREDENTIALS_FILE = str(_SCRIPT_DIR / "credentials.json")
@@ -37,11 +35,10 @@ TOKEN_FILE       = str(_SCRIPT_DIR / "token.json")
 WORKERS                = 5    # 동시 처리 에셋 수
 DELAY_BETWEEN_REQUESTS = 0.5  # 스레드당 요청 간격(s)
 MAX_RETRIES            = 3
+STREAM_CHUNK           = 8 * 1024 * 1024  # Drive 스트리밍 청크 8MB
 
 EXCLUDE_KEYWORD = "언리얼엔진"
-
-# y_view_icon2.png = 유니티 패키지, y_view_icon3.png = FBX
-DOWNLOAD_ICONS = {"y_view_icon2.png", "y_view_icon3.png"}
+DOWNLOAD_ICONS  = {"y_view_icon2.png", "y_view_icon3.png"}
 # ─────────────────────────────────────────────────────────────
 
 logging.basicConfig(
@@ -54,7 +51,6 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# progress.json 동시 쓰기 방지
 _progress_lock = threading.Lock()
 
 
@@ -195,43 +191,6 @@ def get_download_urls(session: requests.Session, asset: dict) -> list[str]:
     return urls
 
 
-# ── 파일 다운로드 ─────────────────────────────────────────────
-def download_file(session: requests.Session, url: str, dest_path: Path) -> bool:
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            resp = session.get(url, stream=True, timeout=(15, None),
-                               headers={"Referer": BASE_URL})
-            resp.raise_for_status()
-            total = int(resp.headers.get("Content-Length", 0))
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-
-            with open(dest_path, "wb") as f, tqdm(
-                total=total, unit="B", unit_scale=True,
-                desc=dest_path.name[:40], leave=False, dynamic_ncols=True,
-            ) as bar:
-                for chunk in resp.iter_content(chunk_size=65536):
-                    if chunk:
-                        f.write(chunk)
-                        bar.update(len(chunk))
-
-            size = dest_path.stat().st_size
-            if size == 0:
-                dest_path.unlink()
-                raise ValueError("파일 크기 0")
-
-            log.info(f"  다운로드 완료: {dest_path.name} ({size/1024/1024:.1f} MB)")
-            return True
-
-        except Exception as e:
-            log.warning(f"  다운로드 실패 ({attempt}/{MAX_RETRIES}): {e}")
-            if dest_path.exists():
-                dest_path.unlink()
-            if attempt < MAX_RETRIES:
-                time.sleep(2 * attempt)
-
-    return False
-
-
 # ── 진행 상황 저장/로드 ───────────────────────────────────────
 def load_progress() -> dict:
     default = {"downloaded": [], "failed": [], "skipped": []}
@@ -255,11 +214,11 @@ def save_progress(progress: dict):
 
 
 # ── Google Drive ──────────────────────────────────────────────
-def get_drive_service():
+def get_drive_credentials():
+    """유효한 OAuth2 Credentials 반환 (token.json 갱신 포함)"""
     from google.oauth2.credentials import Credentials
     from google_auth_oauthlib.flow import InstalledAppFlow
     from google.auth.transport.requests import Request
-    from googleapiclient.discovery import build
 
     SCOPES = ["https://www.googleapis.com/auth/drive"]
     creds = None
@@ -271,9 +230,14 @@ def get_drive_service():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
-        with open(TOKEN_FILE, "w") as token:
-            token.write(creds.to_json())
-    return build("drive", "v3", credentials=creds)
+        with open(TOKEN_FILE, "w") as f:
+            f.write(creds.to_json())
+    return creds
+
+
+def get_drive_service():
+    from googleapiclient.discovery import build
+    return build("drive", "v3", credentials=get_drive_credentials())
 
 
 def get_or_create_folder(service, name: str, parent_id: str) -> str:
@@ -288,72 +252,112 @@ def get_or_create_folder(service, name: str, parent_id: str) -> str:
     return service.files().create(body=meta, fields="id").execute()["id"]
 
 
-def upload_to_drive(service, local_path: Path, parent_id: str) -> bool:
-    from googleapiclient.http import MediaFileUpload
-
-    query = f"name='{local_path.name}' and '{parent_id}' in parents and trashed=false"
-    if service.files().list(q=query, fields="files(id)").execute().get("files"):
-        log.info(f"  이미 업로드됨: {local_path.name}")
-        return True
-    try:
-        media = MediaFileUpload(str(local_path), resumable=True)
-        meta = {"name": local_path.name, "parents": [parent_id]}
-        service.files().create(body=meta, media_body=media, fields="id").execute()
-        log.info(f"  Drive 업로드 완료: {local_path.name}")
-        return True
-    except Exception as e:
-        log.error(f"  Drive 업로드 실패: {local_path.name} — {e}")
-        return False
+def file_exists_on_drive(service, filename: str, parent_id: str) -> bool:
+    query = f"name='{filename}' and '{parent_id}' in parents and trashed=false"
+    return bool(service.files().list(q=query, fields="files(id)").execute().get("files"))
 
 
-def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
-    """zip이면 압축 해제 후 Drive 업로드, 그 외 직접 업로드. 성공 시 로컬 삭제."""
-    if local_path.suffix.lower() == ".zip":
+# ── Drive 스트리밍 업로드 (로컬 저장 없음) ────────────────────
+def stream_to_drive(dl_session: requests.Session, download_url: str,
+                    filename: str, parent_id: str) -> bool:
+    """다운로드 스트림을 로컬 저장 없이 Drive resumable upload로 직접 전송.
+    메모리 사용: 최대 STREAM_CHUNK(8MB) × 2 수준.
+    """
+    from google.auth.transport.requests import Request
+
+    for attempt in range(1, MAX_RETRIES + 1):
         try:
-            with zipfile.ZipFile(local_path) as zf:
-                members = [m for m in zf.infolist() if not m.filename.endswith("/")]
-                log.info(f"  zip 압축 해제: {local_path.name} ({len(members)}개 파일)")
-                all_ok = True
-                for member in members:
-                    extracted = local_path.parent / Path(member.filename).name
-                    with zf.open(member) as src, open(extracted, "wb") as dst:
-                        dst.write(src.read())
-                    if drive_service and drive_folder_id:
-                        ok = upload_to_drive(drive_service, extracted, drive_folder_id)
-                        extracted.unlink()
-                        if not ok:
-                            all_ok = False
-            local_path.unlink()
-            return all_ok
+            # 토큰 갱신
+            creds = get_drive_credentials()
+            token = creds.token
+
+            # 파일 크기 확인
+            head = dl_session.head(download_url, timeout=15, headers={"Referer": BASE_URL})
+            total_size = int(head.headers.get("Content-Length", 0))
+
+            # Drive resumable upload 세션 시작
+            init = requests.post(
+                "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json; charset=UTF-8",
+                    "X-Upload-Content-Type": "application/octet-stream",
+                    "X-Upload-Content-Length": str(total_size),
+                },
+                json={"name": filename, "parents": [parent_id]},
+                timeout=30,
+            )
+            init.raise_for_status()
+            upload_url = init.headers["Location"]
+
+            # 다운로드 스트림 → Drive 청크 업로드
+            dl = dl_session.get(download_url, stream=True, timeout=(15, None),
+                                headers={"Referer": BASE_URL})
+            dl.raise_for_status()
+
+            uploaded = 0
+            buf = b""
+
+            with tqdm(total=total_size, unit="B", unit_scale=True,
+                      desc=filename[:40], leave=False, dynamic_ncols=True) as bar:
+                for chunk in dl.iter_content(STREAM_CHUNK):
+                    if not chunk:
+                        continue
+                    buf += chunk
+                    bar.update(len(chunk))
+
+                    while len(buf) >= STREAM_CHUNK:
+                        data, buf = buf[:STREAM_CHUNK], buf[STREAM_CHUNK:]
+                        end = uploaded + len(data) - 1
+                        put = requests.put(
+                            upload_url,
+                            headers={
+                                "Authorization": f"Bearer {token}",
+                                "Content-Range": f"bytes {uploaded}-{end}/{total_size}",
+                                "Content-Length": str(len(data)),
+                            },
+                            data=data, timeout=300,
+                        )
+                        if put.status_code not in (200, 201, 308):
+                            raise Exception(f"Drive PUT {put.status_code}: {put.text[:100]}")
+                        uploaded += len(data)
+
+                # 남은 버퍼 전송
+                if buf:
+                    end = uploaded + len(buf) - 1
+                    final_size = total_size or (uploaded + len(buf))
+                    put = requests.put(
+                        upload_url,
+                        headers={
+                            "Authorization": f"Bearer {token}",
+                            "Content-Range": f"bytes {uploaded}-{end}/{final_size}",
+                            "Content-Length": str(len(buf)),
+                        },
+                        data=buf, timeout=300,
+                    )
+                    if put.status_code not in (200, 201):
+                        raise Exception(f"Drive 최종 PUT {put.status_code}")
+                    uploaded += len(buf)
+
+            log.info(f"  Drive 업로드 완료: {filename} ({uploaded/1024**2:.1f} MB)")
+            return True
+
         except Exception as e:
-            log.error(f"  zip 처리 실패: {local_path.name} — {e}")
-            return False
-    else:
-        if drive_service and drive_folder_id:
-            ok = upload_to_drive(drive_service, local_path, drive_folder_id)
-            if ok:
-                local_path.unlink()
-            return ok
-        return True
+            log.warning(f"  스트리밍 업로드 실패 ({attempt}/{MAX_RETRIES}): {filename} — {e}")
+            if attempt < MAX_RETRIES:
+                time.sleep(2 * attempt)
+
+    return False
 
 
 # ── 에셋 단위 처리 (스레드 워커) ─────────────────────────────
-def process_asset(asset: dict, cat_dir: Path, drive_folder_id: str,
+def process_asset(asset: dict, drive_folder_id: str,
                   progress: dict, already_done: set) -> str:
     """반환값: 'success' | 'fail' | 'skip'"""
     key = f"{asset['bo_table']}/{asset['wr_id']}"
     category_name = CATEGORIES[asset["bo_table"]]
 
-    session = make_session()  # 스레드마다 독립 세션
-
-    # 스레드마다 독립 Drive service → 다운로드 즉시 업로드해 로컬 임시 파일 최소화
-    drive_service = None
-    if os.path.exists(CREDENTIALS_FILE):
-        try:
-            drive_service = get_drive_service()
-        except Exception:
-            pass
-
+    session = make_session()
     time.sleep(DELAY_BETWEEN_REQUESTS)
 
     download_urls = get_download_urls(session, asset)
@@ -365,24 +369,31 @@ def process_asset(asset: dict, cat_dir: Path, drive_folder_id: str,
             save_progress(progress)
         return "skip"
 
-    all_ok = True
-    failed_reasons = []
+    # Drive 서비스 (스레드마다 독립)
+    drive_service = None
+    if os.path.exists(CREDENTIALS_FILE):
+        try:
+            drive_service = get_drive_service()
+        except Exception as e:
+            log.warning(f"  Drive 인증 실패: {e}")
 
+    all_ok = True
     for file_url in download_urls:
         filename = filename_from_url(file_url)
-        dest = cat_dir / filename
 
-        if not dest.exists():
-            time.sleep(DELAY_BETWEEN_REQUESTS)
-            ok = download_file(session, file_url, dest)
-            if not ok:
-                failed_reasons.append(f"다운로드 실패: {filename}")
-                all_ok = False
+        if drive_service and drive_folder_id:
+            # Drive에 이미 있으면 건너뜀
+            if file_exists_on_drive(drive_service, filename, drive_folder_id):
+                log.info(f"  이미 Drive에 있음: {filename}")
                 continue
+            # 로컬 저장 없이 Drive에 직접 스트리밍 업로드
+            ok = stream_to_drive(session, file_url, filename, drive_folder_id)
+        else:
+            log.warning(f"  Drive 없음 — 건너뜀: {filename}")
+            ok = False
 
-        ok = process_file(dest, drive_service, drive_folder_id)
         if not ok:
-            failed_reasons.append(f"업로드 실패: {filename}")
+            log.error(f"  업로드 실패: {filename}")
             all_ok = False
 
     with _progress_lock:
@@ -392,8 +403,6 @@ def process_asset(asset: dict, cat_dir: Path, drive_folder_id: str,
         else:
             if key not in progress["failed"]:
                 progress["failed"].append(key)
-            for r in failed_reasons:
-                log.error(f"  [{category_name}] {asset['title']} — {r}")
         save_progress(progress)
 
     return "success" if all_ok else "fail"
@@ -403,28 +412,27 @@ def process_asset(asset: dict, cat_dir: Path, drive_folder_id: str,
 def main(test_mode=False, test_limit=3):
     log.info("=" * 60)
     log.info("문화재관광부 메타버스데이터랩 FBX 다운로더 시작")
-    log.info(f"다운로드 폴더: {DOWNLOAD_DIR.resolve()}")
     log.info(f"병렬 워커: {WORKERS}개 / 요청 딜레이: {DELAY_BETWEEN_REQUESTS}s")
     log.info(f"Google Drive 폴더 ID: {DRIVE_FOLDER_ID}")
+    log.info("로컬 저장 없이 Drive에 직접 스트리밍 업로드")
     if test_mode:
         log.info(f"[테스트 모드] buildings 카테고리 {test_limit}개만 처리")
     log.info("=" * 60)
 
-    DOWNLOAD_DIR.mkdir(exist_ok=True)
     progress = load_progress()
     already_done = set(progress["downloaded"])
 
+    # Drive 연결 확인 (1회, 폴더 생성용)
     drive_service = None
     if os.path.exists(CREDENTIALS_FILE):
         try:
             drive_service = get_drive_service()
             log.info("Google Drive 인증 성공")
         except Exception as e:
-            log.warning(f"Google Drive 인증 실패: {e} — 로컬 저장만 진행")
+            log.warning(f"Google Drive 인증 실패: {e}")
     else:
         log.warning("credentials.json 없음 → Drive 업로드 비활성화")
 
-    # 목록 수집용 단일 세션 (페이지네이션은 순차 처리)
     list_session = make_session()
     log.info("HTTP 세션 준비 완료")
 
@@ -453,12 +461,7 @@ def main(test_mode=False, test_limit=3):
 
         if test_mode:
             assets = assets[:test_limit]
-            log.info(f"[테스트] {len(assets)}개만 처리")
 
-        cat_dir = DOWNLOAD_DIR / category_name
-        cat_dir.mkdir(exist_ok=True)
-
-        # 이미 완료된 에셋 건너뜀
         pending = []
         for asset in assets:
             key = f"{bo_table}/{asset['wr_id']}"
@@ -472,8 +475,7 @@ def main(test_mode=False, test_limit=3):
         with ThreadPoolExecutor(max_workers=WORKERS) as executor:
             futures = {
                 executor.submit(
-                    process_asset, asset, cat_dir, drive_folder_id,
-                    progress, already_done
+                    process_asset, asset, drive_folder_id, progress, already_done
                 ): asset
                 for asset in pending
             }
@@ -491,7 +493,7 @@ def main(test_mode=False, test_limit=3):
                     stats[bo_table]["fail"] += 1
 
     log.info("\n" + "=" * 60)
-    log.info("다운로드 완료 보고")
+    log.info("완료 보고")
     log.info("=" * 60)
     total_success = total_fail = total_skip = 0
     for bo_table in categories_to_process:
