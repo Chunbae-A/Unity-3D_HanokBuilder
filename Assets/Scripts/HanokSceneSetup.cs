@@ -39,14 +39,6 @@ public static class HanokSceneSetup
     public static void Setup()
     {
         CreateOuterGround();
-        CreateStonePlatform();
-        CreateFloor();
-        CreateCourtyard();
-        CreateBoundaryWalls();
-        CreateBroadGroves();
-        CreateMainHanok();
-        CreateDistantBuildings();
-        CreateMountainSilhouettes();
         SetupSkybox();
         SetupLighting();
         SetupCamera();
