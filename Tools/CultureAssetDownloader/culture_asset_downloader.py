@@ -4,6 +4,7 @@ import json
 import time
 import re
 import logging
+import zipfile
 import requests
 from pathlib import Path
 from urllib.parse import urlparse
@@ -324,6 +325,42 @@ def upload_to_drive(service, local_path: Path, parent_id: str) -> bool:
         return False
 
 
+def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
+    """다운로드된 파일 처리:
+    - zip이면 압축 해제 후 내부 파일을 Drive 업로드
+    - 그 외엔 그대로 Drive 업로드
+    - Drive 업로드 성공 시 로컬 파일 삭제 (로컬 디스크 절약)
+    - Drive 없으면 로컬에만 보관
+    """
+    if local_path.suffix.lower() == ".zip":
+        try:
+            with zipfile.ZipFile(local_path) as zf:
+                members = [m for m in zf.infolist() if not m.filename.endswith("/")]
+                log.info(f"  zip 압축 해제: {local_path.name} ({len(members)}개 파일)")
+                all_ok = True
+                for member in members:
+                    extracted = local_path.parent / Path(member.filename).name
+                    with zf.open(member) as src, open(extracted, "wb") as dst:
+                        dst.write(src.read())
+                    if drive_service and drive_folder_id:
+                        ok = upload_to_drive(drive_service, extracted, drive_folder_id)
+                        extracted.unlink()
+                        if not ok:
+                            all_ok = False
+            local_path.unlink()
+            return all_ok
+        except Exception as e:
+            log.error(f"  zip 처리 실패: {local_path.name} — {e}")
+            return False
+    else:
+        if drive_service and drive_folder_id:
+            ok = upload_to_drive(drive_service, local_path, drive_folder_id)
+            if ok:
+                local_path.unlink()
+            return ok
+        return True
+
+
 # ── 메인 실행 ─────────────────────────────────────────────────
 def main(test_mode=False, test_limit=3):
     log.info("=" * 60)
@@ -409,24 +446,23 @@ def main(test_mode=False, test_limit=3):
                 continue
 
             all_ok = True
-            for fbx_url in download_urls:
-                filename = filename_from_url(fbx_url)
+            for file_url in download_urls:
+                filename = filename_from_url(file_url)
                 dest = cat_dir / filename
 
-                if dest.exists():
-                    log.info(f"  파일 이미 존재: {filename}")
-                else:
+                if not dest.exists():
                     time.sleep(DELAY_BETWEEN_REQUESTS)
-                    ok = download_file(session, fbx_url, dest)
+                    ok = download_file(session, file_url, dest)
                     if not ok:
                         log.error(f"  다운로드 최종 실패: {filename}")
                         all_failed.append({"key": key, "title": asset["title"],
-                                           "reason": f"다운로드 실패: {fbx_url}"})
+                                           "reason": f"다운로드 실패: {file_url}"})
                         all_ok = False
                         continue
 
-                if drive_service and drive_folder_id and dest.exists():
-                    upload_to_drive(drive_service, dest, drive_folder_id)
+                ok = process_file(dest, drive_service, drive_folder_id)
+                if not ok:
+                    all_ok = False
 
             if all_ok:
                 progress["downloaded"].append(key)
