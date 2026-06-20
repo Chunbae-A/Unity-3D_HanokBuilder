@@ -18,6 +18,16 @@
 
 # Unity Editor crash/asset recovery data (auto-generated, not project content)
 /Assets/_Recovery/
+
+# CultureAssetDownloader - 민감 파일 및 런타임 생성 파일
+Tools/CultureAssetDownloader/credentials.json
+Tools/CultureAssetDownloader/client_secret*.json
+Tools/CultureAssetDownloader/token.json
+Tools/CultureAssetDownloader/download_progress.json
+Tools/CultureAssetDownloader/download_progress.tmp
+Tools/CultureAssetDownloader/downloaded_fbx/
+Tools/CultureAssetDownloader/logs/
+Tools/CultureAssetDownloader/__pycache__/
 /Assets/_Recovery.meta
 
 # CultureMetaverse 대용량 에셋 — Google Drive 별도 관리
