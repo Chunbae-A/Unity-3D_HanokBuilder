@@ -13,7 +13,6 @@
 | `building` | 건축물부품형 | 한국 전통 건축물 부품(기와, 기둥 등) 에셋 |
 | `digitalhuman` | 디지털휴먼 | 한국 전통 복식 디지털 휴먼 캐릭터 |
 | `object` | 공간소품 | 전통 공간 소품 3D 오브젝트 |
-| `materials` | 스마트머터리얼 | PBR 스마트 머터리얼 |
 
 ---
 
@@ -95,6 +94,48 @@ python culture_asset_downloader.py
 ```
 
 다운로드 파일은 `./downloaded_fbx/{카테고리명}/` 에 저장됩니다.
+
+---
+
+## 백그라운드 실행 방법
+
+파일 크기가 수 GB이므로 시간이 오래 걸립니다. 터미널을 닫아도 계속 실행되게 하려면 아래 방법을 사용하세요.
+
+### 방법 1 — 터미널 그냥 켜두기 (제일 간단)
+
+```bash
+python culture_asset_downloader.py
+```
+
+창을 닫지 않고 두면 됩니다. 중간에 끊겨도 `download_progress.json`으로 자동 이어받기됩니다.
+
+### 방법 2 — 창 없이 조용히 실행 (Windows)
+
+```powershell
+pythonw culture_asset_downloader.py
+```
+
+콘솔 창 없이 백그라운드로 실행됩니다. 로그는 `downloader.log`에서 확인하세요.
+
+```powershell
+# 진행 상황 실시간 확인
+Get-Content downloader.log -Wait -Tail 20
+
+# 종료할 때
+Get-Process python | Stop-Process
+```
+
+### 방법 3 — 창 없이 조용히 실행 (macOS / Linux)
+
+```bash
+nohup python culture_asset_downloader.py &
+
+# 로그 실시간 확인
+tail -f downloader.log
+
+# 종료할 때
+kill $(pgrep -f culture_asset_downloader.py)
+```
 
 ---
 
