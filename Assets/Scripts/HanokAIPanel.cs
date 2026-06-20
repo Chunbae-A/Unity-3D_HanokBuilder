@@ -19,6 +19,9 @@ public partial class HanokUIManager
     RectTransform _aiResultsPanelRT;
     bool          _aiRequestInProgress;
     string        _aiCatalog;
+    bool            _assemblyMode;
+    Image           _assemblyBtnImg;
+    TextMeshProUGUI _assemblyBtnLabel;
     static Sprite _aiCircleSprite;
     static Sprite _aiTriangleSprite;
     const int   AI_AUTO_PLACE_MIN     = 3;
@@ -54,6 +57,22 @@ public partial class HanokUIManager
         hlg.spacing = 8; hlg.padding = new RectOffset(8, 8, 8, 8);
         hlg.childForceExpandWidth = false; hlg.childForceExpandHeight = true;
         hlg.childAlignment = TextAnchor.MiddleCenter;
+
+        // 조립 모드 토글 버튼
+        var asmGO = new GameObject("AssemblyToggle");
+        asmGO.transform.SetParent(barRT, false);
+        asmGO.AddComponent<LayoutElement>().preferredWidth = 44;
+        _assemblyBtnImg = asmGO.AddComponent<Image>();
+        _assemblyBtnImg.sprite = RoundedRectSprite(8f);
+        _assemblyBtnImg.type   = Image.Type.Sliced;
+        _assemblyBtnImg.color  = BTN_GHOST;
+        var asmBtn = asmGO.AddComponent<Button>();
+        asmBtn.targetGraphic = _assemblyBtnImg;
+        asmBtn.onClick.AddListener(OnAssemblyToggle);
+        _assemblyBtnLabel = (TextMeshProUGUI)MakeLabel(asmGO.transform, "조립", 10, TEXT_MAIN, bold: false);
+        var asmLblRT = _assemblyBtnLabel.GetComponent<RectTransform>();
+        asmLblRT.anchorMin = Vector2.zero; asmLblRT.anchorMax = Vector2.one;
+        asmLblRT.offsetMin = asmLblRT.offsetMax = Vector2.zero;
 
         _aiInputField = MakeAIInputField(barRT);
         _aiInputField.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
@@ -389,14 +408,234 @@ public partial class HanokUIManager
 
         _aiRequestInProgress = true;
         _aiInputField.interactable = false;
-        ShowAIMessage("AI에게 묻는 중...");
-        StartCoroutine(RequestAIRecommendations(prompt));
+
+        if (_assemblyMode)
+        {
+            ShowAIMessage("한옥 조립 중...");
+            StartCoroutine(RequestAIAssembly(prompt));
+        }
+        else
+        {
+            ShowAIMessage("AI에게 묻는 중...");
+            StartCoroutine(RequestAIRecommendations(prompt));
+        }
     }
 
     void EndAIRequest()
     {
         _aiRequestInProgress = false;
         if (_aiInputField != null) _aiInputField.interactable = true;
+    }
+
+    void OnAssemblyToggle()
+    {
+        _assemblyMode = !_assemblyMode;
+        if (_assemblyBtnImg  != null) _assemblyBtnImg.color  = _assemblyMode ? BTN_ACTIVE : BTN_GHOST;
+        if (_assemblyBtnLabel != null) _assemblyBtnLabel.color = _assemblyMode ? TEXT_ON_ACCENT : TEXT_MAIN;
+    }
+
+    // ── 조립 모드: JSON Schema ─────────────────────────────────
+    const string ASSEMBLY_SCHEMA =
+        "{\"type\":\"object\",\"properties\":{" +
+        "\"kanX\":{\"type\":\"integer\"}," +
+        "\"kanZ\":{\"type\":\"integer\"}," +
+        "\"x\":{\"type\":\"number\"}," +
+        "\"z\":{\"type\":\"number\"}," +
+        "\"rotY\":{\"type\":\"number\"}" +
+        "},\"required\":[\"kanX\",\"kanZ\",\"x\",\"z\",\"rotY\"]," +
+        "\"additionalProperties\":false}";
+
+    // ── 조립 모드: Claude API 호출 ────────────────────────────
+    IEnumerator RequestAIAssembly(string userPrompt)
+    {
+        var config = Resources.Load<ClaudeApiConfig>("ClaudeApiConfig");
+        if (config == null || string.IsNullOrEmpty(config.apiKey))
+        {
+            ShowAIMessage("조립 기능은 Claude API 키가 필요합니다.");
+            EndAIRequest();
+            yield break;
+        }
+
+        string instruction =
+            "너는 한국 전통 건축 조립 AI야. 사용자 요청을 분석해 건물 규격 JSON을 반환해.\n\n" +
+            "- kanX: 좌우 칸 수 1~5 (1칸=3.3m, 긴 복도=4~5, 작은 정자=1~2)\n" +
+            "- kanZ: 전후 칸 수 1~3 (일자형=1, 넓은 건물=2~3)\n" +
+            "- x, z: 씬 중심 좌표 -18~18\n" +
+            "- rotY: 회전 (남향=0, 동향=90, 서향=270)\n\n" +
+            "사용자 요청: " + userPrompt;
+
+        var reqBody = new ClaudeRequest
+        {
+            model    = config.model,
+            max_tokens = 256,
+            messages = new[] { new ClaudeMessage { role = "user", content = instruction } }
+        };
+
+        string baseJson = JsonUtility.ToJson(reqBody);
+        string bodyJson = baseJson[..^1] +
+            ",\"output_config\":{\"format\":{\"type\":\"json_schema\",\"schema\":" + ASSEMBLY_SCHEMA + "}}}";
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJson);
+
+        using var www = new UnityWebRequest("https://api.anthropic.com/v1/messages", "POST");
+        www.uploadHandler   = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+        www.SetRequestHeader("content-type",       "application/json");
+        www.SetRequestHeader("x-api-key",           config.apiKey);
+        www.SetRequestHeader("anthropic-version",  "2023-06-01");
+
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            ShowAIMessage($"요청 실패 ({www.responseCode}): {www.error}");
+            EndAIRequest();
+            yield break;
+        }
+
+        ClaudeResponse response = null;
+        try { response = JsonUtility.FromJson<ClaudeResponse>(www.downloadHandler.text); }
+        catch (System.Exception e) { Debug.LogError($"[HanokAI] 응답 파싱 실패: {e.Message}"); }
+
+        if (response == null || response.content == null || response.content.Length == 0)
+        {
+            ShowAIMessage("AI 응답을 해석하지 못했습니다.");
+            EndAIRequest();
+            yield break;
+        }
+
+        AssemblySpec spec = null;
+        try { spec = JsonUtility.FromJson<AssemblySpec>(response.content[0].text); }
+        catch (System.Exception e) { Debug.LogError($"[HanokAI] 조립 스펙 파싱 실패: {e.Message}"); }
+
+        if (spec == null)
+        {
+            ShowAIMessage("조립 계획을 해석하지 못했습니다.");
+            EndAIRequest();
+            yield break;
+        }
+
+        AssembleBuilding(spec);
+        ShowToast($"AI가 {spec.kanX}×{spec.kanZ}칸 한옥을 조립했습니다.");
+        EndAIRequest();
+    }
+
+    // ── 한옥 조립 상수 (HanokPartsData.txt 실측값 기반) ───────
+    const float KAN    = 3.3f;
+    const float EAVE   = 1.2f;
+    const float COL_H  = 4.979f; // SM_P_Wood_1 높이, pivot=바닥
+    const float BEAM_Y = COL_H;  // 보: 기둥 꼭대기에 center pivot 걸침
+    const float ROOF_Y = COL_H + 0.4f;
+
+    const string P_PILLAR = "SM_P_Wood_1";
+    const string P_BEAM   = "SM_R_Beam_34";
+    const string P_WALL   = "SM_W_Wood_1";
+    const string P_FLOOR  = "SM_F_Wood_1";
+    const string P_ROOF   = "SM_Roof_48";
+
+    void AssembleBuilding(AssemblySpec spec)
+    {
+        int   kanX = Mathf.Clamp(spec.kanX, 1, 5);
+        int   kanZ = Mathf.Clamp(spec.kanZ, 1, 3);
+        float cx   = Mathf.Clamp(spec.x,   -18f, 18f);
+        float cz   = Mathf.Clamp(spec.z,   -18f, 18f);
+        float hw   = kanX * KAN * 0.5f;
+        float hd   = kanZ * KAN * 0.5f;
+
+        var root = new GameObject($"_Hanok_{kanX}x{kanZ}");
+        root.transform.position    = new Vector3(cx, 0f, cz);
+        root.transform.eulerAngles = new Vector3(0f, spec.rotY, 0f);
+
+        // 1. 기둥 — (kanX+1)×(kanZ+1) 격자
+        var pillarE = HanokEntry(P_PILLAR);
+        if (pillarE != null)
+            for (int xi = 0; xi <= kanX; xi++)
+            for (int zi = 0; zi <= kanZ; zi++)
+                PlaceLocal(pillarE, root, new Vector3(-hw + xi*KAN, 0f, -hd + zi*KAN));
+
+        // 2. 보(X방향) + 도리(Z방향, 90° 회전)
+        var beamE = HanokEntry(P_BEAM);
+        if (beamE != null)
+        {
+            for (int zi = 0; zi <= kanZ; zi++)
+            for (int xi = 0; xi < kanX; xi++)
+                PlaceLocal(beamE, root,
+                    new Vector3(-hw + xi*KAN + KAN*0.5f, BEAM_Y, -hd + zi*KAN));
+            for (int xi = 0; xi <= kanX; xi++)
+            for (int zi = 0; zi < kanZ; zi++)
+                PlaceLocal(beamE, root,
+                    new Vector3(-hw + xi*KAN, BEAM_Y, -hd + zi*KAN + KAN*0.5f), rotY: 90f);
+        }
+
+        // 3. 벽체 — 전/후면 90°, 좌/우면 0°
+        var wallE = HanokEntry(P_WALL);
+        if (wallE != null)
+        {
+            for (int xi = 0; xi < kanX; xi++)
+            {
+                float wx = -hw + xi*KAN + KAN*0.5f;
+                PlaceLocal(wallE, root, new Vector3(wx, 0f, -hd), rotY: 90f);
+                PlaceLocal(wallE, root, new Vector3(wx, 0f, +hd), rotY: 90f);
+            }
+            for (int zi = 0; zi < kanZ; zi++)
+            {
+                float wz = -hd + zi*KAN + KAN*0.5f;
+                PlaceLocal(wallE, root, new Vector3(-hw, 0f, wz));
+                PlaceLocal(wallE, root, new Vector3(+hw, 0f, wz));
+            }
+        }
+
+        // 4. 마루 — 1.685×3.068m 타일, pivot=꼭대기
+        var floorE = HanokEntry(P_FLOOR);
+        if (floorE != null)
+        {
+            const float fw = 1.685f, fd = 3.068f;
+            int nx = Mathf.CeilToInt(kanX * KAN / fw);
+            int nz = Mathf.CeilToInt(kanZ * KAN / fd);
+            for (int xi = 0; xi < nx; xi++)
+            for (int zi = 0; zi < nz; zi++)
+                PlaceLocal(floorE, root,
+                    new Vector3(-hw + fw*0.5f + xi*fw, 0f, -hd + fd*0.5f + zi*fd));
+        }
+
+        // 5. 지붕 — 2.179×3.303m 타일, 처마 포함
+        var roofE = HanokEntry(P_ROOF);
+        if (roofE != null)
+        {
+            const float rw = 2.179f, rd = 3.303f;
+            int nx = Mathf.CeilToInt((kanX * KAN + EAVE * 2f) / rw);
+            int nz = Mathf.CeilToInt((kanZ * KAN + EAVE * 2f) / rd);
+            float sx = -(nx * rw) * 0.5f + rw * 0.5f;
+            float sz = -(nz * rd) * 0.5f + rd * 0.5f;
+            for (int xi = 0; xi < nx; xi++)
+            for (int zi = 0; zi < nz; zi++)
+                PlaceLocal(roofE, root,
+                    new Vector3(sx + xi*rw, ROOF_Y, sz + zi*rd));
+        }
+
+        PushUndoSpawn(root);
+        SelectObject(root);
+    }
+
+    HanokAssetEntry HanokEntry(string prefabName) =>
+        _assetEntries.Find(e => e.prefab.name == prefabName);
+
+    static void PlaceLocal(HanokAssetEntry entry, GameObject parent,
+                           Vector3 localPos, float rotY = 0f)
+    {
+        var obj = Object.Instantiate(entry.prefab, parent.transform);
+        obj.name = entry.prefab.name;
+        obj.transform.localPosition    = localPos;
+        obj.transform.localEulerAngles = new Vector3(0f, rotY, 0f);
+    }
+
+    [System.Serializable]
+    class AssemblySpec
+    {
+        public int   kanX;
+        public int   kanZ;
+        public float x;
+        public float z;
+        public float rotY;
     }
 
     // ── 카탈로그 (assetKey|displayName|tags,...) 1회 생성 후 캐싱 ──

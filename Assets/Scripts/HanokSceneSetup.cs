@@ -72,23 +72,17 @@ public static class HanokSceneSetup
     static void Preset_HanokMadang()
     {
         CreateCourtyard();
-        CreateBoundaryWalls();
         CreateBroadGroves();
-        CreateDistantBuildings();
-        CreateMainHanok();
     }
 
     static void Preset_Sarangchae()
     {
-        CreateSarangchaeRoom();
         CreateLightTrees();
     }
 
     static void Preset_Jangter()
     {
-        CreateMarketStalls();
         CreatePineGroves();
-        CreateDistantBuildings();
     }
 
     static void Preset_Garden()
