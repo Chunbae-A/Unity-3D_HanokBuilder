@@ -5,11 +5,13 @@ import time
 import re
 import logging
 import zipfile
+import threading
 import requests
 from pathlib import Path
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ── CONFIG ────────────────────────────────────────────────────
 BASE_URL = "https://www.culture.go.kr/datametaverse"
@@ -24,7 +26,6 @@ CATEGORIES = {
     # "materials":  "스마트머터리얼",  # 제외
 }
 
-# 스크립트 파일 위치 기준 — 어느 디렉토리에서 실행해도 항상 동일한 위치 사용
 _SCRIPT_DIR = Path(__file__).parent
 
 DOWNLOAD_DIR     = _SCRIPT_DIR / "downloaded_fbx"
@@ -33,16 +34,15 @@ DRIVE_FOLDER_ID  = "1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9"
 CREDENTIALS_FILE = str(_SCRIPT_DIR / "credentials.json")
 TOKEN_FILE       = str(_SCRIPT_DIR / "token.json")
 
-DELAY_BETWEEN_REQUESTS = 1.5
+WORKERS                = 5    # 동시 처리 에셋 수
+DELAY_BETWEEN_REQUESTS = 0.5  # 스레드당 요청 간격(s)
 MAX_RETRIES            = 3
 
 EXCLUDE_KEYWORD = "언리얼엔진"
 
-# 다운로드 대상 아이콘
-# y_view_icon2.png = 유니티 패키지 (.unitypackage)
-# y_view_icon3.png = FBX (건축물: .fbx, 전통문양: _set.zip)
+# y_view_icon2.png = 유니티 패키지, y_view_icon3.png = FBX
 DOWNLOAD_ICONS = {"y_view_icon2.png", "y_view_icon3.png"}
-# ────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
 
 logging.basicConfig(
     level=logging.INFO,
@@ -54,6 +54,10 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
+# 공유 자원 보호 Lock
+_progress_lock = threading.Lock()
+_drive_lock    = threading.Lock()
+
 
 # ── 헬퍼 ──────────────────────────────────────────────────────
 def to_absolute_url(href: str) -> str:
@@ -61,7 +65,6 @@ def to_absolute_url(href: str) -> str:
 
 
 def filename_from_url(url: str) -> str:
-    """URL에서 쿼리스트링을 제거한 순수 파일명 반환"""
     return Path(urlparse(url).path).name
 
 
@@ -89,7 +92,6 @@ def safe_get(session: requests.Session, url: str, referer: str = None) -> reques
         try:
             resp = session.get(url, headers=headers, timeout=20)
             resp.raise_for_status()
-            # [Fix 1] 사이트가 charset 없이 응답할 때 requests가 ISO-8859-1로 오추론하는 것 방지
             resp.encoding = "utf-8"
             return resp
         except Exception as e:
@@ -147,7 +149,7 @@ def collect_all_assets(session: requests.Session, bo_table: str) -> list[dict]:
 
     while True:
         url = f"{BBS_URL}?bo_table={bo_table}&page={page}"
-        log.info(f"[{category_name}] 목록 {page}페이지 수집: {url}")
+        log.info(f"[{category_name}] 목록 {page}페이지 수집")
 
         resp = safe_get(session, url, referer=f"{BASE_URL}/")
         if not resp:
@@ -162,7 +164,7 @@ def collect_all_assets(session: requests.Session, bo_table: str) -> list[dict]:
             break
 
         all_assets.extend(assets)
-        log.info(f"  {page}페이지에서 {len(assets)}개 수집 (누적: {len(all_assets)}개)")
+        log.info(f"  {page}페이지 {len(assets)}개 수집 (누적: {len(all_assets)}개)")
 
         if page >= get_total_pages(soup):
             break
@@ -175,10 +177,7 @@ def collect_all_assets(session: requests.Session, bo_table: str) -> list[dict]:
 
 # ── 상세 페이지 파싱 ──────────────────────────────────────────
 def get_download_urls(session: requests.Session, asset: dict) -> list[str]:
-    """유니티 패키지(icon2) + FBX(icon3) 다운로드 URL 반환
-    - y_view_icon2.png: .unitypackage
-    - y_view_icon3.png: .fbx 또는 _set.zip (전통문양)
-    """
+    """유니티 패키지(icon2) + FBX(icon3) URL 반환"""
     url = f"{BBS_URL}?bo_table={asset['bo_table']}&wr_id={asset['wr_id']}"
     resp = safe_get(session, url, referer=asset["list_url"])
     if not resp:
@@ -186,17 +185,14 @@ def get_download_urls(session: requests.Session, asset: dict) -> list[str]:
 
     soup = BeautifulSoup(resp.text, "html.parser")
     urls = []
-
     for btn in soup.select("li.downloadBtn a[download]"):
         href = btn.get("href", "")
         if not href:
             continue
         img = btn.find("img")
         icon_name = img.get("src", "").split("/")[-1] if img else ""
-
         if icon_name in DOWNLOAD_ICONS:
             urls.append(to_absolute_url(href))
-
     return urls
 
 
@@ -204,7 +200,6 @@ def get_download_urls(session: requests.Session, asset: dict) -> list[str]:
 def download_file(session: requests.Session, url: str, dest_path: Path) -> bool:
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            # [Fix 2] timeout 튜플: 연결 15s, 읽기 무제한 (수 GB 파일 중간에 끊기지 않게)
             resp = session.get(url, stream=True, timeout=(15, None),
                                headers={"Referer": BASE_URL})
             resp.raise_for_status()
@@ -213,7 +208,7 @@ def download_file(session: requests.Session, url: str, dest_path: Path) -> bool:
 
             with open(dest_path, "wb") as f, tqdm(
                 total=total, unit="B", unit_scale=True,
-                desc=dest_path.name, leave=False
+                desc=dest_path.name[:40], leave=False, dynamic_ncols=True,
             ) as bar:
                 for chunk in resp.iter_content(chunk_size=65536):
                     if chunk:
@@ -223,7 +218,7 @@ def download_file(session: requests.Session, url: str, dest_path: Path) -> bool:
             size = dest_path.stat().st_size
             if size == 0:
                 dest_path.unlink()
-                raise ValueError("다운로드된 파일 크기가 0")
+                raise ValueError("파일 크기 0")
 
             log.info(f"  다운로드 완료: {dest_path.name} ({size/1024/1024:.1f} MB)")
             return True
@@ -245,7 +240,6 @@ def load_progress() -> dict:
         try:
             with open(PROGRESS_FILE, encoding="utf-8") as f:
                 data = json.load(f)
-            # 기존 파일에 skipped 키 없을 경우 보완
             for k, v in default.items():
                 data.setdefault(k, v)
             return data
@@ -255,14 +249,13 @@ def load_progress() -> dict:
 
 
 def save_progress(progress: dict):
-    # [Fix 4] 원자적 쓰기: 임시 파일에 먼저 쓰고 rename
     tmp = PROGRESS_FILE.with_suffix(".tmp")
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(progress, f, ensure_ascii=False, indent=2)
     tmp.replace(PROGRESS_FILE)
 
 
-# ── Google Drive 업로드 ───────────────────────────────────────
+# ── Google Drive ──────────────────────────────────────────────
 def get_drive_service():
     from google.oauth2.credentials import Credentials
     from google_auth_oauthlib.flow import InstalledAppFlow
@@ -271,10 +264,8 @@ def get_drive_service():
 
     SCOPES = ["https://www.googleapis.com/auth/drive"]
     creds = None
-
     if os.path.exists(TOKEN_FILE):
         creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
-
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -283,7 +274,6 @@ def get_drive_service():
             creds = flow.run_local_server(port=0)
         with open(TOKEN_FILE, "w") as token:
             token.write(creds.to_json())
-
     return build("drive", "v3", credentials=creds)
 
 
@@ -292,18 +282,11 @@ def get_or_create_folder(service, name: str, parent_id: str) -> str:
         f"name='{name}' and mimeType='application/vnd.google-apps.folder' "
         f"and '{parent_id}' in parents and trashed=false"
     )
-    results = service.files().list(q=query, fields="files(id,name)").execute()
-    items = results.get("files", [])
+    items = service.files().list(q=query, fields="files(id)").execute().get("files", [])
     if items:
         return items[0]["id"]
-
-    metadata = {
-        "name": name,
-        "mimeType": "application/vnd.google-apps.folder",
-        "parents": [parent_id],
-    }
-    folder = service.files().create(body=metadata, fields="id").execute()
-    return folder["id"]
+    meta = {"name": name, "mimeType": "application/vnd.google-apps.folder", "parents": [parent_id]}
+    return service.files().create(body=meta, fields="id").execute()["id"]
 
 
 def upload_to_drive(service, local_path: Path, parent_id: str) -> bool:
@@ -313,7 +296,6 @@ def upload_to_drive(service, local_path: Path, parent_id: str) -> bool:
     if service.files().list(q=query, fields="files(id)").execute().get("files"):
         log.info(f"  이미 업로드됨: {local_path.name}")
         return True
-
     try:
         media = MediaFileUpload(str(local_path), resumable=True)
         meta = {"name": local_path.name, "parents": [parent_id]}
@@ -326,12 +308,7 @@ def upload_to_drive(service, local_path: Path, parent_id: str) -> bool:
 
 
 def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
-    """다운로드된 파일 처리:
-    - zip이면 압축 해제 후 내부 파일을 Drive 업로드
-    - 그 외엔 그대로 Drive 업로드
-    - Drive 업로드 성공 시 로컬 파일 삭제 (로컬 디스크 절약)
-    - Drive 없으면 로컬에만 보관
-    """
+    """zip이면 압축 해제 후 Drive 업로드, 그 외 직접 업로드. 성공 시 로컬 삭제."""
     if local_path.suffix.lower() == ".zip":
         try:
             with zipfile.ZipFile(local_path) as zf:
@@ -343,7 +320,8 @@ def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
                     with zf.open(member) as src, open(extracted, "wb") as dst:
                         dst.write(src.read())
                     if drive_service and drive_folder_id:
-                        ok = upload_to_drive(drive_service, extracted, drive_folder_id)
+                        with _drive_lock:
+                            ok = upload_to_drive(drive_service, extracted, drive_folder_id)
                         extracted.unlink()
                         if not ok:
                             all_ok = False
@@ -354,11 +332,65 @@ def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
             return False
     else:
         if drive_service and drive_folder_id:
-            ok = upload_to_drive(drive_service, local_path, drive_folder_id)
+            with _drive_lock:
+                ok = upload_to_drive(drive_service, local_path, drive_folder_id)
             if ok:
                 local_path.unlink()
             return ok
         return True
+
+
+# ── 에셋 단위 처리 (스레드 워커) ─────────────────────────────
+def process_asset(asset: dict, cat_dir: Path, drive_service, drive_folder_id: str,
+                  progress: dict, already_done: set) -> str:
+    """반환값: 'success' | 'fail' | 'skip'"""
+    key = f"{asset['bo_table']}/{asset['wr_id']}"
+    category_name = CATEGORIES[asset["bo_table"]]
+
+    session = make_session()  # 스레드마다 독립 세션
+    time.sleep(DELAY_BETWEEN_REQUESTS)
+
+    download_urls = get_download_urls(session, asset)
+    if not download_urls:
+        log.warning(f"  다운로드 링크 없음: {asset['title']}")
+        with _progress_lock:
+            if key not in progress["skipped"]:
+                progress["skipped"].append(key)
+            save_progress(progress)
+        return "skip"
+
+    all_ok = True
+    failed_reasons = []
+
+    for file_url in download_urls:
+        filename = filename_from_url(file_url)
+        dest = cat_dir / filename
+
+        if not dest.exists():
+            time.sleep(DELAY_BETWEEN_REQUESTS)
+            ok = download_file(session, file_url, dest)
+            if not ok:
+                failed_reasons.append(f"다운로드 실패: {filename}")
+                all_ok = False
+                continue
+
+        ok = process_file(dest, drive_service, drive_folder_id)
+        if not ok:
+            failed_reasons.append(f"업로드 실패: {filename}")
+            all_ok = False
+
+    with _progress_lock:
+        if all_ok:
+            progress["downloaded"].append(key)
+            already_done.add(key)
+        else:
+            if key not in progress["failed"]:
+                progress["failed"].append(key)
+            for r in failed_reasons:
+                log.error(f"  [{category_name}] {asset['title']} — {r}")
+        save_progress(progress)
+
+    return "success" if all_ok else "fail"
 
 
 # ── 메인 실행 ─────────────────────────────────────────────────
@@ -366,6 +398,7 @@ def main(test_mode=False, test_limit=3):
     log.info("=" * 60)
     log.info("문화재관광부 메타버스데이터랩 FBX 다운로더 시작")
     log.info(f"다운로드 폴더: {DOWNLOAD_DIR.resolve()}")
+    log.info(f"병렬 워커: {WORKERS}개 / 요청 딜레이: {DELAY_BETWEEN_REQUESTS}s")
     log.info(f"Google Drive 폴더 ID: {DRIVE_FOLDER_ID}")
     if test_mode:
         log.info(f"[테스트 모드] buildings 카테고리 {test_limit}개만 처리")
@@ -373,7 +406,6 @@ def main(test_mode=False, test_limit=3):
 
     DOWNLOAD_DIR.mkdir(exist_ok=True)
     progress = load_progress()
-    # [Fix 5] failed 항목은 재시도 대상 → already_done에서 제외
     already_done = set(progress["downloaded"])
 
     drive_service = None
@@ -382,20 +414,16 @@ def main(test_mode=False, test_limit=3):
             drive_service = get_drive_service()
             log.info("Google Drive 인증 성공")
         except Exception as e:
-            log.warning(f"Google Drive 인증 실패: {e}")
-            log.warning("다운로드는 진행하지만 Drive 업로드는 건너뜀")
+            log.warning(f"Google Drive 인증 실패: {e} — 로컬 저장만 진행")
     else:
         log.warning("credentials.json 없음 → Drive 업로드 비활성화")
 
-    session = make_session()
-    log.info("HTTP 세션 준비 완료 (메인 페이지 쿠키 설정됨)")
+    # 목록 수집용 단일 세션 (페이지네이션은 순차 처리)
+    list_session = make_session()
+    log.info("HTTP 세션 준비 완료")
 
     stats = {cat: {"success": 0, "fail": 0, "skip": 0} for cat in CATEGORIES}
-    all_failed = []
-
     categories_to_process = ["buildings"] if test_mode else list(CATEGORIES.keys())
-
-    # Drive 폴더 ID 캐시 (카테고리당 1회 API 호출)
     drive_folder_cache: dict[str, str] = {}
 
     for bo_table in categories_to_process:
@@ -414,7 +442,7 @@ def main(test_mode=False, test_limit=3):
 
         drive_folder_id = drive_folder_cache.get(category_name)
 
-        assets = collect_all_assets(session, bo_table)
+        assets = collect_all_assets(list_session, bo_table)
         log.info(f"수집된 에셋: {len(assets)}개")
 
         if test_mode:
@@ -424,88 +452,56 @@ def main(test_mode=False, test_limit=3):
         cat_dir = DOWNLOAD_DIR / category_name
         cat_dir.mkdir(exist_ok=True)
 
+        # 이미 완료된 에셋 건너뜀
+        pending = []
         for asset in assets:
             key = f"{bo_table}/{asset['wr_id']}"
             if key in already_done:
-                log.info(f"  [건너뜀] {asset['title']}")
                 stats[bo_table]["skip"] += 1
-                continue
-
-            log.info(f"\n  [{category_name}] {asset['title']} (wr_id={asset['wr_id']})")
-            time.sleep(DELAY_BETWEEN_REQUESTS)
-
-            download_urls = get_download_urls(session, asset)
-
-            if not download_urls:
-                log.warning(f"  다운로드 링크 없음: {asset['title']}")
-                if key not in progress["skipped"]:
-                    progress["skipped"].append(key)
-                stats[bo_table]["skip"] += 1
-                save_progress(progress)
-                time.sleep(DELAY_BETWEEN_REQUESTS)
-                continue
-
-            all_ok = True
-            for file_url in download_urls:
-                filename = filename_from_url(file_url)
-                dest = cat_dir / filename
-
-                if not dest.exists():
-                    time.sleep(DELAY_BETWEEN_REQUESTS)
-                    ok = download_file(session, file_url, dest)
-                    if not ok:
-                        log.error(f"  다운로드 최종 실패: {filename}")
-                        all_failed.append({"key": key, "title": asset["title"],
-                                           "reason": f"다운로드 실패: {file_url}"})
-                        all_ok = False
-                        continue
-
-                ok = process_file(dest, drive_service, drive_folder_id)
-                if not ok:
-                    all_ok = False
-
-            if all_ok:
-                progress["downloaded"].append(key)
-                already_done.add(key)
-                stats[bo_table]["success"] += 1
             else:
-                if key not in progress["failed"]:
-                    progress["failed"].append(key)
-                stats[bo_table]["fail"] += 1
+                pending.append(asset)
 
-            save_progress(progress)
+        log.info(f"처리 대상: {len(pending)}개 (건너뜀: {stats[bo_table]['skip']}개)")
+
+        with ThreadPoolExecutor(max_workers=WORKERS) as executor:
+            futures = {
+                executor.submit(
+                    process_asset, asset, cat_dir, drive_service, drive_folder_id,
+                    progress, already_done
+                ): asset
+                for asset in pending
+            }
+            for future in as_completed(futures):
+                asset = futures[future]
+                try:
+                    result = future.result()
+                    stats[bo_table][result if result in stats[bo_table] else "fail"] += 1
+                    log.info(
+                        f"  [{category_name}] {asset['title']} → {result} "
+                        f"(성공 {stats[bo_table]['success']} / 실패 {stats[bo_table]['fail']})"
+                    )
+                except Exception as e:
+                    log.error(f"  처리 예외: {asset['title']} — {e}")
+                    stats[bo_table]["fail"] += 1
 
     log.info("\n" + "=" * 60)
     log.info("다운로드 완료 보고")
     log.info("=" * 60)
-
     total_success = total_fail = total_skip = 0
-    for bo_table, s in stats.items():
-        if bo_table not in categories_to_process:
-            continue
+    for bo_table in categories_to_process:
+        s = stats[bo_table]
         log.info(f"  {CATEGORIES[bo_table]}: 성공 {s['success']} / 실패 {s['fail']} / 건너뜀 {s['skip']}")
         total_success += s["success"]
         total_fail    += s["fail"]
         total_skip    += s["skip"]
-
-    log.info(f"\n  전체 성공: {total_success}개")
-    log.info(f"  전체 실패: {total_fail}개")
-    log.info(f"  전체 건너뜀: {total_skip}개")
-
-    if all_failed:
-        log.info("\n실패 에셋 목록:")
-        for item in all_failed:
-            log.info(f"  - [{item['key']}] {item['title']}: {item['reason']}")
-
+    log.info(f"\n  전체 성공: {total_success} / 실패: {total_fail} / 건너뜀: {total_skip}")
     return total_success, total_fail
 
 
 if __name__ == "__main__":
     import argparse
-
     parser = argparse.ArgumentParser(description="문화재관광부 FBX 다운로더")
     parser.add_argument("--test", action="store_true", help="buildings 카테고리 3개만 테스트")
-    parser.add_argument("--test-limit", type=int, default=3, help="테스트 시 처리할 에셋 수")
+    parser.add_argument("--test-limit", type=int, default=3)
     args = parser.parse_args()
-
     main(test_mode=args.test, test_limit=args.test_limit)
