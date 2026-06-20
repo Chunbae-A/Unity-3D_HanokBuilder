@@ -62,6 +62,22 @@ public partial class HanokUIManager
         _aiInputField.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
         _aiInputField.onSubmit.AddListener(_ => OnAIPromptSubmit());
 
+        // ⚙ API 키 설정 버튼
+        var gearGO = new GameObject("ApiKeyBtn");
+        gearGO.transform.SetParent(barRT, false);
+        gearGO.AddComponent<LayoutElement>().preferredWidth = 30;
+        var gearImg = gearGO.AddComponent<Image>();
+        gearImg.sprite = RoundedRectSprite(6f);
+        gearImg.type   = Image.Type.Sliced;
+        gearImg.color  = BTN_GHOST;
+        var gearBtn = gearGO.AddComponent<Button>();
+        gearBtn.targetGraphic = gearImg;
+        gearBtn.onClick.AddListener(ShowApiKeyPanel);
+        var gearLbl = (TextMeshProUGUI)MakeLabel(gearGO.transform, "⚙", 12, TEXT_MAIN, bold: false);
+        var gearLblRT = gearLbl.GetComponent<RectTransform>();
+        gearLblRT.anchorMin = Vector2.zero; gearLblRT.anchorMax = Vector2.one;
+        gearLblRT.offsetMin = gearLblRT.offsetMax = Vector2.zero;
+
         var sendGO = new GameObject("Send");
         sendGO.transform.SetParent(barRT, false);
         sendGO.AddComponent<LayoutElement>().preferredWidth = 48;
@@ -471,18 +487,16 @@ public partial class HanokUIManager
     // ── Claude API 호출 ───────────────────────────────────
     IEnumerator RequestAIRecommendations(string userPrompt)
     {
-        var config = Resources.Load<ClaudeApiConfig>("ClaudeApiConfig");
-        if (config == null || string.IsNullOrEmpty(config.apiKey))
+        string apiKey = GetSavedApiKey();
+        if (string.IsNullOrEmpty(apiKey))
         {
             var localItems = BuildLocalRecommendations(userPrompt);
             if (localItems.Length == 0)
-            {
-                ShowAIMessage("추가 에셋에서 일치하는 항목을 찾지 못했습니다.\nAPI 키를 설정하면 더 자연어에 가까운 추천을 받을 수 있습니다.");
-            }
+                ShowAIMessage("일치하는 항목이 없습니다.\n⚙ 버튼에서 API 키를 설정하면 자연어 추천이 활성화됩니다.");
             else
             {
                 RenderAIRecommendations(localItems);
-                ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
+                ShowToast("API 키 미설정 — 에셋명/태그 기반으로 추천했습니다.");
             }
             EndAIRequest();
             yield break;
@@ -496,7 +510,7 @@ public partial class HanokUIManager
 
         var reqBody = new ClaudeRequest
         {
-            model = config.model,
+            model = GetApiModel(),
             max_tokens = 4096,
             messages = new[] { new ClaudeMessage { role = "user", content = instruction } }
         };
@@ -512,7 +526,7 @@ public partial class HanokUIManager
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("content-type", "application/json");
-        www.SetRequestHeader("x-api-key", config.apiKey);
+        www.SetRequestHeader("x-api-key", apiKey);
         www.SetRequestHeader("anthropic-version", "2023-06-01");
 
         yield return www.SendWebRequest();

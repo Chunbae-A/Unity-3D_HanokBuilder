@@ -51,10 +51,10 @@ public partial class HanokUIManager
     // ── Claude API 호출 ───────────────────────────────────────────
     IEnumerator RequestAIAutoLayout(string userPrompt)
     {
-        var config = Resources.Load<ClaudeApiConfig>("ClaudeApiConfig");
-        if (config == null || string.IsNullOrEmpty(config.apiKey))
+        string apiKey = GetSavedApiKey();
+        if (string.IsNullOrEmpty(apiKey))
         {
-            ShowAIMessage("자동 레이아웃은 Claude API 키가 필요합니다.");
+            ShowApiKeyPanel();
             EndAIRequest();
             yield break;
         }
@@ -109,7 +109,7 @@ public partial class HanokUIManager
 
         var reqBody = new ClaudeRequest
         {
-            model      = config.model,
+            model      = GetApiModel(),
             max_tokens = 4096,
             messages   = new[] { new ClaudeMessage { role = "user", content = instruction } }
         };
@@ -123,7 +123,7 @@ public partial class HanokUIManager
         www.uploadHandler   = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("content-type",      "application/json");
-        www.SetRequestHeader("x-api-key",          config.apiKey);
+        www.SetRequestHeader("x-api-key",          apiKey);
         www.SetRequestHeader("anthropic-version", "2023-06-01");
 
         yield return www.SendWebRequest();

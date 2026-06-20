@@ -154,6 +154,7 @@ public partial class HanokUIManager : MonoBehaviour
         BuildUI();
         LoadAssets();
         StartCoroutine(ForceLayout());
+        CheckApiKeyOnStart();
     }
 
     void Update()
