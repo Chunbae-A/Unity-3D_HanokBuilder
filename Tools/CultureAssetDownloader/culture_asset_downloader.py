@@ -54,9 +54,8 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# 공유 자원 보호 Lock
+# progress.json 동시 쓰기 방지
 _progress_lock = threading.Lock()
-_drive_lock    = threading.Lock()
 
 
 # ── 헬퍼 ──────────────────────────────────────────────────────
@@ -320,8 +319,7 @@ def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
                     with zf.open(member) as src, open(extracted, "wb") as dst:
                         dst.write(src.read())
                     if drive_service and drive_folder_id:
-                        with _drive_lock:
-                            ok = upload_to_drive(drive_service, extracted, drive_folder_id)
+                        ok = upload_to_drive(drive_service, extracted, drive_folder_id)
                         extracted.unlink()
                         if not ok:
                             all_ok = False
@@ -332,8 +330,7 @@ def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
             return False
     else:
         if drive_service and drive_folder_id:
-            with _drive_lock:
-                ok = upload_to_drive(drive_service, local_path, drive_folder_id)
+            ok = upload_to_drive(drive_service, local_path, drive_folder_id)
             if ok:
                 local_path.unlink()
             return ok
@@ -341,13 +338,22 @@ def process_file(local_path: Path, drive_service, drive_folder_id: str) -> bool:
 
 
 # ── 에셋 단위 처리 (스레드 워커) ─────────────────────────────
-def process_asset(asset: dict, cat_dir: Path, drive_service, drive_folder_id: str,
+def process_asset(asset: dict, cat_dir: Path, drive_folder_id: str,
                   progress: dict, already_done: set) -> str:
     """반환값: 'success' | 'fail' | 'skip'"""
     key = f"{asset['bo_table']}/{asset['wr_id']}"
     category_name = CATEGORIES[asset["bo_table"]]
 
     session = make_session()  # 스레드마다 독립 세션
+
+    # 스레드마다 독립 Drive service → 다운로드 즉시 업로드해 로컬 임시 파일 최소화
+    drive_service = None
+    if os.path.exists(CREDENTIALS_FILE):
+        try:
+            drive_service = get_drive_service()
+        except Exception:
+            pass
+
     time.sleep(DELAY_BETWEEN_REQUESTS)
 
     download_urls = get_download_urls(session, asset)
@@ -466,7 +472,7 @@ def main(test_mode=False, test_limit=3):
         with ThreadPoolExecutor(max_workers=WORKERS) as executor:
             futures = {
                 executor.submit(
-                    process_asset, asset, cat_dir, drive_service, drive_folder_id,
+                    process_asset, asset, cat_dir, drive_folder_id,
                     progress, already_done
                 ): asset
                 for asset in pending
