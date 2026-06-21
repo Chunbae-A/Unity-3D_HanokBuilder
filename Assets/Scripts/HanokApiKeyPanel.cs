@@ -113,7 +113,7 @@ public partial class HanokUIManager
         descGO.transform.SetParent(card, false);
         descGO.AddComponent<LayoutElement>().preferredHeight = 30;
         var descT = descGO.AddComponent<TextMeshProUGUI>();
-        descT.text = "console.anthropic.com에서 발급한 API 키를 입력하세요.\n키는 이 기기에만 저장되며 외부로 전송되지 않습니다.";
+        descT.text = "console.anthropic.com에서 발급한 API 키를 입력하세요.\n키는 이 기기에 저장되며 AI 기능 사용 시 Anthropic 서버로 전송됩니다.";
         descT.fontSize = 9; descT.color = TEXT_SUB;
         descT.alignment = TextAlignmentOptions.Center;
         descT.textWrappingMode = TextWrappingModes.Normal;

@@ -10,6 +10,24 @@ public static class HanokSceneSetup
     const float EAVE  = 1.2f;   // 처마 overhang
     const float TILE  = 0.22f;  // 기와 tile width
 
+    // ── Shader cache (Shader.Find은 빌드에서 null 반환 가능 → 캐싱 + null 체크) ──
+    static Shader _skyboxShader;
+    static Shader _urpLitShader;
+
+    static Material SkyboxMat()
+    {
+        if (_skyboxShader == null) _skyboxShader = Shader.Find("Skybox/Procedural");
+        if (_skyboxShader == null) { Debug.LogError("[HanokSceneSetup] Skybox/Procedural 셰이더를 찾을 수 없습니다."); return null; }
+        return new Material(_skyboxShader);
+    }
+
+    static Material URPLitMat()
+    {
+        if (_urpLitShader == null) _urpLitShader = Shader.Find("Universal Render Pipeline/Lit");
+        if (_urpLitShader == null) { Debug.LogError("[HanokSceneSetup] URP/Lit 셰이더를 찾을 수 없습니다."); return null; }
+        return new Material(_urpLitShader);
+    }
+
     // ── Material smoothness presets ───────────────────────────────────────────
     const float SM_ROUGH_STONE   = 0.08f;
     const float SM_POLISHED_GRAN = 0.35f;
@@ -61,6 +79,7 @@ public static class HanokSceneSetup
         foreach (var dl in Object.FindObjectsOfType<Light>())
             if (dl.name.StartsWith("_Hanok"))
                 Object.DestroyImmediate(dl.gameObject);
+        var oldSkybox = RenderSettings.skybox;
         switch (idx)
         {
             case 0: Sky_Clear();   break;
@@ -68,13 +87,15 @@ public static class HanokSceneSetup
             case 2: Sky_Cloudy();  break;
             case 3: Sky_Nature();  break;
         }
+        if (oldSkybox != null) Object.DestroyImmediate(oldSkybox);
         DynamicGI.UpdateEnvironment();
     }
 
     // 0 — 맑은 날: 평범하게 푸른 하늘, 오후 햇빛
     static void Sky_Clear()
     {
-        var mat = new Material(Shader.Find("Skybox/Procedural"));
+        var mat = SkyboxMat();
+        if (mat == null) return;
         mat.SetFloat("_SunSize", 0.04f);
         mat.SetFloat("_SunSizeConvergence", 10f);
         mat.SetFloat("_AtmosphereThickness", 1.0f);
@@ -108,7 +129,8 @@ public static class HanokSceneSetup
     // 낮은 AtmosphereThickness + 높은 Exposure → tint 색이 직접 하늘에 보임
     static void Sky_Sunset()
     {
-        var mat = new Material(Shader.Find("Skybox/Procedural"));
+        var mat = SkyboxMat();
+        if (mat == null) return;
         mat.SetFloat("_SunSize", 0.10f);
         mat.SetFloat("_SunSizeConvergence", 5f);
         mat.SetFloat("_AtmosphereThickness", 0.35f);  // 낮게 → tint가 직접 하늘 색상 결정
@@ -141,7 +163,8 @@ public static class HanokSceneSetup
     // 2 — 밤: 짙은 남색 밤하늘, 달빛
     static void Sky_Cloudy()
     {
-        var mat = new Material(Shader.Find("Skybox/Procedural"));
+        var mat = SkyboxMat();
+        if (mat == null) return;
         mat.SetFloat("_SunSize", 0.04f);
         mat.SetFloat("_SunSizeConvergence", 10f);
         mat.SetFloat("_AtmosphereThickness", 0.05f);  // 거의 0 → 대기 산란 제거, tint 직접 노출
@@ -191,7 +214,7 @@ public static class HanokSceneSetup
         if (moon.TryGetComponent<Collider>(out var col)) Object.DestroyImmediate(col);
 
         var mr  = moon.GetComponent<MeshRenderer>();
-        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        var mat = URPLitMat();
         Color moonCol = Hex("E8F2FF");
         mat.SetColor("_BaseColor", moonCol);
         mat.SetFloat("_Smoothness", 0.05f);
@@ -210,8 +233,11 @@ public static class HanokSceneSetup
         if (halo.TryGetComponent<Collider>(out var hc)) Object.DestroyImmediate(hc);
 
         var hmr  = halo.GetComponent<MeshRenderer>();
-        var hmat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        var hmat = URPLitMat();
         Color haloCol = new Color(0.55f, 0.65f, 0.85f, 0.18f);
+        hmat.SetFloat("_Surface", 1f);                      // 0=Opaque, 1=Transparent
+        hmat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        hmat.SetOverrideTag("RenderType", "Transparent");
         hmat.SetColor("_BaseColor", haloCol);
         hmat.SetFloat("_Smoothness", 0f);
         hmat.SetFloat("_Metallic",   0f);
@@ -226,7 +252,8 @@ public static class HanokSceneSetup
     // 3 — 자연: 초록초록한 잔디밭, 상쾌한 푸른 하늘
     static void Sky_Nature()
     {
-        var mat = new Material(Shader.Find("Skybox/Procedural"));
+        var mat = SkyboxMat();
+        if (mat == null) return;
         mat.SetFloat("_SunSize", 0.04f);
         mat.SetFloat("_SunSizeConvergence", 9f);
         mat.SetFloat("_AtmosphereThickness", 1.05f);
@@ -1397,7 +1424,8 @@ public static class HanokSceneSetup
 
     static void SetupSkybox()
     {
-        var mat = new Material(Shader.Find("Skybox/Procedural"));
+        var mat = SkyboxMat();
+        if (mat == null) return;
         mat.SetFloat("_SunSize",         0.03f);
         mat.SetFloat("_SunSizeConvergence", 8f);
         mat.SetFloat("_AtmosphereThickness", 1.15f);
@@ -1555,7 +1583,8 @@ public static class HanokSceneSetup
     static void Rend(GameObject go, Color c, float smooth)
     {
         var mr = go.GetComponent<MeshRenderer>();
-        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        var mat = URPLitMat();
+        if (mat == null) return;
         mat.SetColor("_BaseColor", c);
         mat.SetFloat("_Smoothness", smooth);
         mat.SetFloat("_Metallic",   0f);
