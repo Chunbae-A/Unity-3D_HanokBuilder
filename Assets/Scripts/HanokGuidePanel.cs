@@ -122,7 +122,7 @@ public partial class HanokUIManager
         var closeGO = new GameObject("CloseBtn");
         closeGO.transform.SetParent(go.transform, false);
         closeGO.AddComponent<LayoutElement>().ignoreLayout = true;
-        var closeRT = closeGO.AddComponent<RectTransform>();
+        var closeRT = closeGO.GetComponent<RectTransform>();
         closeRT.anchorMin        = new Vector2(1f, 1f);
         closeRT.anchorMax        = new Vector2(1f, 1f);
         closeRT.pivot            = new Vector2(1f, 1f);
@@ -179,7 +179,7 @@ public partial class HanokUIManager
         var arrowGO = new GameObject("Arrow");
         arrowGO.transform.SetParent(go.transform, false);
         arrowGO.AddComponent<LayoutElement>().ignoreLayout = true;
-        var arrowRT = arrowGO.AddComponent<RectTransform>();
+        var arrowRT = arrowGO.GetComponent<RectTransform>();
         arrowRT.anchorMin        = new Vector2(0.5f, 0f);
         arrowRT.anchorMax        = new Vector2(0.5f, 0f);
         arrowRT.pivot            = new Vector2(0.5f, 1f);  // 꼭대기가 앵커 포인트
