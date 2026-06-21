@@ -23,6 +23,7 @@ public partial class HanokUIManager
     string _lastGuideTitle;
     string _lastGuideBody;
     float  _guideBubbleBaseScaleMag;
+    bool   _guideBubbleUserClosed;  // 사용자가 ✕로 닫은 경우 같은 에셋에서 재표시 안 함
 
     static readonly Color GUIDE_BG    = new Color(0.07f, 0.09f, 0.16f, 0.96f);
     static readonly Color GUIDE_TITLE = new Color(1.00f, 0.82f, 0.38f, 1.00f);
@@ -189,6 +190,7 @@ public partial class HanokUIManager
     void HideGuideBubble()
     {
         if (_guideBubbleGO != null) _guideBubbleGO.SetActive(false);
+        _guideBubbleUserClosed = true;
     }
 
     // Update()에서 매 프레임 호출 — 스케일 비례·Y 위치 동기화
@@ -240,12 +242,7 @@ public partial class HanokUIManager
             ? meta.assetKey : CleanPlacedObjectName(obj.name);
 
         if (!forceRefresh && assetKey == _lastGuidedAssetKey)
-        {
-            if (!string.IsNullOrEmpty(_lastGuideBody) &&
-                _guideBubbleGO != null && !_guideBubbleGO.activeSelf)
-                ShowGuideBubble(_lastGuideTitle, _lastGuideBody);
-            return;
-        }
+            return; // 같은 에셋 재클릭 — 사용자가 닫은 상태 유지, 재호출 없음
 
         string displayName = !string.IsNullOrEmpty(meta?.displayName)
             ? meta.displayName : assetKey;
@@ -271,7 +268,8 @@ public partial class HanokUIManager
             return;
         }
 
-        _lastGuidedAssetKey = assetKey;
+        _lastGuidedAssetKey    = assetKey;
+        _guideBubbleUserClosed = false; // 새 에셋이므로 자동표시 허용
         StartCoroutine(RequestGuideCo(assetKey, displayName, categoryLabel));
     }
 
@@ -282,13 +280,9 @@ public partial class HanokUIManager
         string system =
             "당신은 한국 전통 건축 문화재에 정통한 큐레이터이자 역사학자입니다. " +
             "수십 년간의 현장 연구를 통해 조선·고려·통일신라 시대의 건축 양식과 그 문화적 맥락을 깊이 이해하고 있습니다. " +
-            "박물관 관람객이나 건축 학도에게 전문성과 생동감을 갖춰 해설하는 것이 당신의 소명입니다. " +
-            "해설 원칙: 마크다운 기호(#, *, -, ** 등)를 일절 사용하지 않는다. " +
-            "자연스러운 줄글 2~3 문단으로 작성한다. " +
-            "첫 문단은 역사적 배경·시대적 맥락·건립 목적, " +
-            "둘째 문단은 건축 구조·양식의 특징과 장인의 기술, " +
-            "셋째 문단은 문화적·상징적 의미와 현재적 가치를 담는다. " +
-            "각 문단은 3~4문장, 품격 있고 생동감 있는 문체로.";
+            "해설 원칙: 마크다운 기호를 일절 사용하지 않는다. " +
+            "역사적 배경·건축 특징·문화적 의미를 자연스럽게 녹여낸 단 하나의 문단(4~5문장)으로 작성한다. " +
+            "간결하되 품격 있고 생동감 있는 문체로.";
 
         var userSb = new StringBuilder();
         userSb.Append("다음 건축물을 해설해 주십시오.\n\n건축물명: ").AppendLine(displayName);
@@ -297,7 +291,7 @@ public partial class HanokUIManager
 
         string bodyJson =
             "{\"model\":"  + JsonStr(GetApiModel()) +
-            ",\"max_tokens\":900" +
+            ",\"max_tokens\":300" +
             ",\"system\":" + JsonStr(system) +
             ",\"messages\":[{\"role\":\"user\",\"content\":" + JsonStr(userSb.ToString()) + "}]}";
 
