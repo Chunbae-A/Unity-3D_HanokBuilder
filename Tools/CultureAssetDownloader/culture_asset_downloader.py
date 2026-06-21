@@ -225,6 +225,12 @@ def get_download_urls(session: requests.Session, asset: dict) -> list[str]:
         icon_name = img.get("src", "").split("/")[-1] if img else ""
         if icon_name in DOWNLOAD_ICONS:
             urls.append(to_absolute_url(href))
+
+    # FBX 우선: FBX가 있으면 unitypackage 제외
+    fbx_urls = [u for u in urls if filename_from_url(u).lower().endswith(".fbx")]
+    if fbx_urls:
+        log.info(f"  FBX 우선 선택 ({len(fbx_urls)}개) — unitypackage 제외")
+        return fbx_urls
     return urls
 
 
@@ -310,8 +316,12 @@ def list_drive_folder(service, folder_id: str) -> set[str]:
 def stream_to_drive(download_url: str, filename: str, parent_id: str,
                     existing_files: set[str]) -> bool:
     """다운로드 스트림을 로컬 저장 없이 Drive resumable upload로 직접 전송.
-    - thread-local 세션 재사용으로 TCP 연결 오버헤드 제거
-    - 32MB 청크로 PUT 요청 수 최소화
+
+    Content-Range 규칙:
+      - 중간 청크: bytes start-end/{total} or bytes start-end/*  (total 미확인 시)
+      - 마지막 청크: bytes start-end/{실제 총 바이트} 로 항상 확정값 사용
+      -> total_size=0 일 때 PUT에 "*" 를 쓰면 Drive 400 오류 발생하므로
+         마지막 청크에서는 반드시 uploaded+len(data) 를 total로 지정.
     """
     if filename in existing_files:
         log.info(f"  이미 Drive에 있음: {filename}")
@@ -324,45 +334,63 @@ def stream_to_drive(download_url: str, filename: str, parent_id: str,
         try:
             token = _tl_token()
 
-            # 파일 크기 (HEAD 요청은 다운로드 세션 재사용)
-            head = dl_session.head(download_url, timeout=15, headers={"Referer": BASE_URL})
-            total_size = int(head.headers.get("Content-Length", 0))
+            # 파일 크기: HEAD 시도 → 실패하거나 0이면 GET 헤더에서 재확인
+            total_size = 0
+            try:
+                head = dl_session.head(download_url, timeout=15,
+                                       headers={"Referer": BASE_URL})
+                total_size = int(head.headers.get("Content-Length", 0))
+            except Exception:
+                pass
 
-            # Drive resumable upload 세션 초기화
+            # Drive resumable upload 초기화
+            # X-Upload-Content-Length 미전송: HEAD/GET Content-Length가 실제 파일 크기와
+            # 다를 수 있어 사전 등록 시 Drive가 최종 청크를 거부하는 문제 방지
+            init_headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json; charset=UTF-8",
+                "X-Upload-Content-Type": "application/octet-stream",
+            }
+
             init = up_session.post(
                 "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json; charset=UTF-8",
-                    "X-Upload-Content-Type": "application/octet-stream",
-                    "X-Upload-Content-Length": str(total_size),
-                },
+                headers=init_headers,
                 json={"name": filename, "parents": [parent_id]},
                 timeout=30,
             )
             init.raise_for_status()
             upload_url = init.headers["Location"]
 
-            # 다운로드 스트림 → Drive 청크 전송
+            # 다운로드 스트림 시작; GET 헤더에서도 size 재확인
             dl = dl_session.get(download_url, stream=True, timeout=(15, None),
                                 headers={"Referer": BASE_URL})
             dl.raise_for_status()
+            if not total_size:
+                total_size = int(dl.headers.get("Content-Length", 0))
 
             uploaded = 0
-            buf = bytearray()   # bytearray: 추가(+=) 시 복사 없음
+            buf = bytearray()
 
-            with tqdm(total=total_size, unit="B", unit_scale=True,
+            with tqdm(total=total_size or None, unit="B", unit_scale=True,
                       desc=filename[:40], leave=False, dynamic_ncols=True) as bar:
 
                 def _put_chunk(data: bytes, is_last: bool):
                     nonlocal uploaded
-                    end = uploaded + len(data) - 1
-                    size_str = str(total_size) if total_size else "*"
+                    start = uploaded
+                    end   = start + len(data) - 1
+                    # 중간 청크: HEAD/GET Content-Length가 실제 크기와 다를 수 있으므로
+                    # 항상 "*" 사용 — Drive가 중간에 잘못된 total을 등록하지 않도록
+                    # 마지막 청크: 실제 누적 바이트로 total 확정 (Drive 필수)
+                    if is_last:
+                        total_str = str(start + len(data))
+                    else:
+                        total_str = "*"
+
                     resp = up_session.put(
                         upload_url,
                         headers={
                             "Authorization": f"Bearer {token}",
-                            "Content-Range": f"bytes {uploaded}-{end}/{size_str}",
+                            "Content-Range": f"bytes {start}-{end}/{total_str}",
                             "Content-Length": str(len(data)),
                         },
                         data=bytes(data),
@@ -370,7 +398,7 @@ def stream_to_drive(download_url: str, filename: str, parent_id: str,
                     )
                     expected = (200, 201) if is_last else (200, 201, 308)
                     if resp.status_code not in expected:
-                        raise Exception(f"Drive PUT {resp.status_code}: {resp.text[:120]}")
+                        raise Exception(f"Drive PUT {resp.status_code}: {resp.text[:200]}")
                     uploaded += len(data)
 
                 for chunk in dl.iter_content(STREAM_CHUNK):
@@ -380,14 +408,14 @@ def stream_to_drive(download_url: str, filename: str, parent_id: str,
                     bar.update(len(chunk))
 
                     while len(buf) >= STREAM_CHUNK:
-                        _put_chunk(buf[:STREAM_CHUNK], is_last=False)
-                        del buf[:STREAM_CHUNK]   # bytearray in-place 삭제
+                        _put_chunk(bytes(buf[:STREAM_CHUNK]), is_last=False)
+                        del buf[:STREAM_CHUNK]
 
                 if buf:
-                    _put_chunk(buf, is_last=True)
+                    _put_chunk(bytes(buf), is_last=True)
 
             log.info(f"  Drive 업로드 완료: {filename} ({uploaded/1024**2:.1f} MB)")
-            existing_files.add(filename)   # 로컬 set 갱신 (재중복 방지)
+            existing_files.add(filename)
             return True
 
         except Exception as e:
