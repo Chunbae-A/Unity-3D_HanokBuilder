@@ -52,6 +52,7 @@ public partial class HanokUIManager
         BuildCaptureFlash(root);
         BuildToast(root);
         BuildAIPromptWidget(root);
+        BuildGuideBubble(root);
         BuildLeftExpandButton(root);
         BuildRightExpandButton(root);
         BuildBgExpandButton(root);
