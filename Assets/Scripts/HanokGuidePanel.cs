@@ -8,30 +8,42 @@ using TMPro;
 
 /// <summary>
 /// HanokUIManager — AI 문화재 해설 (partial)
-/// 건물 선택 시 건물 위에 말풍선 팝업으로 큐레이터 해설을 표시한다.
+/// Expanded: 말풍선 전체 표시  /  Collapsed: 건물 위 작은 pill  /  Hidden: 완전 비활성
 /// </summary>
 public partial class HanokUIManager
 {
+    enum GuideState { Hidden, Collapsed, Expanded }
+
     // ── 필드 ──────────────────────────────────────────────
+    GuideState    _guideState = GuideState.Hidden;
     GameObject    _guideBubbleGO;
     RectTransform _guideBubbleRT;
     TMP_Text      _guideBubbleTitleText;
     TMP_Text      _guideBubbleBodyText;
+
+    GameObject    _guideIndicatorGO;   // 접힌 상태 pill
+    RectTransform _guideIndicatorRT;
+    TMP_Text      _guideIndicatorText;
 
     bool   _guideRequestInProgress;
     string _lastGuidedAssetKey;
     string _lastGuideTitle;
     string _lastGuideBody;
     float  _guideBubbleBaseScaleMag;
-    bool   _guideBubbleUserClosed;  // 사용자가 ✕로 닫은 경우 같은 에셋에서 재표시 안 함
 
     static readonly Color GUIDE_BG    = new Color(0.07f, 0.09f, 0.16f, 0.96f);
     static readonly Color GUIDE_TITLE = new Color(1.00f, 0.82f, 0.38f, 1.00f);
     static readonly Color GUIDE_BODY  = new Color(0.93f, 0.93f, 0.93f, 0.92f);
     const float GUIDE_W = 300f;
 
-    // ── 말풍선 팝업 빌드 (BuildUI에서 호출) ──────────────
+    // ── UI 빌드 (BuildUI에서 호출) ────────────────────────
     void BuildGuideBubble(Transform root)
+    {
+        BuildFullBubble(root);
+        BuildCollapseIndicator(root);
+    }
+
+    void BuildFullBubble(Transform root)
     {
         var go = new GameObject("GuideBubble");
         go.transform.SetParent(root, false);
@@ -44,55 +56,41 @@ public partial class HanokUIManager
         _guideBubbleRT.sizeDelta = new Vector2(GUIDE_W, 0f);
 
         var cvs = go.AddComponent<Canvas>();
-        cvs.overrideSorting = true;
-        cvs.sortingOrder    = 25;
+        cvs.overrideSorting = true; cvs.sortingOrder = 25;
         go.AddComponent<GraphicRaycaster>();
 
         var bg = go.AddComponent<Image>();
         bg.sprite = RoundedRectSprite(14f);
-        bg.type   = Image.Type.Sliced;
-        bg.color  = GUIDE_BG;
+        bg.type = Image.Type.Sliced;
+        bg.color = GUIDE_BG;
 
         go.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        go.AddComponent<UIDraggablePanel>();
 
         var vlg = go.AddComponent<VerticalLayoutGroup>();
-        vlg.padding  = new RectOffset(16, 16, 14, 16);
+        vlg.padding  = new RectOffset(14, 14, 12, 14);
         vlg.spacing  = 8;
         vlg.childForceExpandWidth  = true;
         vlg.childForceExpandHeight = false;
 
-        go.AddComponent<UIDraggablePanel>();
+        // ── 헤더 행: 제목 + [−접기] [✕] ─────────────────
+        var hdrGO = new GameObject("Header");
+        hdrGO.transform.SetParent(go.transform, false);
+        hdrGO.AddComponent<LayoutElement>().flexibleWidth = 1;
+        hdrGO.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        var hdrHLG = hdrGO.AddComponent<HorizontalLayoutGroup>();
+        hdrHLG.spacing = 4;
+        hdrHLG.childForceExpandHeight = true;
+        hdrHLG.childForceExpandWidth  = false;
+        hdrHLG.childAlignment = TextAnchor.MiddleLeft;
 
-        // ── 닫기 버튼 ────────────────────────────────────
-        var closeGO = new GameObject("CloseBtn");
-        closeGO.transform.SetParent(go.transform, false);
-        closeGO.AddComponent<LayoutElement>().ignoreLayout = true;
-        var closeRT = closeGO.GetComponent<RectTransform>();
-        closeRT.anchorMin        = new Vector2(1f, 1f);
-        closeRT.anchorMax        = new Vector2(1f, 1f);
-        closeRT.pivot            = new Vector2(1f, 1f);
-        closeRT.sizeDelta        = new Vector2(22f, 22f);
-        closeRT.anchoredPosition = new Vector2(-8f, -8f);
-        var closeImg = closeGO.AddComponent<Image>();
-        closeImg.color = new Color(1, 1, 1, 0.10f);
-        var closeBtn = closeGO.AddComponent<Button>();
-        closeBtn.targetGraphic = closeImg;
-        var closeCs = closeBtn.colors;
-        closeCs.highlightedColor = new Color(1, 1, 1, 0.25f);
-        closeBtn.colors = closeCs;
-        closeBtn.onClick.AddListener(HideGuideBubble);
-        var closeLbl = (TextMeshProUGUI)MakeLabel(closeGO.transform, "✕", 9f, new Color(1, 1, 1, 0.6f));
-        var closeLblRT = closeLbl.GetComponent<RectTransform>();
-        closeLblRT.anchorMin = Vector2.zero; closeLblRT.anchorMax = Vector2.one;
-        closeLblRT.offsetMin = closeLblRT.offsetMax = Vector2.zero;
-
-        // ── 제목 ──────────────────────────────────────────
-        var titleGO = new GameObject("BubbleTitle");
-        titleGO.transform.SetParent(go.transform, false);
+        // 제목
+        var titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(hdrGO.transform, false);
         titleGO.AddComponent<LayoutElement>().flexibleWidth = 1;
         titleGO.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         _guideBubbleTitleText = titleGO.AddComponent<TextMeshProUGUI>();
-        _guideBubbleTitleText.fontSize         = 11.5f;
+        _guideBubbleTitleText.fontSize         = 11f;
         _guideBubbleTitleText.fontStyle        = FontStyles.Bold;
         _guideBubbleTitleText.color            = GUIDE_TITLE;
         _guideBubbleTitleText.alignment        = TextAlignmentOptions.Left;
@@ -100,14 +98,19 @@ public partial class HanokUIManager
         _guideBubbleTitleText.overflowMode     = TextOverflowModes.Ellipsis;
         KorFont(_guideBubbleTitleText);
 
+        // [−] 접기 버튼
+        MakeHeaderBtn(hdrGO.transform, "−", 22f, OnCollapseClicked);
+        // [✕] 완전 닫기 버튼
+        MakeHeaderBtn(hdrGO.transform, "✕", 22f, OnGuideCloseClicked);
+
         // ── 구분선 ────────────────────────────────────────
         var divGO = new GameObject("Div");
         divGO.transform.SetParent(go.transform, false);
         divGO.AddComponent<LayoutElement>().preferredHeight = 1;
         divGO.AddComponent<Image>().color = new Color(1f, 0.82f, 0.38f, 0.28f);
 
-        // ── 본문 텍스트 ───────────────────────────────────
-        var bodyGO = new GameObject("BubbleBody");
+        // ── 본문 ──────────────────────────────────────────
+        var bodyGO = new GameObject("Body");
         bodyGO.transform.SetParent(go.transform, false);
         bodyGO.AddComponent<LayoutElement>().flexibleWidth = 1;
         bodyGO.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -121,47 +124,173 @@ public partial class HanokUIManager
         KorFont(_guideBubbleBodyText);
 
         // ── 꼬리 삼각형 ───────────────────────────────────
-        var arrowGO = new GameObject("Arrow");
-        arrowGO.transform.SetParent(go.transform, false);
-        arrowGO.AddComponent<LayoutElement>().ignoreLayout = true;
-        var arrowRT = arrowGO.GetComponent<RectTransform>();
-        arrowRT.anchorMin        = new Vector2(0.5f, 0f);
-        arrowRT.anchorMax        = new Vector2(0.5f, 0f);
-        arrowRT.pivot            = new Vector2(0.5f, 1f);
-        arrowRT.sizeDelta        = new Vector2(18f, 11f);
-        arrowRT.anchoredPosition = new Vector2(0f, 1f);
-        arrowRT.localEulerAngles = new Vector3(0f, 0f, -90f);
-        var arrowImg = arrowGO.AddComponent<Image>();
-        arrowImg.sprite = AITriangleSprite();
-        arrowImg.type   = Image.Type.Simple;
-        arrowImg.color  = GUIDE_BG;
+        AddBubbleTail(go.transform);
 
         go.SetActive(false);
     }
 
-    // ── 표시·숨김 ─────────────────────────────────────────
-    void ShowGuideBubble(string title, string body)
+    void BuildCollapseIndicator(Transform root)
     {
-        if (_guideBubbleGO == null) return;
-        if (_guideBubbleTitleText != null) _guideBubbleTitleText.text = title;
-        if (_guideBubbleBodyText  != null) _guideBubbleBodyText.text  = body;
-        _guideBubbleBaseScaleMag = selectedObject != null
-            ? selectedObject.transform.lossyScale.magnitude : 1f;
-        _guideBubbleRT.localScale = Vector3.one;
-        _guideBubbleGO.SetActive(true);
+        var go = new GameObject("GuideIndicator");
+        go.transform.SetParent(root, false);
+        _guideIndicatorGO = go;
+
+        _guideIndicatorRT = go.AddComponent<RectTransform>();
+        _guideIndicatorRT.anchorMin = new Vector2(0.5f, 0.5f);
+        _guideIndicatorRT.anchorMax = new Vector2(0.5f, 0.5f);
+        _guideIndicatorRT.pivot     = new Vector2(0.5f, 0f);
+        _guideIndicatorRT.sizeDelta = new Vector2(100f, 24f);
+
+        var cvs = go.AddComponent<Canvas>();
+        cvs.overrideSorting = true; cvs.sortingOrder = 25;
+        go.AddComponent<GraphicRaycaster>();
+
+        var bg = go.AddComponent<Image>();
+        bg.sprite = RoundedRectSprite(12f);
+        bg.type   = Image.Type.Sliced;
+        bg.color  = GUIDE_BG;
+        var btn = go.AddComponent<Button>();
+        btn.targetGraphic = bg;
+        var cs = btn.colors;
+        cs.highlightedColor = new Color(0.13f, 0.17f, 0.28f, 0.98f);
+        cs.pressedColor     = new Color(0.10f, 0.13f, 0.22f, 1.00f);
+        btn.colors = cs;
+        btn.onClick.AddListener(OnExpandClicked);
+
+        var hlg = go.AddComponent<HorizontalLayoutGroup>();
+        hlg.padding  = new RectOffset(10, 10, 0, 0);
+        hlg.spacing  = 4;
+        hlg.childForceExpandHeight = true;
+        hlg.childForceExpandWidth  = false;
+        hlg.childAlignment = TextAnchor.MiddleCenter;
+
+        var textGO = new GameObject("IndText");
+        textGO.transform.SetParent(go.transform, false);
+        textGO.AddComponent<LayoutElement>().flexibleWidth = 1;
+        _guideIndicatorText = textGO.AddComponent<TextMeshProUGUI>();
+        _guideIndicatorText.fontSize         = 8f;
+        _guideIndicatorText.color            = GUIDE_TITLE;
+        _guideIndicatorText.alignment        = TextAlignmentOptions.Center;
+        _guideIndicatorText.textWrappingMode = TextWrappingModes.NoWrap;
+        _guideIndicatorText.overflowMode     = TextOverflowModes.Ellipsis;
+        KorFont(_guideIndicatorText);
+
+        // ── 꼬리 삼각형 ───────────────────────────────────
+        AddBubbleTail(go.transform);
+
+        go.SetActive(false);
+    }
+
+    // 헤더 인라인 소형 버튼 생성 헬퍼
+    void MakeHeaderBtn(Transform parent, string label, float w, UnityEngine.Events.UnityAction cb)
+    {
+        var go = new GameObject($"Btn_{label}");
+        go.transform.SetParent(parent, false);
+        go.AddComponent<LayoutElement>().preferredWidth = w;
+        var img = go.AddComponent<Image>();
+        img.color = new Color(1, 1, 1, 0.08f);
+        var btn = go.AddComponent<Button>();
+        btn.targetGraphic = img;
+        var cs = btn.colors;
+        cs.highlightedColor = new Color(1, 1, 1, 0.20f);
+        cs.pressedColor     = new Color(1, 1, 1, 0.30f);
+        btn.colors = cs;
+        btn.onClick.AddListener(cb);
+        var lbl = (TextMeshProUGUI)MakeLabel(go.transform, label, 9f, new Color(1, 1, 1, 0.65f));
+        var lrt = lbl.GetComponent<RectTransform>();
+        lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
+        lrt.offsetMin = lrt.offsetMax = Vector2.zero;
+    }
+
+    // 공통 꼬리 삼각형
+    void AddBubbleTail(Transform parent)
+    {
+        var arrowGO = new GameObject("Arrow");
+        arrowGO.transform.SetParent(parent, false);
+        arrowGO.AddComponent<LayoutElement>().ignoreLayout = true;
+        var rt = arrowGO.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0f); rt.anchorMax = new Vector2(0.5f, 0f);
+        rt.pivot     = new Vector2(0.5f, 1f);
+        rt.sizeDelta = new Vector2(16f, 10f);
+        rt.anchoredPosition  = new Vector2(0f, 1f);
+        rt.localEulerAngles  = new Vector3(0f, 0f, -90f);
+        var img = arrowGO.AddComponent<Image>();
+        img.sprite = AITriangleSprite();
+        img.type   = Image.Type.Simple;
+        img.color  = GUIDE_BG;
+    }
+
+    // ── 상태 전환 ─────────────────────────────────────────
+    void SetGuideState(GuideState state)
+    {
+        _guideState = state;
+        _guideBubbleGO?.SetActive(state == GuideState.Expanded);
+        _guideIndicatorGO?.SetActive(state == GuideState.Collapsed);
+    }
+
+    void OnCollapseClicked()
+    {
+        if (_guideIndicatorText != null)
+            _guideIndicatorText.text = $"▸ {_lastGuideTitle ?? "해설 펼치기"}";
+        SetGuideState(GuideState.Collapsed);
+    }
+
+    void OnExpandClicked()
+    {
+        SetGuideState(GuideState.Expanded);
         StartCoroutine(PositionBubbleAfterLayout());
     }
 
-    IEnumerator PositionBubbleAfterLayout()
+    void OnGuideCloseClicked()
     {
-        yield return null;
-        LayoutRebuilder.ForceRebuildLayoutImmediate(_guideBubbleRT);
-        PositionBubbleAboveBuilding();
+        SetGuideState(GuideState.Hidden);
+        // X를 누른 에셋은 이 선택 동안 다시 자동표시 안 함
+        _lastGuidedAssetKey = _lastGuidedAssetKey + "__closed";
     }
 
-    void PositionBubbleAboveBuilding()
+    void HideGuideBubble()
     {
-        if (selectedObject == null || Camera.main == null) return;
+        SetGuideState(GuideState.Hidden);
+        _lastGuidedAssetKey = null;
+    }
+
+    // ── 위치·스케일 동기화 (Update에서 호출) ──────────────
+    internal void UpdateGuideBubble()
+    {
+        bool anyVisible = _guideState != GuideState.Hidden
+                       && selectedObject != null
+                       && Camera.main != null;
+        if (!anyVisible) return;
+
+        float cur    = selectedObject.transform.lossyScale.magnitude;
+        float factor = _guideBubbleBaseScaleMag > 0.001f
+            ? Mathf.Clamp(cur / _guideBubbleBaseScaleMag, 0.25f, 4f) : 1f;
+
+        if (!GetBuildingCanvasPos(out Vector2 topPos)) return;
+
+        float ch = _canvasRT.rect.height * 0.5f;
+        float targetY = Mathf.Clamp(topPos.y + 14f, -ch + 60f, ch - 120f);
+
+        if (_guideState == GuideState.Expanded && _guideBubbleRT != null)
+        {
+            _guideBubbleRT.localScale = Vector3.one * factor;
+            var p = _guideBubbleRT.anchoredPosition;
+            p.y = targetY;
+            _guideBubbleRT.anchoredPosition = p;
+        }
+        else if (_guideState == GuideState.Collapsed && _guideIndicatorRT != null)
+        {
+            _guideIndicatorRT.localScale = Vector3.one * factor;
+            float cw = _canvasRT.rect.width * 0.5f;
+            _guideIndicatorRT.anchoredPosition = new Vector2(
+                Mathf.Clamp(topPos.x, -cw + 60f, cw - 60f), targetY);
+        }
+    }
+
+    bool GetBuildingCanvasPos(out Vector2 result)
+    {
+        result = Vector2.zero;
+        if (selectedObject == null || Camera.main == null) return false;
 
         var rends = selectedObject.GetComponentsInChildren<Renderer>();
         Vector3 worldTop;
@@ -174,10 +303,17 @@ public partial class HanokUIManager
         else worldTop = selectedObject.transform.position + Vector3.up * 3f;
 
         var sp = Camera.main.WorldToScreenPoint(worldTop);
-        if (sp.z <= 0f) return;
+        if (sp.z <= 0f) return false;
 
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                _canvasRT, new Vector2(sp.x, sp.y), null, out Vector2 lp)) return;
+        return RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            _canvasRT, new Vector2(sp.x, sp.y), null, out result);
+    }
+
+    IEnumerator PositionBubbleAfterLayout()
+    {
+        yield return null;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_guideBubbleRT);
+        if (!GetBuildingCanvasPos(out Vector2 lp)) yield break;
 
         float halfW = GUIDE_W * 0.5f;
         float cw    = _canvasRT.rect.width  * 0.5f;
@@ -187,53 +323,14 @@ public partial class HanokUIManager
         _guideBubbleRT.anchoredPosition = lp;
     }
 
-    void HideGuideBubble()
-    {
-        if (_guideBubbleGO != null) _guideBubbleGO.SetActive(false);
-        _guideBubbleUserClosed = true;
-    }
-
-    // Update()에서 매 프레임 호출 — 스케일 비례·Y 위치 동기화
-    internal void UpdateGuideBubble()
-    {
-        if (_guideBubbleGO == null || !_guideBubbleGO.activeSelf) return;
-        if (selectedObject == null || Camera.main == null) return;
-
-        float cur    = selectedObject.transform.lossyScale.magnitude;
-        float factor = _guideBubbleBaseScaleMag > 0.001f
-            ? Mathf.Clamp(cur / _guideBubbleBaseScaleMag, 0.25f, 4f) : 1f;
-        _guideBubbleRT.localScale = Vector3.one * factor;
-
-        var rends = selectedObject.GetComponentsInChildren<Renderer>();
-        Vector3 worldTop;
-        if (rends.Length > 0)
-        {
-            var b = rends[0].bounds;
-            foreach (var r in rends) b.Encapsulate(r.bounds);
-            worldTop = new Vector3(b.center.x, b.max.y + 0.4f, b.center.z);
-        }
-        else worldTop = selectedObject.transform.position + Vector3.up * 3f;
-
-        var sp = Camera.main.WorldToScreenPoint(worldTop);
-        if (sp.z <= 0f) return;
-
-        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                _canvasRT, new Vector2(sp.x, sp.y), null, out Vector2 lp)) return;
-
-        float ch  = _canvasRT.rect.height * 0.5f;
-        var   pos = _guideBubbleRT.anchoredPosition;
-        pos.y = Mathf.Clamp(lp.y + 14f, -ch + 60f, ch - 120f);
-        _guideBubbleRT.anchoredPosition = pos;
-    }
-
     // ── 선택·삭제 연동 ────────────────────────────────────
     void TriggerAutoGuide(GameObject obj)
     {
-        if (obj == null) { HideGuideBubble(); return; }
-        RequestGuideForObject(obj, forceRefresh: false);
+        if (obj == null) { SetGuideState(GuideState.Hidden); return; }
+        RequestGuideForObject(obj);
     }
 
-    void RequestGuideForObject(GameObject obj, bool forceRefresh)
+    void RequestGuideForObject(GameObject obj)
     {
         if (_guideRequestInProgress) return;
 
@@ -241,8 +338,9 @@ public partial class HanokUIManager
         string assetKey = !string.IsNullOrEmpty(meta?.assetKey)
             ? meta.assetKey : CleanPlacedObjectName(obj.name);
 
-        if (!forceRefresh && assetKey == _lastGuidedAssetKey)
-            return; // 같은 에셋 재클릭 — 사용자가 닫은 상태 유지, 재호출 없음
+        // 같은 에셋 재클릭 — X로 닫았거나 이미 처리 중이면 무시
+        if (assetKey == _lastGuidedAssetKey ||
+            assetKey + "__closed" == _lastGuidedAssetKey) return;
 
         string displayName = !string.IsNullOrEmpty(meta?.displayName)
             ? meta.displayName : assetKey;
@@ -268,8 +366,7 @@ public partial class HanokUIManager
             return;
         }
 
-        _lastGuidedAssetKey    = assetKey;
-        _guideBubbleUserClosed = false; // 새 에셋이므로 자동표시 허용
+        _lastGuidedAssetKey = assetKey;
         StartCoroutine(RequestGuideCo(assetKey, displayName, categoryLabel));
     }
 
@@ -279,26 +376,24 @@ public partial class HanokUIManager
 
         string system =
             "당신은 한국 전통 건축 문화재에 정통한 큐레이터이자 역사학자입니다. " +
-            "수십 년간의 현장 연구를 통해 조선·고려·통일신라 시대의 건축 양식과 그 문화적 맥락을 깊이 이해하고 있습니다. " +
+            "수십 년간의 현장 연구를 통해 조선·고려·통일신라 시대의 건축 양식과 문화적 맥락을 깊이 이해하고 있습니다. " +
             "해설 원칙: 마크다운 기호를 일절 사용하지 않는다. " +
-            "역사적 배경·건축 특징·문화적 의미를 자연스럽게 녹여낸 단 하나의 문단(4~5문장)으로 작성한다. " +
-            "간결하되 품격 있고 생동감 있는 문체로.";
+            "역사적 배경·건축 특징·문화적 의미를 자연스럽게 녹여낸 단 하나의 완결된 문단(정확히 3문장)으로 작성한다. " +
+            "반드시 마침표로 끝맺는다. 품격 있고 생동감 있는 문체로.";
 
-        var userSb = new StringBuilder();
-        userSb.Append("다음 건축물을 해설해 주십시오.\n\n건축물명: ").AppendLine(displayName);
+        var sb = new StringBuilder();
+        sb.Append("다음 건축물을 해설해 주십시오.\n\n건축물명: ").AppendLine(displayName);
         if (!string.IsNullOrEmpty(categoryLabel))
-            userSb.Append("분류: ").AppendLine(categoryLabel);
+            sb.Append("분류: ").AppendLine(categoryLabel);
 
-        string bodyJson =
+        string body =
             "{\"model\":"  + JsonStr(GetApiModel()) +
-            ",\"max_tokens\":300" +
+            ",\"max_tokens\":500" +
             ",\"system\":" + JsonStr(system) +
-            ",\"messages\":[{\"role\":\"user\",\"content\":" + JsonStr(userSb.ToString()) + "}]}";
-
-        byte[] raw = Encoding.UTF8.GetBytes(bodyJson);
+            ",\"messages\":[{\"role\":\"user\",\"content\":" + JsonStr(sb.ToString()) + "}]}";
 
         using var www = new UnityWebRequest("https://api.anthropic.com/v1/messages", "POST");
-        www.uploadHandler   = new UploadHandlerRaw(raw);
+        www.uploadHandler   = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body));
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("content-type",      "application/json");
         www.SetRequestHeader("x-api-key",          GetSavedApiKey());
@@ -309,10 +404,7 @@ public partial class HanokUIManager
         _guideRequestInProgress = false;
 
         if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError($"[GuideAPI] {www.responseCode}: {www.error}\n{www.downloadHandler.text}");
-            yield break;
-        }
+        { Debug.LogError($"[GuideAPI] {www.responseCode}: {www.error}\n{www.downloadHandler.text}"); yield break; }
 
         ClaudeResponse resp = null;
         try { resp = JsonUtility.FromJson<ClaudeResponse>(www.downloadHandler.text); }
@@ -321,17 +413,22 @@ public partial class HanokUIManager
         if (resp?.content == null || resp.content.Length == 0) yield break;
 
         var meta2 = selectedObject?.GetComponent<HanokPlacedAssetMetadata>();
-        _lastGuideTitle = !string.IsNullOrEmpty(meta2?.displayName) ? meta2.displayName : assetKey;
-        _lastGuideBody  = resp.content[0].text;
+        string title   = !string.IsNullOrEmpty(meta2?.displayName) ? meta2.displayName : assetKey;
+        string guideText = resp.content[0].text.Trim();
 
-        ShowGuideBubble(_lastGuideTitle, _lastGuideBody);
+        if (_guideBubbleTitleText != null) _guideBubbleTitleText.text = title;
+        if (_guideBubbleBodyText  != null) _guideBubbleBodyText.text  = guideText;
+        _guideBubbleBaseScaleMag = selectedObject != null
+            ? selectedObject.transform.lossyScale.magnitude : 1f;
+        _guideBubbleRT.localScale = Vector3.one;
+
+        SetGuideState(GuideState.Expanded);
+        StartCoroutine(PositionBubbleAfterLayout());
     }
 
     void ClearGuide()
     {
         _lastGuidedAssetKey = null;
-        _lastGuideTitle     = null;
-        _lastGuideBody      = null;
-        HideGuideBubble();
+        SetGuideState(GuideState.Hidden);
     }
 }
