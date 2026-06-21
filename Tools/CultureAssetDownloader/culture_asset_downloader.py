@@ -362,7 +362,8 @@ def stream_to_drive(download_url: str, filename: str, parent_id: str,
             upload_url = init.headers["Location"]
 
             # 다운로드 스트림 시작; GET 헤더에서도 size 재확인
-            dl = dl_session.get(download_url, stream=True, timeout=(15, None),
+            # 읽기 타임아웃 300s: None이면 슬립 후 네트워크 끊김 시 수 시간 hang 발생
+            dl = dl_session.get(download_url, stream=True, timeout=(15, 300),
                                 headers={"Referer": BASE_URL})
             dl.raise_for_status()
             if not total_size:
