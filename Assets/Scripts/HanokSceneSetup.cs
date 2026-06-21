@@ -215,6 +215,7 @@ public static class HanokSceneSetup
 
         var mr  = moon.GetComponent<MeshRenderer>();
         var mat = URPLitMat();
+        if (mat == null) return;
         Color moonCol = Hex("E8F2FF");
         mat.SetColor("_BaseColor", moonCol);
         mat.SetFloat("_Smoothness", 0.05f);
@@ -234,10 +235,14 @@ public static class HanokSceneSetup
 
         var hmr  = halo.GetComponent<MeshRenderer>();
         var hmat = URPLitMat();
+        if (hmat == null) return;
         Color haloCol = new Color(0.55f, 0.65f, 0.85f, 0.18f);
-        hmat.SetFloat("_Surface", 1f);                      // 0=Opaque, 1=Transparent
+        hmat.SetFloat("_Surface", 1f);
         hmat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         hmat.SetOverrideTag("RenderType", "Transparent");
+        hmat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+        hmat.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+        hmat.SetFloat("_ZWrite", 0f);
         hmat.SetColor("_BaseColor", haloCol);
         hmat.SetFloat("_Smoothness", 0f);
         hmat.SetFloat("_Metallic",   0f);
