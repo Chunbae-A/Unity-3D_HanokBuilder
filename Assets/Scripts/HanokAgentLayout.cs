@@ -339,6 +339,32 @@ public partial class HanokUIManager
     }
 
     // 응답의 content 배열 원문 추출 (어시스턴트 히스토리 재구성에 필수)
+    static string AgentExtractTextContent(string json)
+    {
+        // content 배열에서 type=text 블록의 text 값만 추출
+        int idx = json.IndexOf("\"content\":");
+        if (idx < 0) return "";
+        int arrStart = json.IndexOf('[', idx);
+        if (arrStart < 0) return "";
+        string arr = AgentExtractArr(json, arrStart);
+        int pos = 0;
+        var sb = new StringBuilder();
+        while (pos < arr.Length)
+        {
+            int ob = arr.IndexOf('{', pos);
+            if (ob < 0) break;
+            string block = AgentExtractObj(arr, ob);
+            if (block == null) break;
+            pos = ob + block.Length;
+            if (AgentExtractStr(block, "type") == "text")
+            {
+                string t = AgentExtractStr(block, "text");
+                if (!string.IsNullOrEmpty(t)) { if (sb.Length > 0) sb.Append('\n'); sb.Append(t); }
+            }
+        }
+        return sb.ToString();
+    }
+
     static string AgentExtractRawContent(string json)
     {
         int idx = json.IndexOf("\"content\":");
