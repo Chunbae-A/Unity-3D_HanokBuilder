@@ -742,6 +742,7 @@ public partial class HanokUIManager : MonoBehaviour
         }
 
         RefreshInfoPanel();
+        TriggerAutoGuide(obj);
         if (obj != null) ForceSyncTransform();
         SyncGizmo();
 
@@ -1212,30 +1213,38 @@ public partial class HanokUIManager : MonoBehaviour
     System.Collections.IEnumerator CaptureViewport()
     {
         _capturing = true;
+        yield return new WaitForEndOfFrame();
 
-        // 플래시 즉시 표시
+        string fname = "";
+        try
+        {
+            // 플래시 표시 전에 픽셀 읽기 (흰 화면 포함 방지)
+            var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
+            tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+            tex.Apply();
+
+            // 프로젝트 루트/captures 폴더에 저장
+            string projectRoot = System.IO.Path.GetDirectoryName(Application.dataPath);
+            string folder = System.IO.Path.Combine(projectRoot, "captures");
+            System.IO.Directory.CreateDirectory(folder);
+            fname = "Hanok_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
+            string path = System.IO.Path.Combine(folder, fname);
+            System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
+            Destroy(tex);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("[Capture] 저장 실패: " + e.Message);
+            ShowToast("캡처 실패");
+            _capturing = false;
+            yield break;
+        }
+
+        // 플래시 페이드 인
         if (_captureFlash != null)
         {
             _captureFlash.SetActive(true);
             _captureFlash.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.80f);
-        }
-        yield return new WaitForEndOfFrame();
-
-        // 전체 화면 픽셀 읽기
-        var tex = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-        tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-        tex.Apply();
-
-        // 바탕화면에 PNG 저장
-        string folder = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
-        string fname  = "Hanok_" + System.DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".png";
-        string path   = System.IO.Path.Combine(folder, fname);
-        System.IO.File.WriteAllBytes(path, tex.EncodeToPNG());
-        Destroy(tex);
-
-        // 플래시 페이드 아웃
-        if (_captureFlash != null)
-        {
             var fi = _captureFlash.GetComponent<Image>();
             for (float t = 0f; t < 0.40f; t += Time.unscaledDeltaTime)
             {

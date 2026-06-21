@@ -100,7 +100,8 @@ public partial class HanokUIManager
         Spacer(content, 10);
         ActionRow(content, 30,
             ("선택 해제", ClearSelection, BTN_GHOST, TEXT_MAIN));
-        Spacer(content, 28);
+
+        BuildGuideSection(content);
     }
 
     // ── 섹션 라벨 ─────────────────────────────────────────
