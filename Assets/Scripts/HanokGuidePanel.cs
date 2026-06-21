@@ -15,6 +15,7 @@ public partial class HanokUIManager
     // ── 오른쪽 패널 버튼 필드 ─────────────────────────────
     Image    _guideRequestBtnImg;
     TMP_Text _guideStatusText;
+    TMP_Text _guideReqBtnLbl;
 
     // ── 말풍선 팝업 필드 ──────────────────────────────────
     GameObject    _guideBubbleGO;
@@ -72,11 +73,11 @@ public partial class HanokUIManager
         btnCs.highlightedColor = BTN_HOVER; btnCs.pressedColor = BTN_PRESS;
         reqBtn.colors = btnCs;
         reqBtn.onClick.AddListener(OnGuideRequestClicked);
-        var btnLbl = (TextMeshProUGUI)MakeLabel(btnGO.transform, "해설 생성", 8.5f, TEXT_MAIN);
-        var btnRT  = btnLbl.GetComponent<RectTransform>();
+        _guideReqBtnLbl = (TextMeshProUGUI)MakeLabel(btnGO.transform, "해설 생성", 8.5f, TEXT_MAIN);
+        var btnRT = _guideReqBtnLbl.GetComponent<RectTransform>();
         btnRT.anchorMin = Vector2.zero; btnRT.anchorMax = Vector2.one;
         btnRT.offsetMin = btnRT.offsetMax = Vector2.zero;
-        KorFont(btnLbl);
+        KorFont(_guideReqBtnLbl);
 
         Spacer(content, 24);
     }
@@ -201,6 +202,7 @@ public partial class HanokUIManager
         if (_guideBubbleTitleText != null) _guideBubbleTitleText.text = title;
         if (_guideBubbleBodyText  != null) _guideBubbleBodyText.text  = body;
         _guideBubbleGO.SetActive(true);
+        UpdateGuideButtonLabel();
         StartCoroutine(PositionBubbleAfterLayout());
     }
 
@@ -245,6 +247,7 @@ public partial class HanokUIManager
     void HideGuideBubble()
     {
         if (_guideBubbleGO != null) _guideBubbleGO.SetActive(false);
+        UpdateGuideButtonLabel();
     }
 
     // ── 이벤트 핸들러 ──────────────────────────────────────
@@ -252,7 +255,35 @@ public partial class HanokUIManager
     {
         if (selectedObject == null)
         { SetGuideStatus("에셋을 먼저 선택해주세요."); return; }
+
+        // 팝업이 열려 있으면 닫기, 닫혀 있고 해설이 있으면 열기, 없으면 생성
+        if (_guideBubbleGO != null && _guideBubbleGO.activeSelf)
+        {
+            HideGuideBubble();
+            return;
+        }
+        if (!string.IsNullOrEmpty(_lastGuideBody) &&
+            _lastGuidedAssetKey == GetAssetKeyForObject(selectedObject))
+        {
+            ShowGuideBubble(_lastGuideTitle, _lastGuideBody);
+            return;
+        }
         RequestGuideForObject(selectedObject, forceRefresh: true);
+    }
+
+    string GetAssetKeyForObject(GameObject obj)
+    {
+        var meta = obj?.GetComponent<HanokPlacedAssetMetadata>();
+        return !string.IsNullOrEmpty(meta?.assetKey)
+            ? meta.assetKey : CleanPlacedObjectName(obj.name);
+    }
+
+    void UpdateGuideButtonLabel()
+    {
+        if (_guideReqBtnLbl == null) return;
+        bool visible    = _guideBubbleGO != null && _guideBubbleGO.activeSelf;
+        bool hasContent = !string.IsNullOrEmpty(_lastGuideBody);
+        _guideReqBtnLbl.text = visible ? "해설 닫기" : hasContent ? "해설 열기" : "해설 생성";
     }
 
     void TriggerAutoGuide(GameObject obj)
@@ -393,5 +424,6 @@ public partial class HanokUIManager
         _lastGuideBody      = null;
         HideGuideBubble();
         SetGuideStatus("선택 건축물의 역사·특징 해설");
+        UpdateGuideButtonLabel();
     }
 }
