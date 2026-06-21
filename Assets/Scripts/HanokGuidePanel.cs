@@ -12,12 +12,7 @@ using TMPro;
 /// </summary>
 public partial class HanokUIManager
 {
-    // ── 오른쪽 패널 버튼 필드 ─────────────────────────────
-    Image    _guideRequestBtnImg;
-    TMP_Text _guideStatusText;
-    TMP_Text _guideReqBtnLbl;
-
-    // ── 말풍선 팝업 필드 ──────────────────────────────────
+    // ── 필드 ──────────────────────────────────────────────
     GameObject    _guideBubbleGO;
     RectTransform _guideBubbleRT;
     TMP_Text      _guideBubbleTitleText;
@@ -34,55 +29,6 @@ public partial class HanokUIManager
     static readonly Color GUIDE_BODY  = new Color(0.93f, 0.93f, 0.93f, 0.92f);
     const float GUIDE_W = 300f;
 
-    // ── 오른쪽 패널: 해설 생성 버튼 섹션 ─────────────────
-    void BuildGuideSection(Transform content)
-    {
-        Spacer(content, 14);
-        Divider(content);
-        Spacer(content, 4);
-        InfoSectionLabel(content, "AI 문화재 해설");
-        Spacer(content, 6);
-
-        var row = new GameObject("GuideRow");
-        row.transform.SetParent(content, false);
-        var rowLE = row.AddComponent<LayoutElement>();
-        rowLE.preferredHeight = 26; rowLE.flexibleWidth = 1;
-        var rowHLG = row.AddComponent<HorizontalLayoutGroup>();
-        rowHLG.spacing = 8; rowHLG.padding = new RectOffset(12, 12, 0, 0);
-        rowHLG.childForceExpandHeight = true; rowHLG.childForceExpandWidth = false;
-
-        var stGO = new GameObject("GuideStatus");
-        stGO.transform.SetParent(row.transform, false);
-        stGO.AddComponent<LayoutElement>().flexibleWidth = 1;
-        _guideStatusText = stGO.AddComponent<TextMeshProUGUI>();
-        _guideStatusText.text      = "선택 건축물의 역사·특징 해설";
-        _guideStatusText.fontSize  = 8.5f;
-        _guideStatusText.color     = TEXT_HINT;
-        _guideStatusText.alignment = TextAlignmentOptions.Left;
-        KorFont(_guideStatusText);
-
-        var btnGO = new GameObject("GuideReqBtn");
-        btnGO.transform.SetParent(row.transform, false);
-        btnGO.AddComponent<LayoutElement>().preferredWidth = 64;
-        _guideRequestBtnImg = btnGO.AddComponent<Image>();
-        _guideRequestBtnImg.sprite = RoundedRectSprite(6f);
-        _guideRequestBtnImg.type   = Image.Type.Sliced;
-        _guideRequestBtnImg.color  = BTN_GHOST;
-        var reqBtn = btnGO.AddComponent<Button>();
-        reqBtn.targetGraphic = _guideRequestBtnImg;
-        var btnCs = reqBtn.colors;
-        btnCs.highlightedColor = BTN_HOVER; btnCs.pressedColor = BTN_PRESS;
-        reqBtn.colors = btnCs;
-        reqBtn.onClick.AddListener(OnGuideRequestClicked);
-        _guideReqBtnLbl = (TextMeshProUGUI)MakeLabel(btnGO.transform, "해설 생성", 8.5f, TEXT_MAIN);
-        var btnRT = _guideReqBtnLbl.GetComponent<RectTransform>();
-        btnRT.anchorMin = Vector2.zero; btnRT.anchorMax = Vector2.one;
-        btnRT.offsetMin = btnRT.offsetMax = Vector2.zero;
-        KorFont(_guideReqBtnLbl);
-
-        Spacer(content, 24);
-    }
-
     // ── 말풍선 팝업 빌드 (BuildUI에서 호출) ──────────────
     void BuildGuideBubble(Transform root)
     {
@@ -93,22 +39,19 @@ public partial class HanokUIManager
         _guideBubbleRT = go.AddComponent<RectTransform>();
         _guideBubbleRT.anchorMin = new Vector2(0.5f, 0.5f);
         _guideBubbleRT.anchorMax = new Vector2(0.5f, 0.5f);
-        _guideBubbleRT.pivot     = new Vector2(0.5f, 0f);   // 하단 중앙이 앵커
-        _guideBubbleRT.sizeDelta = new Vector2(GUIDE_W, 0f); // 높이는 CSF가 결정
+        _guideBubbleRT.pivot     = new Vector2(0.5f, 0f);
+        _guideBubbleRT.sizeDelta = new Vector2(GUIDE_W, 0f);
 
-        // 독립 소팅 레이어
         var cvs = go.AddComponent<Canvas>();
         cvs.overrideSorting = true;
         cvs.sortingOrder    = 25;
         go.AddComponent<GraphicRaycaster>();
 
-        // 배경
         var bg = go.AddComponent<Image>();
         bg.sprite = RoundedRectSprite(14f);
         bg.type   = Image.Type.Sliced;
         bg.color  = GUIDE_BG;
 
-        // 높이 자동 조절
         go.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         var vlg = go.AddComponent<VerticalLayoutGroup>();
@@ -117,10 +60,9 @@ public partial class HanokUIManager
         vlg.childForceExpandWidth  = true;
         vlg.childForceExpandHeight = false;
 
-        // 드래그 가능
         go.AddComponent<UIDraggablePanel>();
 
-        // ── 닫기 버튼 (레이아웃 무시, 우상단 오버레이) ────
+        // ── 닫기 버튼 ────────────────────────────────────
         var closeGO = new GameObject("CloseBtn");
         closeGO.transform.SetParent(go.transform, false);
         closeGO.AddComponent<LayoutElement>().ignoreLayout = true;
@@ -177,17 +119,17 @@ public partial class HanokUIManager
         _guideBubbleBodyText.overflowMode     = TextOverflowModes.Overflow;
         KorFont(_guideBubbleBodyText);
 
-        // ── 꼬리 삼각형 (레이아웃 무시, 하단 중앙) ────────
+        // ── 꼬리 삼각형 ───────────────────────────────────
         var arrowGO = new GameObject("Arrow");
         arrowGO.transform.SetParent(go.transform, false);
         arrowGO.AddComponent<LayoutElement>().ignoreLayout = true;
         var arrowRT = arrowGO.GetComponent<RectTransform>();
         arrowRT.anchorMin        = new Vector2(0.5f, 0f);
         arrowRT.anchorMax        = new Vector2(0.5f, 0f);
-        arrowRT.pivot            = new Vector2(0.5f, 1f);  // 꼭대기가 앵커 포인트
+        arrowRT.pivot            = new Vector2(0.5f, 1f);
         arrowRT.sizeDelta        = new Vector2(18f, 11f);
-        arrowRT.anchoredPosition = new Vector2(0f, 1f);    // 1px 겹침으로 이음새 제거
-        arrowRT.localEulerAngles = new Vector3(0f, 0f, -90f); // ▼ 방향
+        arrowRT.anchoredPosition = new Vector2(0f, 1f);
+        arrowRT.localEulerAngles = new Vector3(0f, 0f, -90f);
         var arrowImg = arrowGO.AddComponent<Image>();
         arrowImg.sprite = AITriangleSprite();
         arrowImg.type   = Image.Type.Simple;
@@ -196,25 +138,22 @@ public partial class HanokUIManager
         go.SetActive(false);
     }
 
-    // ── 표시·위치 조정·숨김 ──────────────────────────────
+    // ── 표시·숨김 ─────────────────────────────────────────
     void ShowGuideBubble(string title, string body)
     {
         if (_guideBubbleGO == null) return;
         if (_guideBubbleTitleText != null) _guideBubbleTitleText.text = title;
         if (_guideBubbleBodyText  != null) _guideBubbleBodyText.text  = body;
-        // 이 시점의 에셋 스케일을 기준값으로 저장
         _guideBubbleBaseScaleMag = selectedObject != null
-            ? selectedObject.transform.lossyScale.magnitude
-            : 1f;
+            ? selectedObject.transform.lossyScale.magnitude : 1f;
         _guideBubbleRT.localScale = Vector3.one;
         _guideBubbleGO.SetActive(true);
-        UpdateGuideButtonLabel();
         StartCoroutine(PositionBubbleAfterLayout());
     }
 
     IEnumerator PositionBubbleAfterLayout()
     {
-        yield return null; // ContentSizeFitter가 높이를 계산할 때까지 한 프레임 대기
+        yield return null;
         LayoutRebuilder.ForceRebuildLayoutImmediate(_guideBubbleRT);
         PositionBubbleAboveBuilding();
     }
@@ -223,7 +162,6 @@ public partial class HanokUIManager
     {
         if (selectedObject == null || Camera.main == null) return;
 
-        // 건물 바운드 상단 계산
         var rends = selectedObject.GetComponentsInChildren<Renderer>();
         Vector3 worldTop;
         if (rends.Length > 0)
@@ -235,41 +173,35 @@ public partial class HanokUIManager
         else worldTop = selectedObject.transform.position + Vector3.up * 3f;
 
         var sp = Camera.main.WorldToScreenPoint(worldTop);
-        if (sp.z <= 0f) return; // 카메라 뒤
+        if (sp.z <= 0f) return;
 
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _canvasRT, new Vector2(sp.x, sp.y), null, out Vector2 lp)) return;
 
-        // 화면 밖으로 나가지 않도록 클램프
-        float halfW  = GUIDE_W * 0.5f;
-        float cw     = _canvasRT.rect.width  * 0.5f;
-        float ch     = _canvasRT.rect.height * 0.5f;
+        float halfW = GUIDE_W * 0.5f;
+        float cw    = _canvasRT.rect.width  * 0.5f;
+        float ch    = _canvasRT.rect.height * 0.5f;
         lp.x = Mathf.Clamp(lp.x, -cw + halfW + 20f, cw - halfW - 20f);
         lp.y = Mathf.Clamp(lp.y + 14f, -ch + 60f, ch - 120f);
-
         _guideBubbleRT.anchoredPosition = lp;
     }
 
     void HideGuideBubble()
     {
         if (_guideBubbleGO != null) _guideBubbleGO.SetActive(false);
-        UpdateGuideButtonLabel();
     }
 
-    // Update()에서 매 프레임 호출 — 에셋 스케일 변화에 맞춰 버블 크기·Y 위치 동기화
+    // Update()에서 매 프레임 호출 — 스케일 비례·Y 위치 동기화
     internal void UpdateGuideBubble()
     {
         if (_guideBubbleGO == null || !_guideBubbleGO.activeSelf) return;
         if (selectedObject == null || Camera.main == null) return;
 
-        // ── 버블 크기: 에셋 스케일 비율에 비례 ──────────────
         float cur    = selectedObject.transform.lossyScale.magnitude;
         float factor = _guideBubbleBaseScaleMag > 0.001f
-            ? Mathf.Clamp(cur / _guideBubbleBaseScaleMag, 0.25f, 4f)
-            : 1f;
+            ? Mathf.Clamp(cur / _guideBubbleBaseScaleMag, 0.25f, 4f) : 1f;
         _guideBubbleRT.localScale = Vector3.one * factor;
 
-        // ── Y 위치: 건물 상단 추적 (X는 드래그 자유) ────────
         var rends = selectedObject.GetComponentsInChildren<Renderer>();
         Vector3 worldTop;
         if (rends.Length > 0)
@@ -292,45 +224,10 @@ public partial class HanokUIManager
         _guideBubbleRT.anchoredPosition = pos;
     }
 
-    // ── 이벤트 핸들러 ──────────────────────────────────────
-    void OnGuideRequestClicked()
-    {
-        if (selectedObject == null)
-        { SetGuideStatus("에셋을 먼저 선택해주세요."); return; }
-
-        // 팝업이 열려 있으면 닫기, 닫혀 있고 해설이 있으면 열기, 없으면 생성
-        if (_guideBubbleGO != null && _guideBubbleGO.activeSelf)
-        {
-            HideGuideBubble();
-            return;
-        }
-        if (!string.IsNullOrEmpty(_lastGuideBody) &&
-            _lastGuidedAssetKey == GetAssetKeyForObject(selectedObject))
-        {
-            ShowGuideBubble(_lastGuideTitle, _lastGuideBody);
-            return;
-        }
-        RequestGuideForObject(selectedObject, forceRefresh: true);
-    }
-
-    string GetAssetKeyForObject(GameObject obj)
-    {
-        var meta = obj?.GetComponent<HanokPlacedAssetMetadata>();
-        return !string.IsNullOrEmpty(meta?.assetKey)
-            ? meta.assetKey : CleanPlacedObjectName(obj.name);
-    }
-
-    void UpdateGuideButtonLabel()
-    {
-        if (_guideReqBtnLbl == null) return;
-        bool visible    = _guideBubbleGO != null && _guideBubbleGO.activeSelf;
-        bool hasContent = !string.IsNullOrEmpty(_lastGuideBody);
-        _guideReqBtnLbl.text = visible ? "해설 닫기" : hasContent ? "해설 열기" : "해설 생성";
-    }
-
+    // ── 선택·삭제 연동 ────────────────────────────────────
     void TriggerAutoGuide(GameObject obj)
     {
-        if (obj == null) { HideGuideBubble(); SetGuideStatus("선택 건축물의 역사·특징 해설"); return; }
+        if (obj == null) { HideGuideBubble(); return; }
         RequestGuideForObject(obj, forceRefresh: false);
     }
 
@@ -344,7 +241,6 @@ public partial class HanokUIManager
 
         if (!forceRefresh && assetKey == _lastGuidedAssetKey)
         {
-            // 같은 에셋 재선택 — 이미 해설이 있으면 팝업만 다시 표시
             if (!string.IsNullOrEmpty(_lastGuideBody) &&
                 _guideBubbleGO != null && !_guideBubbleGO.activeSelf)
                 ShowGuideBubble(_lastGuideTitle, _lastGuideBody);
@@ -369,11 +265,9 @@ public partial class HanokUIManager
             }
         }
 
-        string apiKey = GetSavedApiKey();
-        if (string.IsNullOrEmpty(apiKey))
+        if (string.IsNullOrEmpty(GetSavedApiKey()))
         {
             _lastGuidedAssetKey = assetKey;
-            SetGuideStatus("⚙ API 키 미설정");
             return;
         }
 
@@ -384,8 +278,6 @@ public partial class HanokUIManager
     IEnumerator RequestGuideCo(string assetKey, string displayName, string categoryLabel)
     {
         _guideRequestInProgress = true;
-        SetGuideStatus("해설 생성 중...");
-        if (_guideRequestBtnImg != null) _guideRequestBtnImg.color = BTN_ACTIVE;
 
         string system =
             "당신은 한국 전통 건축 문화재에 정통한 큐레이터이자 역사학자입니다. " +
@@ -404,9 +296,9 @@ public partial class HanokUIManager
             userSb.Append("분류: ").AppendLine(categoryLabel);
 
         string bodyJson =
-            "{\"model\":"    + JsonStr(GetApiModel()) +
+            "{\"model\":"  + JsonStr(GetApiModel()) +
             ",\"max_tokens\":900" +
-            ",\"system\":"   + JsonStr(system) +
+            ",\"system\":" + JsonStr(system) +
             ",\"messages\":[{\"role\":\"user\",\"content\":" + JsonStr(userSb.ToString()) + "}]}";
 
         byte[] raw = Encoding.UTF8.GetBytes(bodyJson);
@@ -421,42 +313,24 @@ public partial class HanokUIManager
         yield return www.SendWebRequest();
 
         _guideRequestInProgress = false;
-        if (_guideRequestBtnImg != null) _guideRequestBtnImg.color = BTN_GHOST;
 
         if (www.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError($"[GuideAPI] {www.responseCode}: {www.error}\n{www.downloadHandler.text}");
-            SetGuideStatus($"요청 실패 ({www.responseCode})");
             yield break;
         }
 
         ClaudeResponse resp = null;
         try { resp = JsonUtility.FromJson<ClaudeResponse>(www.downloadHandler.text); }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[GuideAPI] 파싱 실패: {e.Message}");
-            SetGuideStatus("응답 파싱 실패");
-            yield break;
-        }
+        catch (System.Exception e) { Debug.LogError($"[GuideAPI] 파싱 실패: {e.Message}"); yield break; }
 
-        if (resp?.content == null || resp.content.Length == 0)
-        { SetGuideStatus("응답 없음"); yield break; }
+        if (resp?.content == null || resp.content.Length == 0) yield break;
 
         var meta2 = selectedObject?.GetComponent<HanokPlacedAssetMetadata>();
-        string title = !string.IsNullOrEmpty(meta2?.displayName) ? meta2.displayName : assetKey;
-
-        _lastGuideTitle = title;
+        _lastGuideTitle = !string.IsNullOrEmpty(meta2?.displayName) ? meta2.displayName : assetKey;
         _lastGuideBody  = resp.content[0].text;
 
-        SetGuideStatus("해설 완료 ✓");
-        ShowGuideBubble(title, _lastGuideBody);
-    }
-
-    void SetGuideStatus(string msg)
-    {
-        if (_guideStatusText == null) return;
-        _guideStatusText.text  = msg;
-        _guideStatusText.color = TEXT_HINT;
+        ShowGuideBubble(_lastGuideTitle, _lastGuideBody);
     }
 
     void ClearGuide()
@@ -465,7 +339,5 @@ public partial class HanokUIManager
         _lastGuideTitle     = null;
         _lastGuideBody      = null;
         HideGuideBubble();
-        SetGuideStatus("선택 건축물의 역사·특징 해설");
-        UpdateGuideButtonLabel();
     }
 }

@@ -920,6 +920,7 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         Destroy(selectedObject);
         selectedObject = null;
+        HideGuideBubble();
         RefreshInfoPanel();
         SyncGizmo();
     }
@@ -932,6 +933,7 @@ public partial class HanokUIManager : MonoBehaviour
             if (hl != null) hl.Hide();
         }
         selectedObject = null;
+        HideGuideBubble();
         RefreshInfoPanel();
         SyncGizmo();
     }
