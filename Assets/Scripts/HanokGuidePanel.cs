@@ -27,6 +27,7 @@ public partial class HanokUIManager
     string _lastGuidedAssetKey;
     string _lastGuideTitle;
     string _lastGuideBody;
+    float  _guideBubbleBaseScaleMag;
 
     static readonly Color GUIDE_BG    = new Color(0.07f, 0.09f, 0.16f, 0.96f);
     static readonly Color GUIDE_TITLE = new Color(1.00f, 0.82f, 0.38f, 1.00f);
@@ -201,6 +202,11 @@ public partial class HanokUIManager
         if (_guideBubbleGO == null) return;
         if (_guideBubbleTitleText != null) _guideBubbleTitleText.text = title;
         if (_guideBubbleBodyText  != null) _guideBubbleBodyText.text  = body;
+        // 이 시점의 에셋 스케일을 기준값으로 저장
+        _guideBubbleBaseScaleMag = selectedObject != null
+            ? selectedObject.transform.lossyScale.magnitude
+            : 1f;
+        _guideBubbleRT.localScale = Vector3.one;
         _guideBubbleGO.SetActive(true);
         UpdateGuideButtonLabel();
         StartCoroutine(PositionBubbleAfterLayout());
@@ -248,6 +254,42 @@ public partial class HanokUIManager
     {
         if (_guideBubbleGO != null) _guideBubbleGO.SetActive(false);
         UpdateGuideButtonLabel();
+    }
+
+    // Update()에서 매 프레임 호출 — 에셋 스케일 변화에 맞춰 버블 크기·Y 위치 동기화
+    internal void UpdateGuideBubble()
+    {
+        if (_guideBubbleGO == null || !_guideBubbleGO.activeSelf) return;
+        if (selectedObject == null || Camera.main == null) return;
+
+        // ── 버블 크기: 에셋 스케일 비율에 비례 ──────────────
+        float cur    = selectedObject.transform.lossyScale.magnitude;
+        float factor = _guideBubbleBaseScaleMag > 0.001f
+            ? Mathf.Clamp(cur / _guideBubbleBaseScaleMag, 0.25f, 4f)
+            : 1f;
+        _guideBubbleRT.localScale = Vector3.one * factor;
+
+        // ── Y 위치: 건물 상단 추적 (X는 드래그 자유) ────────
+        var rends = selectedObject.GetComponentsInChildren<Renderer>();
+        Vector3 worldTop;
+        if (rends.Length > 0)
+        {
+            var b = rends[0].bounds;
+            foreach (var r in rends) b.Encapsulate(r.bounds);
+            worldTop = new Vector3(b.center.x, b.max.y + 0.4f, b.center.z);
+        }
+        else worldTop = selectedObject.transform.position + Vector3.up * 3f;
+
+        var sp = Camera.main.WorldToScreenPoint(worldTop);
+        if (sp.z <= 0f) return;
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _canvasRT, new Vector2(sp.x, sp.y), null, out Vector2 lp)) return;
+
+        float ch  = _canvasRT.rect.height * 0.5f;
+        var   pos = _guideBubbleRT.anchoredPosition;
+        pos.y = Mathf.Clamp(lp.y + 14f, -ch + 60f, ch - 120f);
+        _guideBubbleRT.anchoredPosition = pos;
     }
 
     // ── 이벤트 핸들러 ──────────────────────────────────────

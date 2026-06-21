@@ -171,6 +171,7 @@ public partial class HanokUIManager : MonoBehaviour
         HandleKeyboardShortcuts();
         UpdateScaleHandle();
         UpdateViewBadge();
+        UpdateGuideBubble();
     }
 
     // ── Ctrl+스크롤 → 선택 오브젝트 크기 조절 ────────────
