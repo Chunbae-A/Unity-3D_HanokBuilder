@@ -19,6 +19,9 @@ public partial class HanokUIManager
     RectTransform _aiResultsPanelRT;
     bool          _aiRequestInProgress;
     string        _aiCatalog;
+    bool            _layoutMode;
+    Image           _layoutBtnImg;
+    TextMeshProUGUI _layoutBtnLabel;
     static Sprite _aiCircleSprite;
     static Sprite _aiTriangleSprite;
     const int   AI_AUTO_PLACE_MIN     = 3;
@@ -58,6 +61,22 @@ public partial class HanokUIManager
         _aiInputField = MakeAIInputField(barRT);
         _aiInputField.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
         _aiInputField.onSubmit.AddListener(_ => OnAIPromptSubmit());
+
+        // ⚙ API 키 설정 버튼
+        var gearGO = new GameObject("ApiKeyBtn");
+        gearGO.transform.SetParent(barRT, false);
+        gearGO.AddComponent<LayoutElement>().preferredWidth = 30;
+        var gearImg = gearGO.AddComponent<Image>();
+        gearImg.sprite = RoundedRectSprite(6f);
+        gearImg.type   = Image.Type.Sliced;
+        gearImg.color  = BTN_GHOST;
+        var gearBtn = gearGO.AddComponent<Button>();
+        gearBtn.targetGraphic = gearImg;
+        gearBtn.onClick.AddListener(ShowApiKeyPanel);
+        var gearLbl = (TextMeshProUGUI)MakeLabel(gearGO.transform, "⚙", 12, TEXT_MAIN, bold: false);
+        var gearLblRT = gearLbl.GetComponent<RectTransform>();
+        gearLblRT.anchorMin = Vector2.zero; gearLblRT.anchorMax = Vector2.one;
+        gearLblRT.offsetMin = gearLblRT.offsetMax = Vector2.zero;
 
         var sendGO = new GameObject("Send");
         sendGO.transform.SetParent(barRT, false);
@@ -111,7 +130,7 @@ public partial class HanokUIManager
         panelRT.gameObject.SetActive(false);
     }
 
-    // 자유 텍스트 입력 필드 (배경/테두리는 프롬프트 바 자체가 담당하므로 투명 처리)
+    // 자유 텍스트 입력 필드 + 왼쪽 끝 맵 체크박스
     TMP_InputField MakeAIInputField(Transform parent)
     {
         var go = new GameObject("AIInput");
@@ -120,11 +139,33 @@ public partial class HanokUIManager
         var img = go.AddComponent<Image>();
         img.color = Color.clear;
 
+        // 맵 체크박스 — 입력창 왼쪽 끝 오버레이
+        const float CB = 22f; // 체크박스 크기
+        var cbGO = new GameObject("MapCheck");
+        cbGO.transform.SetParent(go.transform, false);
+        var cbRT = cbGO.AddComponent<RectTransform>();
+        cbRT.anchorMin = new Vector2(0f, 0.5f); cbRT.anchorMax = new Vector2(0f, 0.5f);
+        cbRT.pivot     = new Vector2(0f, 0.5f);
+        cbRT.offsetMin = new Vector2(4, -CB * 0.5f);
+        cbRT.offsetMax = new Vector2(4 + CB, CB * 0.5f);
+        _layoutBtnImg = cbGO.AddComponent<Image>();
+        _layoutBtnImg.sprite = RoundedRectSprite(5f);
+        _layoutBtnImg.type   = Image.Type.Sliced;
+        _layoutBtnImg.color  = BTN_GHOST;
+        var cbBtn = cbGO.AddComponent<Button>();
+        cbBtn.targetGraphic = _layoutBtnImg;
+        cbBtn.onClick.AddListener(OnLayoutToggle);
+        _layoutBtnLabel = (TextMeshProUGUI)MakeLabel(cbGO.transform, "맵", 8, TEXT_MAIN, bold: false);
+        var cbLblRT = _layoutBtnLabel.GetComponent<RectTransform>();
+        cbLblRT.anchorMin = Vector2.zero; cbLblRT.anchorMax = Vector2.one;
+        cbLblRT.offsetMin = cbLblRT.offsetMax = Vector2.zero;
+
+        // 텍스트 뷰포트 — 체크박스 공간(30px) 확보
         var area = new GameObject("Area");
         area.transform.SetParent(go.transform, false);
         var aRT = area.AddComponent<RectTransform>();
         aRT.anchorMin = Vector2.zero; aRT.anchorMax = Vector2.one;
-        aRT.offsetMin = new Vector2(8, 2); aRT.offsetMax = new Vector2(-8, -2);
+        aRT.offsetMin = new Vector2(30, 2); aRT.offsetMax = new Vector2(-8, -2);
         area.AddComponent<RectMask2D>();
 
         var textGO = new GameObject("Text");
@@ -389,14 +430,35 @@ public partial class HanokUIManager
 
         _aiRequestInProgress = true;
         _aiInputField.interactable = false;
-        ShowAIMessage("AI에게 묻는 중...");
-        StartCoroutine(RequestAIRecommendations(prompt));
+
+        if (_layoutMode)
+        {
+            ShowAIMessage("AI가 설계 중...");
+            StartCoroutine(RequestAIAgentLayout(prompt));
+        }
+        else
+        {
+            ShowAIMessage("AI에게 묻는 중...");
+            StartCoroutine(RequestAIRecommendations(prompt));
+        }
     }
 
     void EndAIRequest()
     {
         _aiRequestInProgress = false;
         if (_aiInputField != null) _aiInputField.interactable = true;
+    }
+
+    void OnLayoutToggle()
+    {
+        SetLayoutMode(!_layoutMode);
+    }
+
+    void SetLayoutMode(bool on)
+    {
+        _layoutMode = on;
+        if (_layoutBtnImg   != null) _layoutBtnImg.color   = on ? BTN_ACTIVE : BTN_GHOST;
+        if (_layoutBtnLabel != null) _layoutBtnLabel.color  = on ? TEXT_ON_ACCENT : TEXT_MAIN;
     }
 
     // ── 카탈로그 (assetKey|displayName|tags,...) 1회 생성 후 캐싱 ──
@@ -425,18 +487,16 @@ public partial class HanokUIManager
     // ── Claude API 호출 ───────────────────────────────────
     IEnumerator RequestAIRecommendations(string userPrompt)
     {
-        var config = Resources.Load<ClaudeApiConfig>("ClaudeApiConfig");
-        if (config == null || string.IsNullOrEmpty(config.apiKey))
+        string apiKey = GetSavedApiKey();
+        if (string.IsNullOrEmpty(apiKey))
         {
             var localItems = BuildLocalRecommendations(userPrompt);
             if (localItems.Length == 0)
-            {
-                ShowAIMessage("추가 에셋에서 일치하는 항목을 찾지 못했습니다.\nAPI 키를 설정하면 더 자연어에 가까운 추천을 받을 수 있습니다.");
-            }
+                ShowAIMessage("일치하는 항목이 없습니다.\n⚙ 버튼에서 API 키를 설정하면 자연어 추천이 활성화됩니다.");
             else
             {
                 RenderAIRecommendations(localItems);
-                ShowToast("API 키 없이 추가 에셋명/태그로 추천했습니다.");
+                ShowToast("API 키 미설정 — 에셋명/태그 기반으로 추천했습니다.");
             }
             EndAIRequest();
             yield break;
@@ -450,7 +510,7 @@ public partial class HanokUIManager
 
         var reqBody = new ClaudeRequest
         {
-            model = config.model,
+            model = GetApiModel(),
             max_tokens = 4096,
             messages = new[] { new ClaudeMessage { role = "user", content = instruction } }
         };
@@ -466,7 +526,7 @@ public partial class HanokUIManager
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();
         www.SetRequestHeader("content-type", "application/json");
-        www.SetRequestHeader("x-api-key", config.apiKey);
+        www.SetRequestHeader("x-api-key", apiKey);
         www.SetRequestHeader("anthropic-version", "2023-06-01");
 
         yield return www.SendWebRequest();

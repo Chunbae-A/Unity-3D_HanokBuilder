@@ -10,6 +10,24 @@ public static class HanokSceneSetup
     const float EAVE  = 1.2f;   // 처마 overhang
     const float TILE  = 0.22f;  // 기와 tile width
 
+    // ── Shader cache (Shader.Find은 빌드에서 null 반환 가능 → 캐싱 + null 체크) ──
+    static Shader _skyboxShader;
+    static Shader _urpLitShader;
+
+    static Material SkyboxMat()
+    {
+        if (_skyboxShader == null) _skyboxShader = Shader.Find("Skybox/Procedural");
+        if (_skyboxShader == null) { Debug.LogError("[HanokSceneSetup] Skybox/Procedural 셰이더를 찾을 수 없습니다."); return null; }
+        return new Material(_skyboxShader);
+    }
+
+    static Material URPLitMat()
+    {
+        if (_urpLitShader == null) _urpLitShader = Shader.Find("Universal Render Pipeline/Lit");
+        if (_urpLitShader == null) { Debug.LogError("[HanokSceneSetup] URP/Lit 셰이더를 찾을 수 없습니다."); return null; }
+        return new Material(_urpLitShader);
+    }
+
     // ── Material smoothness presets ───────────────────────────────────────────
     const float SM_ROUGH_STONE   = 0.08f;
     const float SM_POLISHED_GRAN = 0.35f;
@@ -39,14 +57,6 @@ public static class HanokSceneSetup
     public static void Setup()
     {
         CreateOuterGround();
-        CreateStonePlatform();
-        CreateFloor();
-        CreateCourtyard();
-        CreateBoundaryWalls();
-        CreateBroadGroves();
-        CreateMainHanok();
-        CreateDistantBuildings();
-        CreateMountainSilhouettes();
         SetupSkybox();
         SetupLighting();
         SetupCamera();
@@ -55,46 +65,259 @@ public static class HanokSceneSetup
     public static void SetPreset(int idx)
     {
         DestroyNamed(ROOT_PLATFORM, ROOT_WALLS, ROOT_PINES, ROOT_COURTYARD,
-                     ROOT_BG, ROOT_MAIN, ROOT_SARANG, ROOT_MARKET, ROOT_GARDEN);
+                     ROOT_BG, ROOT_MAIN, ROOT_SARANG, ROOT_MARKET, ROOT_GARDEN, "_HanokGround", "_HanokMoon");
+        ApplySkyLighting(idx);
+        ApplyGround(idx);
+    }
+
+    // ═════════════════════════════════════════════════════════════════════════
+    //  SKY & LIGHTING
+    // ═════════════════════════════════════════════════════════════════════════
+
+    static void ApplySkyLighting(int idx)
+    {
+        foreach (var dl in Object.FindObjectsOfType<Light>())
+            if (dl.name.StartsWith("_Hanok"))
+                Object.DestroyImmediate(dl.gameObject);
+        var oldSkybox = RenderSettings.skybox;
         switch (idx)
         {
-            case 0: Preset_HanokMadang();   break;
-            case 1: Preset_Sarangchae();    break;
-            case 2: Preset_Jangter();       break;
-            case 3: Preset_Garden();        break;
+            case 0: Sky_Clear();   break;
+            case 1: Sky_Sunset();  break;
+            case 2: Sky_Cloudy();  break;
+            case 3: Sky_Nature();  break;
         }
+        if (oldSkybox != null) Object.DestroyImmediate(oldSkybox);
+        DynamicGI.UpdateEnvironment();
+    }
+
+    // 0 — 맑은 날: 평범하게 푸른 하늘, 오후 햇빛
+    static void Sky_Clear()
+    {
+        var mat = SkyboxMat();
+        if (mat == null) return;
+        mat.SetFloat("_SunSize", 0.04f);
+        mat.SetFloat("_SunSizeConvergence", 10f);
+        mat.SetFloat("_AtmosphereThickness", 1.0f);
+        mat.SetColor("_SkyTint",    Hex("88B8D8"));
+        mat.SetColor("_GroundColor", Hex("A89880"));
+        mat.SetFloat("_Exposure", 1.4f);
+        RenderSettings.skybox = mat;
+        RenderSettings.fogColor = Hex("C0D8E8");
+        RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogStartDistance = 38f; RenderSettings.fogEndDistance = 95f;
+
+        var sun = new GameObject("_HanokSun").AddComponent<Light>();
+        sun.type = LightType.Directional; sun.color = Hex("FFF4E0");
+        sun.intensity = 1.5f; sun.shadows = LightShadows.Soft;
+        sun.shadowStrength = 0.7f; sun.shadowBias = 0.015f;
+        QualitySettings.shadowDistance = 120f;
+        sun.transform.eulerAngles = V(50f, -35f, 0f);
+
+        var fill = new GameObject("_HanokSky").AddComponent<Light>();
+        fill.type = LightType.Directional; fill.color = Hex("B0D0F0");
+        fill.intensity = 0.30f; fill.shadows = LightShadows.None;
+        fill.transform.eulerAngles = V(75f, 140f, 0f);
+
+        RenderSettings.ambientMode         = AmbientMode.Trilight;
+        RenderSettings.ambientSkyColor     = Hex("A8C8E0");
+        RenderSettings.ambientEquatorColor = Hex("E8E0C8");
+        RenderSettings.ambientGroundColor  = Hex("685840");
+    }
+
+    // 1 — 저녁노을: 주황~노랑 해질녘 하늘
+    // 낮은 AtmosphereThickness + 높은 Exposure → tint 색이 직접 하늘에 보임
+    static void Sky_Sunset()
+    {
+        var mat = SkyboxMat();
+        if (mat == null) return;
+        mat.SetFloat("_SunSize", 0.10f);
+        mat.SetFloat("_SunSizeConvergence", 5f);
+        mat.SetFloat("_AtmosphereThickness", 0.35f);  // 낮게 → tint가 직접 하늘 색상 결정
+        mat.SetColor("_SkyTint",    Hex("FF8020"));   // 주황-노랑
+        mat.SetColor("_GroundColor", Hex("7A4020"));
+        mat.SetFloat("_Exposure", 1.8f);              // 높게 → 밝고 선명한 노을
+        RenderSettings.skybox = mat;
+        RenderSettings.fogColor = Hex("F0A050");
+        RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogStartDistance = 22f; RenderSettings.fogEndDistance = 72f;
+
+        var sun = new GameObject("_HanokSun").AddComponent<Light>();
+        sun.type = LightType.Directional; sun.color = Hex("FFB040");
+        sun.intensity = 1.2f; sun.shadows = LightShadows.Soft;
+        sun.shadowStrength = 0.85f; sun.shadowBias = 0.015f;
+        QualitySettings.shadowDistance = 120f;
+        sun.transform.eulerAngles = V(15f, -55f, 0f);
+
+        var fill = new GameObject("_HanokSky").AddComponent<Light>();
+        fill.type = LightType.Directional; fill.color = Hex("E08030");
+        fill.intensity = 0.20f; fill.shadows = LightShadows.None;
+        fill.transform.eulerAngles = V(70f, 120f, 0f);
+
+        RenderSettings.ambientMode         = AmbientMode.Trilight;
+        RenderSettings.ambientSkyColor     = Hex("D07020");
+        RenderSettings.ambientEquatorColor = Hex("C08030");
+        RenderSettings.ambientGroundColor  = Hex("341208");
+    }
+
+    // 2 — 밤: 짙은 남색 밤하늘, 달빛
+    static void Sky_Cloudy()
+    {
+        var mat = SkyboxMat();
+        if (mat == null) return;
+        mat.SetFloat("_SunSize", 0.04f);
+        mat.SetFloat("_SunSizeConvergence", 10f);
+        mat.SetFloat("_AtmosphereThickness", 0.05f);  // 거의 0 → 대기 산란 제거, tint 직접 노출
+        mat.SetColor("_SkyTint",    Hex("06101E"));   // 짙은 남색
+        mat.SetColor("_GroundColor", Hex("050A14"));
+        mat.SetFloat("_Exposure", 0.55f);
+        RenderSettings.skybox = mat;
+        RenderSettings.fogColor = Hex("1A2438");
+        RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogStartDistance = 25f; RenderSettings.fogEndDistance = 70f;
+
+        // 달빛: 파란빛 저녁 조명
+        var moon = new GameObject("_HanokSun").AddComponent<Light>();
+        moon.type = LightType.Directional; moon.color = Hex("C0D8F0");
+        moon.intensity = 0.65f; moon.shadows = LightShadows.Soft;
+        moon.shadowStrength = 0.55f; moon.shadowBias = 0.015f;
+        QualitySettings.shadowDistance = 120f;
+        moon.transform.eulerAngles = V(45f, 30f, 0f);
+
+        var fill = new GameObject("_HanokSky").AddComponent<Light>();
+        fill.type = LightType.Directional; fill.color = Hex("7090B8");
+        fill.intensity = 0.30f; fill.shadows = LightShadows.None;
+        fill.transform.eulerAngles = V(75f, 140f, 0f);
+
+        var cam = Camera.main;
+        if (cam != null) cam.backgroundColor = Hex("101828");
+
+        RenderSettings.ambientMode         = AmbientMode.Trilight;
+        RenderSettings.ambientSkyColor     = Hex("1C2C48");
+        RenderSettings.ambientEquatorColor = Hex("182438");
+        RenderSettings.ambientGroundColor  = Hex("0C1020");
+
+        CreateMoon();
+    }
+
+    static void CreateMoon()
+    {
+        // 달빛 방향(45°, 30°)의 반대편 하늘에 배치
+        var root = new GameObject("_HanokMoon");
+        root.transform.position = V(-55f, 130f, -175f);
+
+        // 달 본체
+        var moon = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        moon.transform.SetParent(root.transform);
+        moon.transform.localPosition = Vector3.zero;
+        moon.transform.localScale    = V(14f, 14f, 14f);
+        if (moon.TryGetComponent<Collider>(out var col)) Object.DestroyImmediate(col);
+
+        var mr  = moon.GetComponent<MeshRenderer>();
+        var mat = URPLitMat();
+        if (mat == null) return;
+        Color moonCol = Hex("E8F2FF");
+        mat.SetColor("_BaseColor", moonCol);
+        mat.SetFloat("_Smoothness", 0.05f);
+        mat.SetFloat("_Metallic",   0f);
+        mat.EnableKeyword("_EMISSION");
+        mat.SetColor("_EmissionColor", moonCol * 1.8f);
+        mr.sharedMaterial = mat;
+        mr.shadowCastingMode  = UnityEngine.Rendering.ShadowCastingMode.Off;
+        mr.receiveShadows     = false;
+
+        // 달 주변 흐린 후광
+        var halo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        halo.transform.SetParent(root.transform);
+        halo.transform.localPosition = Vector3.zero;
+        halo.transform.localScale    = V(18f, 18f, 18f);
+        if (halo.TryGetComponent<Collider>(out var hc)) Object.DestroyImmediate(hc);
+
+        var hmr  = halo.GetComponent<MeshRenderer>();
+        var hmat = URPLitMat();
+        if (hmat == null) return;
+        Color haloCol = new Color(0.55f, 0.65f, 0.85f, 0.18f);
+        hmat.SetFloat("_Surface", 1f);
+        hmat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        hmat.SetOverrideTag("RenderType", "Transparent");
+        hmat.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+        hmat.SetFloat("_DstBlend", (float)BlendMode.OneMinusSrcAlpha);
+        hmat.SetFloat("_ZWrite", 0f);
+        hmat.SetColor("_BaseColor", haloCol);
+        hmat.SetFloat("_Smoothness", 0f);
+        hmat.SetFloat("_Metallic",   0f);
+        hmat.EnableKeyword("_EMISSION");
+        hmat.SetColor("_EmissionColor", new Color(0.12f, 0.16f, 0.28f));
+        hmat.renderQueue = 3000;
+        hmr.sharedMaterial = hmat;
+        hmr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        hmr.receiveShadows    = false;
+    }
+
+    // 3 — 자연: 초록초록한 잔디밭, 상쾌한 푸른 하늘
+    static void Sky_Nature()
+    {
+        var mat = SkyboxMat();
+        if (mat == null) return;
+        mat.SetFloat("_SunSize", 0.04f);
+        mat.SetFloat("_SunSizeConvergence", 9f);
+        mat.SetFloat("_AtmosphereThickness", 1.05f);
+        mat.SetColor("_SkyTint",    Hex("68C8A0"));
+        mat.SetColor("_GroundColor", Hex("508050"));
+        mat.SetFloat("_Exposure", 1.35f);
+        RenderSettings.skybox = mat;
+        RenderSettings.fogColor = Hex("A8DCC0");
+        RenderSettings.fog = true; RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogStartDistance = 38f; RenderSettings.fogEndDistance = 92f;
+
+        var sun = new GameObject("_HanokSun").AddComponent<Light>();
+        sun.type = LightType.Directional; sun.color = Hex("FFEE80");
+        sun.intensity = 1.45f; sun.shadows = LightShadows.Soft;
+        sun.shadowStrength = 0.65f; sun.shadowBias = 0.015f;
+        QualitySettings.shadowDistance = 120f;
+        sun.transform.eulerAngles = V(52f, -25f, 0f);
+
+        var fill = new GameObject("_HanokSky").AddComponent<Light>();
+        fill.type = LightType.Directional; fill.color = Hex("90D8A8");
+        fill.intensity = 0.28f; fill.shadows = LightShadows.None;
+        fill.transform.eulerAngles = V(75f, 140f, 0f);
+
+        RenderSettings.ambientMode         = AmbientMode.Trilight;
+        RenderSettings.ambientSkyColor     = Hex("80C8A0");
+        RenderSettings.ambientEquatorColor = Hex("C0E0A0");
+        RenderSettings.ambientGroundColor  = Hex("2C5018");
     }
 
     // ═════════════════════════════════════════════════════════════════════════
-    //  PRESETS
+    //  GROUND PER PRESET
     // ═════════════════════════════════════════════════════════════════════════
 
-    static void Preset_HanokMadang()
+    static void ApplyGround(int idx)
     {
-        CreateCourtyard();
-        CreateBoundaryWalls();
-        CreateBroadGroves();
-        CreateDistantBuildings();
-        CreateMainHanok();
-    }
-
-    static void Preset_Sarangchae()
-    {
-        CreateSarangchaeRoom();
-        CreateLightTrees();
-    }
-
-    static void Preset_Jangter()
-    {
-        CreateMarketStalls();
-        CreatePineGroves();
-        CreateDistantBuildings();
-    }
-
-    static void Preset_Garden()
-    {
-        CreateGardenElements();
-        CreateGardenTrees();
+        var g = Mk("_HanokGround");
+        switch (idx)
+        {
+            case 0: // 맑은 날: 평범한 바닥 (기존 흙/돌)
+                MkBox(g, V(0,-0.15f,0), V(80,0.1f,80), Hex("8B7355"), SM_ROUGH_STONE);
+                MkBox(g, V(0,-0.08f,0), V(40,0.1f,40), Hex("9E8E72"), SM_ROUGH_STONE);
+                MkBox(g, V(0, 0.00f,0), V(20,0.1f,20), Hex("6B5A3E"), SM_CLAY);
+                break;
+            case 1: // 저녁노을: 흙바닥
+                MkBox(g, V(0,-0.15f,0), V(80,0.1f,80), Hex("4A2E18"), SM_CLAY);
+                MkBox(g, V(0,-0.08f,0), V(40,0.1f,40), Hex("5E3C22"), SM_CLAY);
+                MkBox(g, V(0, 0.00f,0), V(20,0.1f,20), Hex("724830"), SM_CLAY);
+                break;
+            case 2: // 밤: 어두운 바닥
+                MkBox(g, V(0,-0.15f,0), V(80,0.1f,80), Hex("1A1C20"), SM_ROUGH_STONE);
+                MkBox(g, V(0,-0.08f,0), V(40,0.1f,40), Hex("222428"), SM_ROUGH_STONE);
+                MkBox(g, V(0, 0.00f,0), V(20,0.1f,20), Hex("2A2C32"), SM_ROUGH_STONE);
+                break;
+            case 3: // 자연: 초록 잔디밭
+                MkBox(g, V(0,-0.15f,0), V(80,0.1f,80), Hex("1A3C14"), SM_ROUGH_STONE);
+                MkBox(g, V(0,-0.08f,0), V(40,0.1f,40), Hex("2A5420"), SM_ROUGH_STONE);
+                MkBox(g, V(0, 0.00f,0), V(20,0.1f,20), Hex("3A6E2A"), SM_ROUGH_STONE);
+                break;
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════════════
@@ -1206,7 +1429,8 @@ public static class HanokSceneSetup
 
     static void SetupSkybox()
     {
-        var mat = new Material(Shader.Find("Skybox/Procedural"));
+        var mat = SkyboxMat();
+        if (mat == null) return;
         mat.SetFloat("_SunSize",         0.03f);
         mat.SetFloat("_SunSizeConvergence", 8f);
         mat.SetFloat("_AtmosphereThickness", 1.15f);
@@ -1364,7 +1588,8 @@ public static class HanokSceneSetup
     static void Rend(GameObject go, Color c, float smooth)
     {
         var mr = go.GetComponent<MeshRenderer>();
-        var mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        var mat = URPLitMat();
+        if (mat == null) return;
         mat.SetColor("_BaseColor", c);
         mat.SetFloat("_Smoothness", smooth);
         mat.SetFloat("_Metallic",   0f);

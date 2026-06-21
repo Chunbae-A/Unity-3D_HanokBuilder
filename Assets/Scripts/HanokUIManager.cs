@@ -30,6 +30,10 @@ public partial class HanokUIManager : MonoBehaviour
 
     RectTransform leftPanelRT;
     RectTransform _leftExpandBtnRT;
+    RectTransform rightPanelRT;
+    RectTransform _rightExpandBtnRT;
+    RectTransform _bgBarRT;
+    RectTransform _bgExpandBtnRT;
 
     TMP_Text infoNameText;
     TMP_InputField posX, posY, posZ;
@@ -154,6 +158,7 @@ public partial class HanokUIManager : MonoBehaviour
         BuildUI();
         LoadAssets();
         StartCoroutine(ForceLayout());
+        CheckApiKeyOnStart();
     }
 
     void Update()
@@ -1155,7 +1160,10 @@ public partial class HanokUIManager : MonoBehaviour
         if (kb.deleteKey.wasPressedThisFrame || kb.backspaceKey.wasPressedThisFrame)
             DeleteSelected();
         if (kb.escapeKey.wasPressedThisFrame)
-        { ClearSelection(); SetTool(EditTool.Select); }
+        {
+            if (_quitPanel != null && _quitPanel.activeSelf) HideQuitPanel();
+            else ShowQuitPanel();
+        }
         if (kb.homeKey.wasPressedThisFrame)
             Camera.main?.GetComponent<HanokCameraController>()?.ResetView();
         if (kb.ctrlKey.isPressed && kb.zKey.wasPressedThisFrame) DoUndo();
