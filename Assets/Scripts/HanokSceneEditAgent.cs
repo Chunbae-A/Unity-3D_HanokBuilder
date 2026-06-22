@@ -116,11 +116,8 @@ public partial class HanokUIManager
     {
         var sb = new StringBuilder();
         foreach (var e in _assetEntries)
-        {
-            var p = e.prefab;
-            if (p == null) continue;
-            sb.AppendLine($"{p.name}: {e.displayName}");
-        }
+            if (!string.IsNullOrEmpty(e.assetKey))
+                sb.AppendLine($"{e.assetKey}: {e.displayName}");
         return sb.ToString();
     }
 
