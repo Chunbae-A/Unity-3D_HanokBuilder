@@ -53,7 +53,14 @@ public partial class HanokUIManager
         "\"x\":{\"type\":\"number\"}," +
         "\"z\":{\"type\":\"number\"}," +
         "\"rot_y\":{\"type\":\"number\"}" +
-        "},\"required\":[\"asset_key\",\"x\",\"z\",\"rot_y\"],\"additionalProperties\":false}}" +
+        "},\"required\":[\"asset_key\",\"x\",\"z\",\"rot_y\"],\"additionalProperties\":false}}," +
+
+        "{\"name\":\"scale_object\"," +
+        "\"description\":\"오브젝트의 크기를 배율로 조정합니다. 1.0=원본 크기. '반으로 줄여'→0.5, '두 배로 키워'→2.0\"," +
+        "\"input_schema\":{\"type\":\"object\",\"properties\":{" +
+        "\"id\":{\"type\":\"string\",\"description\":\"씬 상태의 id 값\"}," +
+        "\"scale\":{\"type\":\"number\",\"description\":\"균등 스케일 배율 (0.1~5.0)\"}" +
+        "},\"required\":[\"id\",\"scale\"],\"additionalProperties\":false}}" +
 
         "]";
 
@@ -74,7 +81,8 @@ public partial class HanokUIManager
             sb.Append($"\"id\":\"{m.gameObject.GetInstanceID()}\",");
             sb.Append($"\"asset_key\":{SceneJsonStr(m.assetKey)},");
             sb.Append($"\"display_name\":{SceneJsonStr(m.displayName)},");
-            sb.Append($"\"x\":{p.x:F2},\"z\":{p.z:F2},\"rot_y\":{rotY:F1}");
+            float scale = t.localScale.x;
+            sb.Append($"\"x\":{p.x:F2},\"z\":{p.z:F2},\"rot_y\":{rotY:F1},\"scale\":{scale:F2}");
             sb.Append("}");
             if (i < metas.Length - 1) sb.Append(",");
         }
@@ -254,6 +262,16 @@ public partial class HanokUIManager
                 // 같은 요청 내에서 바로 참조할 수 있도록 캐시에 추가
                 _sceneObjCache?.TryAdd(obj.GetInstanceID(), obj);
                 return $"배치 완료: {entry.displayName} id={obj.GetInstanceID()} at ({x:F1},{z:F1})";
+            }
+            case "scale_object":
+            {
+                string id    = SceneParseStr(inputJson, "id");
+                float  scale = SceneParseFloat(inputJson, "scale");
+                scale = Mathf.Clamp(scale, 0.1f, 5f);
+                var obj = FindById(id);
+                if (obj == null) return $"오류: id={id} 오브젝트를 찾을 수 없음";
+                obj.transform.localScale = Vector3.one * scale;
+                return $"크기 조정 완료: {obj.name} → scale={scale:F2}";
             }
             default:
                 return $"알 수 없는 툴: {toolName}";
