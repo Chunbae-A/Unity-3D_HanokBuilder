@@ -104,8 +104,13 @@ public partial class HanokUIManager
         sendLblRT.offsetMin = sendLblRT.offsetMax = Vector2.zero;
     }
 
+    bool          _aiResultCollapsed;
+    GameObject    _aiResultScrollGO;
+    TextMeshProUGUI _aiResultCollapseLabel;
+    const float   AI_PANEL_FULL_TOP = 170f;
+    const float   AI_PANEL_HDR_H    = 28f;
+
     // ── 프롬프트 바 바로 위: AI 추천 결과 한 줄(가로 스크롤) ──
-    // 제출 전에는 숨겨져 있고, 추천/안내 메시지가 도착하면 표시된다.
     void BuildAIResultsPanel(Transform root)
     {
         var panelRT = NewRT(root, "AIResultsPanel");
@@ -113,21 +118,67 @@ public partial class HanokUIManager
         panelRT.anchorMax = new Vector2(0.5f, 0f);
         panelRT.pivot     = new Vector2(0.5f, 0f);
         panelRT.offsetMin = new Vector2(-320, 66);
-        panelRT.offsetMax = new Vector2(320, 170);
+        panelRT.offsetMax = new Vector2(320, AI_PANEL_FULL_TOP);
 
         var panelImg = panelRT.GetComponent<Image>();
         panelImg.sprite = RoundedRectSprite(18f);
-        panelImg.type = Image.Type.Sliced;
-        panelImg.color = BG_PANEL;
+        panelImg.type   = Image.Type.Sliced;
+        panelImg.color  = BG_PANEL;
         panelImg.material = GlassMaterial();
         AddInnerGlow(panelRT, 18f);
         AddOuterBorder(panelRT, 18f);
 
+        // 헤더 (접기 버튼)
+        var hdr = new GameObject("Header");
+        hdr.transform.SetParent(panelRT, false);
+        var hdrRT = hdr.AddComponent<RectTransform>();
+        hdrRT.anchorMin = new Vector2(0, 1); hdrRT.anchorMax = new Vector2(1, 1);
+        hdrRT.pivot     = new Vector2(0.5f, 1f);
+        hdrRT.offsetMin = new Vector2(0, -AI_PANEL_HDR_H); hdrRT.offsetMax = Vector2.zero;
+
+        var titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(hdr.transform, false);
+        var tRT = titleGO.AddComponent<RectTransform>();
+        tRT.anchorMin = Vector2.zero; tRT.anchorMax = Vector2.one;
+        tRT.offsetMin = new Vector2(14, 0); tRT.offsetMax = new Vector2(-36, 0);
+        var titleT = titleGO.AddComponent<TextMeshProUGUI>();
+        titleT.text = "AI 추천 결과"; titleT.fontSize = 9; titleT.color = TEXT_MAIN;
+        titleT.alignment = TextAlignmentOptions.MidlineLeft;
+        KorFont(titleT);
+
+        var cBtnGO = new GameObject("CollapseBtn");
+        cBtnGO.transform.SetParent(hdr.transform, false);
+        var cBtnRT = cBtnGO.AddComponent<RectTransform>();
+        cBtnRT.anchorMin = new Vector2(1, 0.5f); cBtnRT.anchorMax = new Vector2(1, 0.5f);
+        cBtnRT.pivot     = new Vector2(1f, 0.5f);
+        cBtnRT.offsetMin = new Vector2(-32, -11); cBtnRT.offsetMax = new Vector2(-6, 11);
+        var cBtnImg = cBtnGO.AddComponent<Image>(); cBtnImg.color = Color.clear;
+        var cBtn = cBtnGO.AddComponent<Button>(); cBtn.targetGraphic = cBtnImg;
+        cBtn.onClick.AddListener(ToggleAIResultsCollapse);
+        _aiResultCollapseLabel = (TextMeshProUGUI)MakeLabel(cBtnGO.transform, "▼", 10, TEXT_MAIN, bold: false);
+        var clRT = _aiResultCollapseLabel.GetComponent<RectTransform>();
+        clRT.anchorMin = Vector2.zero; clRT.anchorMax = Vector2.one;
+        clRT.offsetMin = clRT.offsetMax = Vector2.zero;
+
+        // 스크롤 영역 (헤더 아래)
         var hScroll = MakeHorizontalScroll(panelRT);
+        var hScrollRT = hScroll.GetComponent<RectTransform>();
+        hScrollRT.offsetMax = new Vector2(0, -AI_PANEL_HDR_H);
         _aiResultContainer = hScroll.transform.Find("Viewport/Content");
+        _aiResultScrollGO  = hScroll;
 
         _aiResultsPanelRT = panelRT;
         panelRT.gameObject.SetActive(false);
+    }
+
+    void ToggleAIResultsCollapse()
+    {
+        _aiResultCollapsed = !_aiResultCollapsed;
+        _aiResultScrollGO.SetActive(!_aiResultCollapsed);
+        float topY = _aiResultCollapsed ? (66f + AI_PANEL_HDR_H) : AI_PANEL_FULL_TOP;
+        _aiResultsPanelRT.offsetMax = new Vector2(_aiResultsPanelRT.offsetMax.x, topY);
+        if (_aiResultCollapseLabel != null)
+            _aiResultCollapseLabel.text = _aiResultCollapsed ? "▲" : "▼";
     }
 
     // 자유 텍스트 입력 필드 + 왼쪽 끝 맵 체크박스
@@ -139,33 +190,41 @@ public partial class HanokUIManager
         var img = go.AddComponent<Image>();
         img.color = Color.clear;
 
-        // 맵 체크박스 — 입력창 왼쪽 끝 오버레이
-        const float CB = 22f; // 체크박스 크기
-        var cbGO = new GameObject("MapCheck");
-        cbGO.transform.SetParent(go.transform, false);
-        var cbRT = cbGO.AddComponent<RectTransform>();
-        cbRT.anchorMin = new Vector2(0f, 0.5f); cbRT.anchorMax = new Vector2(0f, 0.5f);
-        cbRT.pivot     = new Vector2(0f, 0.5f);
-        cbRT.offsetMin = new Vector2(4, -CB * 0.5f);
-        cbRT.offsetMax = new Vector2(4 + CB, CB * 0.5f);
-        _layoutBtnImg = cbGO.AddComponent<Image>();
-        _layoutBtnImg.sprite = RoundedRectSprite(5f);
-        _layoutBtnImg.type   = Image.Type.Sliced;
-        _layoutBtnImg.color  = BTN_GHOST;
-        var cbBtn = cbGO.AddComponent<Button>();
-        cbBtn.targetGraphic = _layoutBtnImg;
-        cbBtn.onClick.AddListener(OnLayoutToggle);
-        _layoutBtnLabel = (TextMeshProUGUI)MakeLabel(cbGO.transform, "맵", 8, TEXT_MAIN, bold: false);
-        var cbLblRT = _layoutBtnLabel.GetComponent<RectTransform>();
-        cbLblRT.anchorMin = Vector2.zero; cbLblRT.anchorMax = Vector2.one;
-        cbLblRT.offsetMin = cbLblRT.offsetMax = Vector2.zero;
+        // 모드 토글 버튼 헬퍼 (로컬)
+        void MakeModeBtn(string name, float ox, string label,
+            UnityEngine.Events.UnityAction cb, out Image imgOut, out TextMeshProUGUI lblOut)
+        {
+            const float CB2 = 22f;
+            var bGO = new GameObject(name);
+            bGO.transform.SetParent(go.transform, false);
+            var bRT = bGO.AddComponent<RectTransform>();
+            bRT.anchorMin = new Vector2(0f, 0.5f); bRT.anchorMax = new Vector2(0f, 0.5f);
+            bRT.pivot     = new Vector2(0f, 0.5f);
+            bRT.offsetMin = new Vector2(ox, -CB2 * 0.5f);
+            bRT.offsetMax = new Vector2(ox + CB2, CB2 * 0.5f);
+            imgOut = bGO.AddComponent<Image>();
+            imgOut.sprite = RoundedRectSprite(5f);
+            imgOut.type   = Image.Type.Sliced;
+            imgOut.color  = BTN_GHOST;
+            var bBtn = bGO.AddComponent<Button>();
+            bBtn.targetGraphic = imgOut;
+            bBtn.onClick.AddListener(cb);
+            lblOut = (TextMeshProUGUI)MakeLabel(bGO.transform, label, 8, TEXT_MAIN, bold: false);
+            var bLbl = lblOut.GetComponent<RectTransform>();
+            bLbl.anchorMin = Vector2.zero; bLbl.anchorMax = Vector2.one;
+            bLbl.offsetMin = bLbl.offsetMax = Vector2.zero;
+        }
 
-        // 텍스트 뷰포트 — 체크박스 공간(30px) 확보
+        // [맵] 버튼 (x=4)  [씬] 버튼 (x=28)
+        MakeModeBtn("MapCheck", 4f,  "맵", OnLayoutToggle,    out _layoutBtnImg,    out _layoutBtnLabel);
+        MakeModeBtn("ScnCheck", 28f, "씬", OnSceneEditToggle, out _sceneEditBtnImg, out _sceneEditBtnLabel);
+
+        // 텍스트 뷰포트 — 두 버튼 공간(54px) 확보
         var area = new GameObject("Area");
         area.transform.SetParent(go.transform, false);
         var aRT = area.AddComponent<RectTransform>();
         aRT.anchorMin = Vector2.zero; aRT.anchorMax = Vector2.one;
-        aRT.offsetMin = new Vector2(30, 2); aRT.offsetMax = new Vector2(-8, -2);
+        aRT.offsetMin = new Vector2(54, 2); aRT.offsetMax = new Vector2(-8, -2);
         area.AddComponent<RectMask2D>();
 
         var textGO = new GameObject("Text");
@@ -431,7 +490,12 @@ public partial class HanokUIManager
         _aiRequestInProgress = true;
         _aiInputField.interactable = false;
 
-        if (_layoutMode)
+        if (_sceneEditMode)
+        {
+            ShowAIMessage("씬 수정 중...");
+            StartCoroutine(RequestSceneEdit(prompt));
+        }
+        else if (_layoutMode)
         {
             ShowAIMessage("AI가 설계 중...");
             StartCoroutine(RequestAIAgentLayout(prompt));
@@ -451,7 +515,9 @@ public partial class HanokUIManager
 
     void OnLayoutToggle()
     {
-        SetLayoutMode(!_layoutMode);
+        bool next = !_layoutMode;
+        if (next) SetSceneEditMode(false);
+        SetLayoutMode(next);
     }
 
     void SetLayoutMode(bool on)
@@ -460,6 +526,14 @@ public partial class HanokUIManager
         if (_layoutBtnImg   != null) _layoutBtnImg.color   = on ? BTN_ACTIVE : BTN_GHOST;
         if (_layoutBtnLabel != null) _layoutBtnLabel.color  = on ? TEXT_ON_ACCENT : TEXT_MAIN;
     }
+
+    void OnSceneEditToggle()
+    {
+        bool next = !_sceneEditMode;
+        if (next) SetLayoutMode(false);
+        SetSceneEditMode(next);
+    }
+
 
     // ── 카탈로그 (assetKey|displayName|tags,...) 1회 생성 후 캐싱 ──
     string BuildAICatalog()
