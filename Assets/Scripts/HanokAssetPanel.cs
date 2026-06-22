@@ -66,6 +66,71 @@ public partial class HanokUIManager
     static readonly HashSet<string> MANIFEST_CAT_KEYS =
         new HashSet<string> { "Complete", "Parts", "Props", "DigitalHuman" };
 
+    // 썸네일 촬영 시 Y축 회전 보정이 필요한 에셋 (FBX 방향 불일치)
+    static readonly Dictionary<string, int> THUMB_ROT = new Dictionary<string, int>
+    {
+        { "CM_Main_Gate",                          90 },
+        { "CM_Octagonal_Pavilion",                 90 },
+        { "CM_Pavilion",                           90 },
+        { "CM_Sarangchae",                         90 },
+        { "CM_Agricultural_Equipment_Exhibition_Hall", 90 },
+        { "CM_Multipurpose_Hall",                  90 },
+        { "CM_SM_Bijangcheong",                    90 },
+        { "CM_SM_Bokgunyeong",                     90 },
+        { "CM_SM_Boknaedang",                      90 },
+        { "CM_SM_Bongsudang",                      90 },
+        { "CM_SM_Bueok",                           90 },
+        { "CM_SM_Deughanmun",                      90 },
+        { "CM_SM_Deugjungjeong",                   90 },
+        { "CM_SM_Gaeomun",                         90 },
+        { "CM_SM_Geonjangmun",                     90 },
+        { "CM_SM_Gicheungheon",                    90 },
+        { "CM_SM_Gonglang",                        90 },
+        { "CM_SM_Guyeomun",                        90 },
+        { "CM_SM_Gyeonghwamun",                    90 },
+        { "CM_SM_Gyeongryugwan",                   90 },
+        { "CM_SM_Gyeongseonmun",                   90 },
+        { "CM_SM_Heogan",                          90 },
+        { "CM_SM_Hyangchunmun",                    90 },
+        { "CM_SM_Jeonsacheong",                    90 },
+        { "CM_SM_Jibsacheong_1",                   90 },
+        { "CM_SM_Jibsacheong_2",                   90 },
+        { "CM_SM_Jibsacheong_Gate_1",              90 },
+        { "CM_SM_Jibsacheong_Gate_2",              90 },
+        { "CM_SM_Jungyagmun",                      90 },
+        { "CM_SM_Jungyangmun",                     90 },
+        { "CM_SM_Jwaikmun",                        90 },
+        { "CM_SM_LargeGate",                       90 },
+        { "CM_SM_Malang",                          90 },
+        { "CM_SM_Maru",                            90 },
+        { "CM_SM_Mirohanjeong",                    90 },
+        { "CM_SM_Naeposa",                         90 },
+        { "CM_SM_Naesamun",                        90 },
+        { "CM_SM_Namgunyeong",                     90 },
+        { "CM_SM_Namnakhyeon",                     90 },
+        { "CM_SM_Nanlomun",                        90 },
+        { "CM_SM_Oejeongriamun",                   90 },
+        { "CM_SM_Oijeongriso",                     90 },
+        { "CM_SM_Oisamun",                         90 },
+        { "CM_SM_Ondol",                           90 },
+        { "CM_SM_Punghuadang",                     90 },
+        { "CM_SM_RoyalWell",                       90 },
+        { "CM_SM_Samsumun",                        90 },
+        { "CM_SM_Unhwagak_Iancheong",              90 },
+        { "CM_SM_Yeonhwimun",                      90 },
+        { "CM_SM_Yubogmun",                        90 },
+        { "CM_SM_Yuyeomun",                        90 },
+        { "CM_SM_Yuyeotaek",                       90 },
+        { "CM_Hyogyeongmun(back gate)",            90 },
+        { "CM_Anchae",                             90 },
+        { "CM_SM_Jangbogmun",                      90 },
+        { "CM_SM_Sinpungru",                       90 },
+        { "CM_SM_SmallGate",                       90 },
+        { "CM_SM_Seoricheong",                     90 },
+        { "CM_SM_Nusanggo",                        90 },
+        { "CM_Small_Gate",                        180 },
+    };
+
     // 카테고리 정의 (Resources/HanokCategories에서 로드한 SO들을 분류해 보관)
     readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
     readonly Dictionary<HanokAssetCategory, List<HanokAssetCategory>> _childCategories =
@@ -826,7 +891,8 @@ public partial class HanokUIManager
         // 메인 카메라 clipping 범위(~1000) 밖에 배치 + layer 30 → 메인 카메라에 보이지 않음
         const float FAR = 8000f;
         var previewOrigin = new Vector3(FAR, 0f, FAR);
-        var inst = Instantiate(prefab, previewOrigin, Quaternion.identity);
+        THUMB_ROT.TryGetValue(prefab.name, out int rotX);
+        var inst = Instantiate(prefab, previewOrigin, Quaternion.Euler(-rotX, 0, 0));
         // HideInHierarchy: Hierarchy 창에서 숨기되 씬 그래프에는 포함 → URP Render Graph가 정상 인식
         inst.hideFlags = HideFlags.HideInHierarchy;
         SetLayerAll(inst, THUMB_LAYER);

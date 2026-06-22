@@ -517,7 +517,9 @@ public partial class HanokUIManager : MonoBehaviour
     void Spawn(HanokAssetEntry entry)
     {
         if (entry == null) return;
-        Spawn(entry.prefab, entry.displayName, entry.assetKey);
+        var prefab = entry.prefab;
+        if (prefab == null) return;
+        Spawn(prefab, entry.displayName, entry.assetKey);
     }
 
     void Spawn(GameObject prefab, string displayName, string assetKey)
@@ -553,7 +555,9 @@ public partial class HanokUIManager : MonoBehaviour
     GameObject SpawnAt(HanokAssetEntry entry, Vector3 position)
     {
         if (entry == null) return null;
-        return SpawnAt(entry.prefab, position, entry.displayName, entry.assetKey);
+        var prefab = entry.prefab;
+        if (prefab == null) return null;
+        return SpawnAt(prefab, position, entry.displayName, entry.assetKey);
     }
 
     GameObject SpawnAt(GameObject prefab, Vector3 position, string displayName, string assetKey)
