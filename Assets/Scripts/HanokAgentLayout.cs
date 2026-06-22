@@ -58,8 +58,7 @@ public partial class HanokUIManager
 
         foreach (var e in _assetEntries)
         {
-            var prefab = e.prefab;
-            if (prefab == null) continue;
+            if (string.IsNullOrEmpty(e.assetKey)) continue;
 
             bool isComplete = false, isNatural = false;
             foreach (var c in e.categories)
@@ -67,7 +66,7 @@ public partial class HanokUIManager
                 if (c.key == "건축물완성형") isComplete = true;
                 if (c.key == "자연/식물")   isNatural  = true;
             }
-            string line = $"{prefab.name}: {e.displayName}";
+            string line = $"{e.assetKey}: {e.displayName}";
             if (isComplete) buildings.Add(line);
             if (isNatural)  naturals.Add(line);
         }

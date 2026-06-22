@@ -543,9 +543,8 @@ public partial class HanokUIManager
         var sb = new StringBuilder();
         foreach (var entry in _assetEntries)
         {
-            var p = entry.prefab;
-            if (p == null) continue;
-            sb.Append(p.name).Append('|').Append(entry.displayName).Append('|');
+            if (string.IsNullOrEmpty(entry.assetKey)) continue;
+            sb.Append(entry.assetKey).Append('|').Append(entry.displayName).Append('|');
             sb.Append(string.Join(",", entry.searchTags));
             sb.Append('\n');
         }
@@ -647,7 +646,7 @@ public partial class HanokUIManager
         var seen = new HashSet<string>();
         foreach (var item in items)
         {
-            var entry = _assetEntries.Find(e => e.prefab != null && e.prefab.name == item.assetKey);
+            var entry = _assetEntries.Find(e => e.assetKey == item.assetKey || (e.prefab != null && e.prefab.name == item.assetKey));
             if (entry != null && seen.Add(entry.assetKey))
                 matches.Add(entry);
         }
@@ -796,12 +795,9 @@ public partial class HanokUIManager
     int ScoreLocalAsset(HanokAssetEntry entry, List<string> tokens)
     {
         if (tokens.Count == 0) return 1;
-        var p = entry.prefab;
-        if (p == null) return 0;
-
         string display = entry.displayName.ToLowerInvariant();
-        string name = p.name.ToLowerInvariant();
-        string haystack = (entry.assetKey + " " + entry.displayName + " " + p.name + " " +
+        string name = entry.assetKey.ToLowerInvariant();
+        string haystack = (entry.assetKey + " " + entry.displayName + " " +
             string.Join(" ", entry.searchTags)).ToLowerInvariant();
 
         int score = 0;
