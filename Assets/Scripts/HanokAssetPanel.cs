@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering.Universal;
@@ -56,27 +55,21 @@ public partial class HanokUIManager
 
     // ── 상태 필드 ────────────────────────────────────────
     Camera _thumbCam;   // 썸네일 촬영용 카메라 (최초 사용 시 지연 생성)
-    Dictionary<string, GameObject> _culturePrefabLookup;
-
     // 썸네일 순차 캡처 큐 — 한 번에 1개씩 처리해 프레임 스파이크 방지
     readonly Queue<(GameObject prefab, RawImage target)> _thumbQueue =
         new Queue<(GameObject, RawImage)>();
     bool _thumbQueueRunning = false;
 
     const string LABEL_ALL = "전체";
-    const string CULTURE_INDEX_PATH = "HanokAssets/CultureMetaverse/culture_metaverse_index";
+
+    // JSON 매니페스트로 관리하는 4개 폴더 — LoadCategoryDefinitions에서 SO 로딩 제외
+    static readonly HashSet<string> MANIFEST_CAT_KEYS =
+        new HashSet<string> { "Complete", "Parts", "Props", "DigitalHuman" };
 
     // 카테고리 정의 (Resources/HanokCategories에서 로드한 SO들을 분류해 보관)
     readonly List<HanokAssetCategory> _mainCategories = new List<HanokAssetCategory>();
     readonly Dictionary<HanokAssetCategory, List<HanokAssetCategory>> _childCategories =
         new Dictionary<HanokAssetCategory, List<HanokAssetCategory>>();
-    readonly Dictionary<string, HanokAssetCategory> _cultureCategoriesByKey =
-        new Dictionary<string, HanokAssetCategory>();
-    HanokAssetCategory _cultureCategory;
-    HanokAssetCategory _cultureCharactersCategory;
-    HanokAssetCategory _cultureMerchantCategory;
-    HanokAssetCategory _cultureFestivalCategory;
-    HanokAssetCategory _cultureObjectCategory;
 
     // 검색
     const float SEARCH_DEBOUNCE = 0.25f;
@@ -125,8 +118,8 @@ public partial class HanokUIManager
 
         _assetEntries.Clear();
         _aiCatalog = null;
-        _culturePrefabLookup = null;
-        var addedPrefabs = new HashSet<GameObject>();
+        _selectedMain = null;
+        _selectedSub = null;
         var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
         foreach (var prefab in raw)
         {
@@ -146,7 +139,6 @@ public partial class HanokUIManager
         }
 
         LoadCultureFolderManifests();
-        LoadCultureMetaverseAssets(assetInfoByKey, addedPrefabs);
 
         _assetEntries.Sort((a, b) =>
             string.Compare(a.displayName, b.displayName, System.StringComparison.OrdinalIgnoreCase));
@@ -169,6 +161,9 @@ public partial class HanokUIManager
         var raw = Resources.LoadAll<HanokAssetCategory>(CATEGORY_PATH);
         foreach (var cat in raw)
         {
+            // 4개 문화 폴더 카테고리는 JSON 매니페스트가 전담 — SO 파일 있어도 여기선 무시
+            if (MANIFEST_CAT_KEYS.Contains(cat.key)) continue;
+
             if (cat.parent == null)
             {
                 _mainCategories.Add(cat);
@@ -186,74 +181,6 @@ public partial class HanokUIManager
         _mainCategories.Sort((a, b) => a.order.CompareTo(b.order));
         foreach (var children in _childCategories.Values)
             children.Sort((a, b) => a.order.CompareTo(b.order));
-
-        EnsureCultureCategories();
-    }
-
-    void EnsureCultureCategories()
-    {
-        _cultureCategoriesByKey.Clear();
-
-        _cultureCategory = RuntimeCategory(_cultureCategory, "culture_metaverse", "문화포털", null, 9000);
-
-        AddRuntimeCategory(_cultureCategory);
-
-        _cultureCharactersCategory = RegisterCultureSubCategory(
-            _cultureCharactersCategory, "characters", "캐릭터", 9010);
-        _cultureMerchantCategory = RegisterCultureSubCategory(
-            _cultureMerchantCategory, "merchant", "상인/공간", 9020);
-        _cultureFestivalCategory = RegisterCultureSubCategory(
-            _cultureFestivalCategory, "festival", "전통축제", 9030);
-        _cultureObjectCategory = RegisterCultureSubCategory(
-            _cultureObjectCategory, "object", "문화재/소품", 9040);
-
-        RegisterCultureSubCategory(null, "object_weapon", "무기류", 9050);
-        RegisterCultureSubCategory(null, "object_equipment", "시설/장비류", 9060);
-        RegisterCultureSubCategory(null, "object_nature", "자연물", 9070);
-        RegisterCultureSubCategory(null, "object_clothing", "의복류", 9080);
-        RegisterCultureSubCategory(null, "object_changwon", "창원의집", 9090);
-        RegisterCultureSubCategory(null, "object_gugak_clothing", "국악원 의복", 9100);
-        RegisterCultureSubCategory(null, "object_gugak_instrument", "국악원 악기", 9110);
-        RegisterCultureSubCategory(null, "object_army_weapon", "육군박물관 무기", 9120);
-        RegisterCultureSubCategory(null, "object_stone_pagoda", "석탑", 9130);
-        RegisterCultureSubCategory(null, "object_interactive", "상호작용", 9140);
-
-        _mainCategories.Sort((a, b) => a.order.CompareTo(b.order));
-        foreach (var children in _childCategories.Values)
-            children.Sort((a, b) => a.order.CompareTo(b.order));
-    }
-
-    HanokAssetCategory RegisterCultureSubCategory(
-        HanokAssetCategory category,
-        string key,
-        string label,
-        int order)
-    {
-        category = RuntimeCategory(category, key, label, _cultureCategory, order);
-        _cultureCategoriesByKey[key] = category;
-        AddRuntimeCategory(category);
-        return category;
-    }
-
-    HanokAssetCategory RuntimeCategory(
-        HanokAssetCategory category,
-        string key,
-        string label,
-        HanokAssetCategory parent,
-        int order)
-    {
-        if (category == null)
-        {
-            category = ScriptableObject.CreateInstance<HanokAssetCategory>();
-            category.hideFlags = HideFlags.HideAndDontSave;
-        }
-
-        category.key = key;
-        category.label = label;
-        category.parent = parent;
-        category.order = order;
-        category.name = "Runtime_" + key;
-        return category;
     }
 
     void AddRuntimeCategory(HanokAssetCategory category)
@@ -315,9 +242,8 @@ public partial class HanokUIManager
             try { root = JsonUtility.FromJson<ManifestJson>(ta.text); }
             catch (System.Exception e) { Debug.LogError($"[HanokBuilder] 매니페스트 파싱 오류 {name}: {e.Message}"); continue; }
 
-            // 메인 카테고리 SO (CultureAssetImporter가 만든 .asset)
-            var mainCatSO = Resources.Load<HanokAssetCategory>($"HanokCategories/Category_{GetCatKey(name)}");
-            if (mainCatSO == null) mainCatSO = MakeRuntimeCat(name, name, null, 8000 + System.Array.IndexOf(manifests, name) * 10);
+            // 메인 카테고리는 항상 런타임 SO 생성 — SO 파일 의존성 없음
+            var mainCatSO = MakeRuntimeCat(name, name, null, 8000 + System.Array.IndexOf(manifests, name) * 10);
 
             // 서브카테고리 런타임 캐시
             var subCatCache = new Dictionary<string, HanokAssetCategory>();
@@ -369,271 +295,6 @@ public partial class HanokUIManager
     [System.Serializable] class ManifestJson  { public string category; public ManifestAsset[] assets; }
     [System.Serializable] class ManifestAsset { public string key, display, sub, path; }
 
-    void LoadCultureMetaverseAssets(
-        Dictionary<string, HanokAssetInfo> assetInfoByKey,
-        HashSet<GameObject> addedPrefabs)
-    {
-        var objectTitles = LoadObjectDirectTitles();
-        if (LoadCultureMetaverseAssetIndex(assetInfoByKey, addedPrefabs, objectTitles))
-            return;
-
-        AddCultureAssetGroup(
-            "HanokAssets/CultureMetaverse/Characters",
-            _cultureCharactersCategory,
-            "문화포털 캐릭터 한국적 캐릭터 상인 남자 여자 인물",
-            assetInfoByKey,
-            addedPrefabs,
-            objectTitles);
-        AddCultureAssetGroup(
-            "HanokAssets/CultureMetaverse/Props/MerchantAndEnvironment",
-            _cultureMerchantCategory,
-            "문화포털 상인 장터 의상 저고리 치마 바지 신발 나무 공간 소품",
-            assetInfoByKey,
-            addedPrefabs,
-            objectTitles);
-        AddCultureAssetGroup(
-            "HanokAssets/CultureMetaverse/Props/KoreanTraditionalFestival/Prefabs",
-            _cultureFestivalCategory,
-            "문화포털 김포 통진 두레놀이 농경 전통 축제 농기구 소품",
-            assetInfoByKey,
-            addedPrefabs,
-            objectTitles);
-        AddCultureAssetGroup(
-            "HanokAssets/CultureMetaverse/Props/ObjectDirectFBX",
-            _cultureObjectCategory,
-            "문화포털 문화재 오브젝트 소품 창원의집 수원화성 홍천 육군박물관 석탑 좌상 깃발 총통",
-            assetInfoByKey,
-            addedPrefabs,
-            objectTitles);
-    }
-
-    bool LoadCultureMetaverseAssetIndex(
-        Dictionary<string, HanokAssetInfo> assetInfoByKey,
-        HashSet<GameObject> addedPrefabs,
-        Dictionary<string, string> objectTitles)
-    {
-        var index = Resources.Load<TextAsset>(CULTURE_INDEX_PATH);
-        if (index == null) return false;
-
-        int loaded = 0;
-        var lines = index.text.Split('\n');
-        for (int i = 0; i < lines.Length; i++)
-        {
-            var line = lines[i].Trim();
-            if (string.IsNullOrEmpty(line) || line.StartsWith("#") || line.StartsWith("category\t"))
-                continue;
-
-            var parts = line.Split('\t');
-            if (parts.Length < 3) continue;
-
-            string categoryKey = parts[0].Trim();
-            string resourcePath = parts[1].Trim();
-            string broadTags = parts[2].Trim();
-            string displayNameOverride = parts.Length >= 4 ? parts[3].Trim() : null;
-            var subCategory = GetCultureSubCategory(categoryKey);
-            if (subCategory == null) continue;
-
-            var prefab = LoadCulturePrefab(resourcePath);
-            if (prefab == null)
-            {
-                Debug.LogWarning($"[HanokBuilder] CultureMetaverse index asset not found: {resourcePath}");
-                continue;
-            }
-
-            if (AddCultureAsset(prefab, resourcePath, subCategory, broadTags, assetInfoByKey,
-                    addedPrefabs, objectTitles, displayNameOverride))
-                loaded++;
-        }
-
-        Debug.Log($"[HanokBuilder] {loaded} CultureMetaverse indexed assets loaded");
-        return loaded > 0;
-    }
-
-    GameObject LoadCulturePrefab(string resourcePath)
-    {
-        var prefab = Resources.Load<GameObject>(resourcePath);
-        if (prefab != null) return prefab;
-
-        EnsureCulturePrefabLookup();
-        string fileName = resourcePath;
-        int slash = fileName.LastIndexOf('/');
-        if (slash >= 0) fileName = fileName[(slash + 1)..];
-        string key = CultureLookupKey(fileName);
-        return _culturePrefabLookup.TryGetValue(key, out prefab) ? prefab : null;
-    }
-
-    void EnsureCulturePrefabLookup()
-    {
-        if (_culturePrefabLookup != null) return;
-
-        _culturePrefabLookup = new Dictionary<string, GameObject>();
-        foreach (var prefab in Resources.LoadAll<GameObject>("HanokAssets/CultureMetaverse"))
-        {
-            if (prefab == null) continue;
-
-            string key = CultureLookupKey(prefab.name);
-            if (!_culturePrefabLookup.ContainsKey(key))
-                _culturePrefabLookup[key] = prefab;
-        }
-    }
-
-    string CultureLookupKey(string value)
-    {
-        return StripExtension(value)
-            .Normalize(NormalizationForm.FormC)
-            .ToLowerInvariant();
-    }
-
-    HanokAssetCategory GetCultureSubCategory(string key)
-    {
-        if (_cultureCategoriesByKey.TryGetValue(key, out var category))
-            return category;
-
-        return key switch
-        {
-            "characters" => _cultureCharactersCategory,
-            "merchant" => _cultureMerchantCategory,
-            "festival" => _cultureFestivalCategory,
-            "object" => _cultureObjectCategory,
-            _ => null
-        };
-    }
-
-    void AddCultureAssetGroup(
-        string resourcePath,
-        HanokAssetCategory subCategory,
-        string broadTags,
-        Dictionary<string, HanokAssetInfo> assetInfoByKey,
-        HashSet<GameObject> addedPrefabs,
-        Dictionary<string, string> objectTitles)
-    {
-        foreach (var prefab in Resources.LoadAll<GameObject>(resourcePath))
-        {
-            AddCultureAsset(prefab, resourcePath + "/" + prefab.name, subCategory, broadTags,
-                assetInfoByKey, addedPrefabs, objectTitles, null);
-        }
-    }
-
-    bool AddCultureAsset(
-        GameObject prefab,
-        string assetKey,
-        HanokAssetCategory subCategory,
-        string broadTags,
-        Dictionary<string, HanokAssetInfo> assetInfoByKey,
-        HashSet<GameObject> addedPrefabs,
-        Dictionary<string, string> objectTitles,
-        string displayNameOverride)
-    {
-        if (prefab == null || addedPrefabs.Contains(prefab)) return false;
-
-        assetInfoByKey.TryGetValue(prefab.name, out var info);
-        string displayName = !string.IsNullOrEmpty(displayNameOverride)
-            ? displayNameOverride
-            : GetCultureDisplayName(prefab.name, info, objectTitles);
-        string[] searchTags = BuildCultureSearchTags(prefab.name, displayName, broadTags, info);
-        _assetEntries.Add(new HanokAssetEntry(
-            prefab,
-            assetKey,
-            new[] { _cultureCategory, subCategory },
-            displayName,
-            searchTags,
-            true));
-        addedPrefabs.Add(prefab);
-        return true;
-    }
-
-    Dictionary<string, string> LoadObjectDirectTitles()
-    {
-        var map = new Dictionary<string, string>(System.StringComparer.OrdinalIgnoreCase);
-        var text = Resources.Load<TextAsset>(
-            "HanokAssets/CultureMetaverse/Props/ObjectDirectFBX/object_direct_fbx_sources");
-        if (text == null) return map;
-
-        var lines = text.text.Split('\n');
-        for (int i = 1; i < lines.Length; i++)
-        {
-            var line = lines[i].Trim();
-            if (string.IsNullOrEmpty(line)) continue;
-
-            var parts = line.Split('\t');
-            if (parts.Length < 4) continue;
-
-            string title = parts[1].Trim();
-            string file = parts[2].Trim();
-            string baseName = StripExtension(file);
-            if (!string.IsNullOrEmpty(title))
-            {
-                map[file] = title;
-                map[baseName] = title;
-            }
-        }
-        return map;
-    }
-
-    string GetCultureDisplayName(string prefabName, HanokAssetInfo info, Dictionary<string, string> objectTitles)
-    {
-        if (info != null && !string.IsNullOrEmpty(info.displayName))
-            return info.displayName;
-
-        if (objectTitles != null && objectTitles.TryGetValue(prefabName, out var title))
-            return title;
-
-        string overrideName = prefabName switch
-        {
-            "DH_Man_01" => "한국적 캐릭터 01",
-            "DH_Man_02" => "한국적 캐릭터 02",
-            "DH_Man_03" => "한국적 캐릭터 03",
-            "DH_Man_04" => "한국적 캐릭터 04",
-            "DH_Woman_01" => "한국적 캐릭터 05",
-            "SM_Merchant_Male" => "상인 남자",
-            "SM_Merchant_FeMale" => "상인 여자",
-            "SM_FineTree" => "소나무",
-            "SM_WIllowTree" => "버드나무",
-            _ => null
-        };
-        if (!string.IsNullOrEmpty(overrideName)) return overrideName;
-
-        return HumanizeAssetName(prefabName);
-    }
-
-    string[] BuildCultureSearchTags(string prefabName, string displayName, string broadTags, HanokAssetInfo info)
-    {
-        var tags = new List<string>
-        {
-            "CultureMetaverse",
-            "문화포털",
-            "추가에셋",
-            displayName,
-            prefabName,
-            HumanizeAssetName(prefabName),
-            broadTags
-        };
-
-        if (info != null && info.tags != null)
-            tags.AddRange(info.tags);
-
-        return tags.ToArray();
-    }
-
-    string HumanizeAssetName(string name)
-    {
-        string text = StripExtension(name);
-        string[] prefixes = { "SM_", "DH_", "M_", "T_" };
-        foreach (var prefix in prefixes)
-            if (text.StartsWith(prefix, System.StringComparison.OrdinalIgnoreCase))
-                text = text[prefix.Length..];
-
-        var sb = new StringBuilder(text.Length);
-        foreach (char c in text)
-            sb.Append(c == '_' || c == '-' ? ' ' : c);
-        return sb.ToString().Trim();
-    }
-
-    string StripExtension(string name)
-    {
-        int dot = name.LastIndexOf('.');
-        return dot > 0 ? name[..dot] : name;
-    }
 
     // ── 카테고리 탭 UI 구성 ──────────────────────────────
     // 로드된 카테고리 SO들로 "전체" + 메인 필터 행을 동적 생성하고, 서브 필터 그리드 자리를 마련
