@@ -86,7 +86,11 @@ public partial class HanokUIManager
     Button[] _mainFilterBtns;
     Button[] _subFilterBtns = System.Array.Empty<Button>();
     GameObject _mainFilterGO;
-    GameObject _subFilterGO;
+    GameObject _subFilterGO;  // 서브카테고리 컨테이너 (직계 자식 = 메인별 pre-built 행)
+    // 메인 카테고리별 서브필터 행 — 로드 시 1회 생성, 클릭 시 show/hide만
+    readonly Dictionary<HanokAssetCategory, GameObject>            _subFilterRowGOs  = new();
+    readonly Dictionary<HanokAssetCategory, HanokAssetCategory[]>  _subFilterCatsMap = new();
+    readonly Dictionary<HanokAssetCategory, Button[]>              _subFilterBtnsMap = new();
 
     // 로드된 에셋 목록 + 그리드 레이아웃 상수
     readonly List<HanokAssetEntry> _assetEntries = new List<HanokAssetEntry>();
@@ -300,6 +304,7 @@ public partial class HanokUIManager
     // 로드된 카테고리 SO들로 "전체" + 메인 필터 행을 동적 생성하고, 서브 필터 그리드 자리를 마련
     void BuildCategoryTabs(Transform parent)
     {
+        // ── 메인 필터 행 ──
         _mainFilterGO = BuildFilterRow(parent, "MainFilters", 36f);
         _mainFilterCats = new HanokAssetCategory[_mainCategories.Count + 1];
         _mainCategories.CopyTo(_mainFilterCats, 1);
@@ -312,38 +317,52 @@ public partial class HanokUIManager
                 () => SelectMainCategory(cat));
         }
 
-        _subFilterGO = BuildFilterGrid(parent, "SubFilters", 88f);
-        _subFilterGO.SetActive(false);
+        // ── 서브필터 컨테이너 (show/hide 전용 래퍼) ──
+        _subFilterGO = new GameObject("SubFiltersContainer");
+        _subFilterGO.transform.SetParent(parent, false);
+        _subFilterGO.AddComponent<RectTransform>();
+        var cLE  = _subFilterGO.AddComponent<LayoutElement>();
+        cLE.flexibleWidth = 1;
+        var cVLG = _subFilterGO.AddComponent<VerticalLayoutGroup>();
+        cVLG.childForceExpandWidth  = true;
+        cVLG.childForceExpandHeight = false;
+        cVLG.childControlHeight     = false;
+        var cCSF = _subFilterGO.AddComponent<ContentSizeFitter>();
+        cCSF.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        // ── 메인 카테고리별 서브 행 — 로드 시 1회 생성 ──
+        _subFilterRowGOs.Clear();
+        _subFilterCatsMap.Clear();
+        _subFilterBtnsMap.Clear();
+
+        foreach (var mainCat in _mainCategories)
+        {
+            if (!_childCategories.TryGetValue(mainCat, out var children) || children.Count == 0)
+                continue;
+
+            var row = BuildFilterGrid(_subFilterGO.transform, "SubRow_" + mainCat.key, 88f);
+            row.SetActive(false);
+
+            var cats = new HanokAssetCategory[children.Count + 1];
+            children.CopyTo(cats, 1);
+            var btns = new Button[cats.Length];
+            for (int i = 0; i < cats.Length; i++)
+            {
+                var subCat = cats[i];
+                btns[i] = MakeFilterButton(row.transform,
+                    subCat == null ? LABEL_ALL : subCat.label,
+                    () => SelectSubCategory(subCat));
+            }
+
+            _subFilterRowGOs[mainCat]  = row;
+            _subFilterCatsMap[mainCat] = cats;
+            _subFilterBtnsMap[mainCat] = btns;
+        }
+
+        _subFilterCats = System.Array.Empty<HanokAssetCategory>();
+        _subFilterBtns = System.Array.Empty<Button>();
 
         UpdateTabColors();
-    }
-
-    // 선택된 메인 카테고리의 자식 목록으로 서브 필터 버튼들을 다시 그림 (자식이 없으면 그리드 숨김)
-    void RebuildSubFilters(HanokAssetCategory main)
-    {
-        foreach (Transform child in _subFilterGO.transform)
-            DestroyImmediate(child.gameObject);
-
-        if (main == null || !_childCategories.TryGetValue(main, out var children) || children.Count == 0)
-        {
-            _subFilterCats = System.Array.Empty<HanokAssetCategory>();
-            _subFilterBtns = System.Array.Empty<Button>();
-            _subFilterGO.SetActive(false);
-            return;
-        }
-
-        _subFilterCats = new HanokAssetCategory[children.Count + 1];
-        children.CopyTo(_subFilterCats, 1);
-
-        _subFilterBtns = new Button[_subFilterCats.Length];
-        for (int i = 0; i < _subFilterCats.Length; i++)
-        {
-            var cat = _subFilterCats[i];
-            _subFilterBtns[i] = MakeFilterButton(_subFilterGO.transform, cat == null ? LABEL_ALL : cat.label,
-                () => SelectSubCategory(cat));
-        }
-
-        _subFilterGO.SetActive(true);
     }
 
     GameObject BuildFilterRow(Transform parent, string name, float height)
@@ -457,7 +476,23 @@ public partial class HanokUIManager
     {
         _selectedMain = cat;
         _selectedSub = null;
-        RebuildSubFilters(cat);
+
+        // 모든 서브행 숨기고, 해당 메인의 pre-built 행만 보이게
+        foreach (var go in _subFilterRowGOs.Values)
+            go.SetActive(false);
+
+        if (cat != null && _subFilterRowGOs.TryGetValue(cat, out var rowGO))
+        {
+            rowGO.SetActive(true);
+            _subFilterCats = _subFilterCatsMap[cat];
+            _subFilterBtns = _subFilterBtnsMap[cat];
+        }
+        else
+        {
+            _subFilterCats = System.Array.Empty<HanokAssetCategory>();
+            _subFilterBtns = System.Array.Empty<Button>();
+        }
+
         UpdateTabColors();
         RefreshAssetList();
     }
