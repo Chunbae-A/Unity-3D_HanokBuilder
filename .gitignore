@@ -149,6 +149,9 @@ Assets/HanokBuilder/Resources/HanokAssets/**/UserSettings/
 Assets/HanokBuilder/Resources/HanokAssets/**/.vsconfig
 Assets/HanokBuilder/Resources/HanokAssets/**/Library/
 
+# DriveAssetSync 런타임 파일
+Tools/DriveAssetSync/sync_progress.json
+
 # HanokBuilder — Claude API key (local-only, do not commit)
 Assets/HanokBuilder/Resources/ClaudeApiConfig.asset
 Assets/HanokBuilder/Resources/ClaudeApiConfig.asset.meta
