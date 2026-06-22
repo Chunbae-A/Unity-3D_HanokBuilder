@@ -28,6 +28,17 @@ PARTS_KW: dict[str, tuple[str, str]] = {
     "R_RoofCorner":        ("귀서까래",         "지붕"),
     "R_RoofOuter":         ("외목도리",         "지붕"),
     "R_Yuyotaek":          ("유여택 지붕",      "지붕"),
+    "R_Yuyotaek1":         ("유여택 지붕 01",   "지붕"),
+    "R_Yuyotaek2":         ("유여택 지붕 02",   "지붕"),
+    "R_Yuyotaek3":         ("유여택 지붕 03",   "지붕"),
+    "R_Yuyotaek4":         ("유여택 지붕 04",   "지붕"),
+    "R_Yuyotaek5":         ("유여택 지붕 05",   "지붕"),
+    "R_Yuyotaek6":         ("유여택 지붕 06",   "지붕"),
+    "R_Yuyotaek7":         ("유여택 지붕 07",   "지붕"),
+    "R_Yuyotaek8":         ("유여택 지붕 08",   "지붕"),
+    "R_Yuyotaek9":         ("유여택 지붕 09",   "지붕"),
+    "R_Yuyotaek10":        ("유여택 지붕 10",   "지붕"),
+    "R_Yuyotaek11":        ("유여택 지붕 11",   "지붕"),
     "Byeolju_Roof":        ("별주 지붕",        "지붕"),
     "Byeolju_SmallGateRoof":("별주 소문 지붕", "지붕"),
     "Uhagwan_CenterRoof":  ("우하관 중앙 지붕", "지붕"),
@@ -96,6 +107,9 @@ PARTS_KW: dict[str, tuple[str, str]] = {
     "W_Wood":              ("목조 벽",          "벽체"),
     "W_Intwhite":          ("내부 흰 벽",       "벽체"),
     "W_Orange":            ("주황 벽",          "벽체"),
+    "W_Pink01":            ("분홍 벽 01",       "벽체"),
+    "W_Pink02":            ("분홍 벽 02",       "벽체"),
+    "W_Pink03":            ("분홍 벽 03",       "벽체"),
     "W_Pink":              ("분홍 벽",          "벽체"),
     "W_Magenta":           ("자홍 벽",          "벽체"),
     "W_Mountain":          ("산 배경",          "벽체"),
@@ -281,22 +295,230 @@ def classify_parts(key: str) -> tuple[str, str]:
     return base, "기타"
 
 
+_PROPS_MAP: dict[str, tuple[str, str]] = {
+    # ── 악기 ─────────────────────────────────────────────────────────────────
+    "CM_1-1-Gun Drum":      ("군고 1-1",        "악기/음악"),
+    "CM_1-2-Gun Drum":      ("군고 1-2",        "악기/음악"),
+    "CM_Big Zither":        ("가야금(대)",       "악기/음악"),
+    "CM_Chord":             ("줄/현",           "악기/음악"),
+    "CM_Dragon Drum 14":    ("용고 14",         "악기/음악"),
+    "CM_Drum15":            ("북 15",           "악기/음악"),
+    "CM_Gayageum":          ("가야금",          "악기/음악"),
+    "CM_GyobangDrum":       ("교방 북",         "악기/음악"),
+    "CM_GyobangDrum2":      ("교방 북 2",       "악기/음악"),
+    "CM_JejuShamanicJanggu":("제주 무속 장구",  "악기/음악"),
+    "CM_Korean harp":       ("공후",            "악기/음악"),
+    "CM_Moojang drum":      ("무장 북",         "악기/음악"),
+    "CM_SajangDrum":        ("사장 북",         "악기/음악"),
+    "CM_TangFlute":         ("당적",            "악기/음악"),
+    "CM_Tewak":             ("테왁",            "악기/음악"),
+    "CM_Wooden Beating":    ("목타",            "악기/음악"),
+    "CM_Yogo":              ("요고",            "악기/음악"),
+    # ── 의복/복식 ────────────────────────────────────────────────────────────
+    "CM_SM_AnkleBands_Male":    ("행전(남)",         "의복/복식"),
+    "CM_SM_BanggatHat":         ("방갓",             "의복/복식"),
+    "CM_SM_ChestCover_Female":  ("가슴가리개(여)",   "의복/복식"),
+    "CM_SM_ClothExcellency":    ("관료 의복",        "의복/복식"),
+    "CM_SM_ClothExcellency_Bot":("관료 의복 하의",   "의복/복식"),
+    "CM_SM_ClothExcellency_Hat":("관료 의복 모자",   "의복/복식"),
+    "CM_SM_ClothExcellency_Tobacco":("관료 담뱃대",  "의복/복식"),
+    "CM_SM_ClothExcellency_Top":("관료 의복 상의",   "의복/복식"),
+    "CM_SM_ClothWhite":         ("흰색 민복",        "의복/복식"),
+    "CM_SM_ClothWhite_Bot":     ("흰색 민복 하의",   "의복/복식"),
+    "CM_SM_ClothWhite_Hat":     ("흰색 민복 모자",   "의복/복식"),
+    "CM_SM_ClothWhite_Top":     ("흰색 민복 상의",   "의복/복식"),
+    "CM_SM_ClothYellow":        ("황토 민복",        "의복/복식"),
+    "CM_SM_ClothYellow_Bot":    ("황토 민복 하의",   "의복/복식"),
+    "CM_SM_ClothYellow_Hat":    ("황토 민복 모자",   "의복/복식"),
+    "CM_SM_ClothYellow_Top":    ("황토 민복 상의",   "의복/복식"),
+    "CM_SM_FrontSkirt_Female":  ("앞치마(여)",       "의복/복식"),
+    "CM_SM_Headband_Male":      ("머리띠(남)",       "의복/복식"),
+    "CM_SM_Jeogori_Female":     ("저고리(여)",       "의복/복식"),
+    "CM_SM_Jeogori_Male":       ("저고리(남)",       "의복/복식"),
+    "CM_SM_MerchantCloth_Female":("상인 의복(여)",   "의복/복식"),
+    "CM_SM_MerchantCloth_Male": ("상인 의복(남)",    "의복/복식"),
+    "CM_SM_Pants_Female":       ("바지(여)",         "의복/복식"),
+    "CM_SM_Pants_Male":         ("바지(남)",         "의복/복식"),
+    "CM_SM_Red_Uniform":        ("붉은 제복",        "의복/복식"),
+    "CM_SM_Shoes_Female":       ("신발(여)",         "의복/복식"),
+    "CM_SM_Shoes_Male":         ("신발(남)",         "의복/복식"),
+    "CM_SM_Skirt_Female":       ("치마(여)",         "의복/복식"),
+    "CM_SM_StrawHat_Male":      ("삿갓(남)",         "의복/복식"),
+    "CM_SM_StrawShoes_01":      ("짚신 1",           "의복/복식"),
+    "CM_SM_StrawShoes_02":      ("짚신 2",           "의복/복식"),
+    "CM_SM_TraditionalSocks_Female":("버선(여)",     "의복/복식"),
+    "CM_SM_TraditionalSocks_male":  ("버선(남)",     "의복/복식"),
+    "CM_SM_UjangRaincoat":      ("우장",             "의복/복식"),
+    "CM_TraditionalHat":        ("전통 모자",        "의복/복식"),
+    "CM_Woodenshoes_01":        ("나막신 1",         "의복/복식"),
+    "CM_Woodenshoes_02":        ("나막신 2",         "의복/복식"),
+    "CM_Wristlet_01":           ("팔찌 1",           "의복/복식"),
+    # ── 농기구 ───────────────────────────────────────────────────────────────
+    "CM_Adze_01":              ("자귀 1",           "농기구"),
+    "CM_Adze_02":              ("자귀 2",           "농기구"),
+    "CM_Adze_03":              ("자귀 3",           "농기구"),
+    "CM_Hammer_01":            ("망치 1",           "농기구"),
+    "CM_Hammer_02":            ("망치 2",           "농기구"),
+    "CM_Hammer_03":            ("망치 3",           "농기구"),
+    "CM_Hammer_04":            ("망치 4",           "농기구"),
+    "CM_Iron":                 ("다리미",           "농기구"),
+    "CM_Mill":                 ("맷돌",             "농기구"),
+    "CM_Plane_01":             ("대패 1",           "농기구"),
+    "CM_Plane_02":             ("대패 2",           "농기구"),
+    "CM_Plane_03":             ("대패 3",           "농기구"),
+    "CM_Plane_04":             ("대패 4",           "농기구"),
+    "CM_RipSaw_02":            ("톱 2",             "농기구"),
+    "CM_Sickle":               ("낫",               "농기구"),
+    "CM_Spin_Drill":           ("드릴",             "농기구"),
+    "CM_SM_Flail":             ("도리깨",           "농기구"),
+    "CM_SM_GomulaeRake":       ("고무래",           "농기구"),
+    "CM_SM_JaenggiPlow":       ("쟁기",             "농기구"),
+    "CM_SM_JeolguThresher":    ("절구",             "농기구"),
+    "CM_SM_JonggalaeShovel":   ("종갈래 삽",        "농기구"),
+    "CM_SM_KoreanHandPlow":    ("손쟁기",           "농기구"),
+    "CM_SM_MeHammer":          ("메",               "농기구"),
+    "CM_SM_MildaeMop":         ("밀대",             "농기구"),
+    "CM_SM_Mortar":            ("절구통",           "농기구"),
+    "CM_SM_Pestle":            ("절구공이",         "농기구"),
+    "CM_SM_Rake":              ("갈퀴",             "농기구"),
+    "CM_SM_Sickle":            ("낫",               "농기구"),
+    "CM_SM_SorghumBroom":      ("수수빗자루",       "농기구"),
+    "CM_SM_SseolaeHarrow":     ("써레",             "농기구"),
+    "CM_SM_Thresher":          ("탈곡기",           "농기구"),
+    "CM_SM_ThreshingFan":      ("키",               "농기구"),
+    "CM_SM_GalaeRope":         ("갈래 밧줄",        "농기구"),
+    "CM_SM_GalaeShovel":       ("갈래 삽",          "농기구"),
+    "CM_SM_GalaeShovel_NoRope":("갈래 삽(줄 없음)", "농기구"),
+    # ── 깃발/현수막 ──────────────────────────────────────────────────────────
+    "CM_SM_BaeghogiFlag":      ("백호기",           "깃발/현수막"),
+    "CM_SM_CheonglyonggiFlag": ("청룡기",           "깃발/현수막"),
+    "CM_SM_DeungsagiFlag":     ("등사기",           "깃발/현수막"),
+    "CM_SM_DulegiFlag1":       ("두레기 1",         "깃발/현수막"),
+    "CM_SM_DulegiFlag2":       ("두레기 2",         "깃발/현수막"),
+    "CM_SM_Flag_Wind_1":       ("풍기 1",           "깃발/현수막"),
+    "CM_SM_Flag_Wind_2":       ("풍기 2",           "깃발/현수막"),
+    "CM_SM_Flag_Wind_3":       ("풍기 3",           "깃발/현수막"),
+    "CM_SM_Flag_Wind_4":       ("풍기 4",           "깃발/현수막"),
+    "CM_SM_Flag_Wind_5":       ("풍기 5",           "깃발/현수막"),
+    "CM_SM_Flag_Wind_6":       ("풍기 6",           "깃발/현수막"),
+    "CM_SM_HyeonmugiFlag":     ("현무기",           "깃발/현수막"),
+    "CM_SM_JujaggiFlag":       ("주작기",           "깃발/현수막"),
+    "CM_SM_TownFlag1":         ("마을 깃발 1",      "깃발/현수막"),
+    "CM_SM_TownFlag2":         ("마을 깃발 2",      "깃발/현수막"),
+    "CM_SM_TownFlag3":         ("마을 깃발 3",      "깃발/현수막"),
+    "CM_SM_TownFlag4":         ("마을 깃발 4",      "깃발/현수막"),
+    "CM_SM_YeonggiFlag1":      ("영기 1",           "깃발/현수막"),
+    "CM_SM_YeonggiFlag2":      ("영기 2",           "깃발/현수막"),
+    # ── 자연/식물 ────────────────────────────────────────────────────────────
+    "CM_SM_Bush":              ("덤불",             "자연/식물"),
+    "CM_SM_FineTree":          ("소나무",           "자연/식물"),
+    "CM_SM_Grass":             ("풀",               "자연/식물"),
+    "CM_SM_WIllowTree":        ("버드나무",         "자연/식물"),
+    "CM_SM_Zelkova_01":        ("느티나무 1",       "자연/식물"),
+    "CM_SM_Zelkova_02":        ("느티나무 2",       "자연/식물"),
+    "CM_Goose_01":             ("거위 1",           "자연/식물"),
+    "CM_Goose_02":             ("거위 2",           "자연/식물"),
+    # ── 도구/생활용품 ────────────────────────────────────────────────────────
+    "CM_Box_01":               ("상자 1",           "도구/생활용품"),
+    "CM_Box_02":               ("상자 2",           "도구/생활용품"),
+    "CM_Box_03":               ("상자 3",           "도구/생활용품"),
+    "CM_Cabinet_02":           ("장롱",             "도구/생활용품"),
+    "CM_Cylinder":             ("원통",             "도구/생활용품"),
+    "CM_Dressing_Stand":       ("경대",             "도구/생활용품"),
+    "CM_Jar":                  ("항아리",           "도구/생활용품"),
+    "CM_Kettle":               ("주전자",           "도구/생활용품"),
+    "CM_Latch_01":             ("빗장 1",           "도구/생활용품"),
+    "CM_Latch_02":             ("빗장 2",           "도구/생활용품"),
+    "CM_Lattice_Window":       ("격자창",           "도구/생활용품"),
+    "CM_Three_Tier_Box":       ("삼단 함",          "도구/생활용품"),
+    "CM_SM_Backpack_Male":     ("등짐(남)",         "도구/생활용품"),
+    "CM_SM_Basket":            ("바구니",           "도구/생활용품"),
+    "CM_SM_CarrierCushion":    ("짐받이 방석",      "도구/생활용품"),
+    "CM_SM_CucurbitBucket":    ("바가지",           "도구/생활용품"),
+    "CM_SM_DosjaliMat":        ("도사리 멍석",      "도구/생활용품"),
+    "CM_SM_DuteuleCushion":    ("두테를 방석",      "도구/생활용품"),
+    "CM_SM_EggBag":            ("달걀 바구니",      "도구/생활용품"),
+    "CM_SM_FoodMesh":          ("음식 덮개",        "도구/생활용품"),
+    "CM_SM_FrameCarrier":      ("지게",             "도구/생활용품"),
+    "CM_SM_Hamper":            ("광주리",           "도구/생활용품"),
+    "CM_SM_Haystack":          ("볏짚 더미",        "도구/생활용품"),
+    "CM_SM_JolongtaegiBag":    ("졸롱태기",         "도구/생활용품"),
+    "CM_SM_MeongseogMat":      ("멍석",             "도구/생활용품"),
+    "CM_SM_PanaebagLadle":     ("파나배기 국자",    "도구/생활용품"),
+    "CM_SM_PullCar":           ("손수레",           "도구/생활용품"),
+    "CM_SM_Rice":              ("쌀",               "도구/생활용품"),
+    "CM_SM_RiceBale":          ("볏짚 단",          "도구/생활용품"),
+    "CM_SM_RiceSeedlings":     ("모내기 모",        "도구/생활용품"),
+    "CM_SM_Rope":              ("밧줄",             "도구/생활용품"),
+    "CM_SM_SackOfRice":        ("쌀자루",           "도구/생활용품"),
+    "CM_SM_SamtaegiTray":      ("삼태기",           "도구/생활용품"),
+    "CM_SM_Scale":             ("저울",             "도구/생활용품"),
+    "CM_SM_Scarecrow":         ("허수아비",         "도구/생활용품"),
+    "CM_SM_SheafOfRice":       ("벼 단",            "도구/생활용품"),
+    "CM_SM_Torch":             ("횃불",             "도구/생활용품"),
+    "CM_SM_Tray":              ("쟁반",             "도구/생활용품"),
+    "CM_SM_TtwaliPedestal":    ("뚜왈리 받침대",    "도구/생활용품"),
+    "CM_SM_TtwalitaeRope":     ("뚜왈리태 밧줄",    "도구/생활용품"),
+    "CM_SM_Winnower":          ("키",               "도구/생활용품"),
+    "CM_SM_YongduleLadle":     ("용두레 국자",      "도구/생활용품"),
+    "CM_SM_YongduleLadle_Base":("용두레 받침",      "도구/생활용품"),
+    "CM_SM_YongduleLadle_Ladle":("용두레",          "도구/생활용품"),
+    # ── 수레/운반 ────────────────────────────────────────────────────────────
+    "CM_SM_BalchaeSaddle":     ("발채 안장",        "수레/운반"),
+    "CM_SM_GilmaSaddle":       ("길마 안장",        "수레/운반"),
+    # ── 무기/군사 ────────────────────────────────────────────────────────────
+    "CM_SM_BulimangMuzzle":    ("부리망",           "무기/총통"),
+    "CM_SM_Cannon":            ("대포",             "무기/총통"),
+    "CM_SM_CannonParts_001":   ("포차 부품 1",      "무기/총통"),
+    "CM_SM_CannonParts_002":   ("포차 부품 2",      "무기/총통"),
+    "CM_SM_CannonParts_003":   ("포차 부품 3",      "무기/총통"),
+    "CM_SM_LineFan":           ("선풍",             "무기/총통"),
+    # ── 도자기/미술 ──────────────────────────────────────────────────────────
+    "CM_Porcelain":            ("도자기",           "도자기/미술"),
+    "CM_Porcelain_02":         ("도자기 2",         "도자기/미술"),
+    "CM_Porcelain_03":         ("도자기 3",         "도자기/미술"),
+    "CM_Porcelain_04":         ("도자기 4",         "도자기/미술"),
+    "CM_Prorcelain_05":        ("도자기 5",         "도자기/미술"),
+    "CM_Porcelain_06":         ("도자기 6",         "도자기/미술"),
+    "CM_Porcelain_07":         ("도자기 7",         "도자기/미술"),
+    "CM_Porcelain_08":         ("도자기 8",         "도자기/미술"),
+    "CM_Porcelain_09":         ("도자기 9",         "도자기/미술"),
+    "CM_Porcelain_10":         ("도자기 10",        "도자기/미술"),
+    "CM_SM_Amseog_01":         ("암석 1",           "도자기/미술"),
+    "CM_SM_Amseog_02":         ("암석 2",           "도자기/미술"),
+    # ── 기타 소품 ────────────────────────────────────────────────────────────
+    "CM_Prop_10":              ("소품 10",          "소품/기타"),
+    "CM_Props_10":             ("소품 세트 10",     "소품/기타"),
+    "CM_SM_Cow":               ("소",               "소품/기타"),
+}
+
+
 def classify_props(key: str) -> tuple[str, str]:
     """공간소품 프리팹 키 → (한글명, 서브카테고리)"""
-    # 이미 한글 이름이 있는 경우
-    name = key.replace("CM_", "", 1).replace("CM_SM_", "")
+    # 직접 매핑 우선
+    if key in _PROPS_MAP:
+        return _PROPS_MAP[key]
 
+    # 이미 한글인 경우 (한국어 문자 포함)
+    name = key.replace("CM_SM_", "").replace("CM_", "", 1)
+    if any(ord(c) > 127 for c in name):
+        lower = name.lower()
+        if "총통" in name or "군박물관" in name:
+            return name, "무기/총통"
+        if "석탑" in name or "석조" in name or "좌상" in name or "불상" in name or "광배" in name or "대좌" in name:
+            return name, "석탑/불상"
+        if "두레기" in name or "두레놀이" in name or "깃발" in name:
+            return name, "깃발/현수막"
+        return name, "소품/기타"
+
+    # 영어 fallback — 패턴 매칭
     lower = name.lower()
-    if "총통" in name or "군박물관" in name:
-        return name, "무기/총통"
-    if "석탑" in name or "석조" in name or "좌상" in name or "불상" in name or "광배" in name or "대좌" in name:
-        return name, "석탑/불상"
-    if "cloth" in lower or "민복" in name or "hat" in lower or "fan" in lower or "banggathat" in lower:
-        return name, "의복/복식"
-    if "flag" in lower or "두레기" in name or "두레놀이" in name:
+    if "flag" in lower:
         return name, "깃발/현수막"
-    if "drum" in lower:
+    if "drum" in lower or "zither" in lower or "harp" in lower or "flute" in lower:
         return name, "악기/음악"
+    if any(w in lower for w in ("cloth", "hat", "shoes", "pants", "skirt", "sock", "coat", "uniform")):
+        return name, "의복/복식"
     return name, "소품/기타"
 
 

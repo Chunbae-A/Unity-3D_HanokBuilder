@@ -150,6 +150,8 @@ public partial class HanokUIManager
         _assetEntries.Sort((a, b) =>
             string.Compare(a.displayName, b.displayName, System.StringComparison.OrdinalIgnoreCase));
 
+        PruneEmptyCategories();
+
         Debug.Log($"[HanokBuilder] {_assetEntries.Count} assets loaded (HanokAssets 폴더 내 전체)");
         RefreshAssetList();
     }
@@ -268,6 +270,33 @@ public partial class HanokUIManager
 
         if (!children.Contains(category))
             children.Add(category);
+    }
+
+    // 에셋이 한 개도 없는 카테고리/서브카테고리를 패널에서 제거
+    void PruneEmptyCategories()
+    {
+        // 카테고리별 에셋 수 집계
+        var counts = new Dictionary<HanokAssetCategory, int>();
+        foreach (var entry in _assetEntries)
+            foreach (var cat in entry.categories)
+            {
+                if (cat == null) continue;
+                counts[cat] = (counts.TryGetValue(cat, out var n) ? n : 0) + 1;
+                if (cat.parent != null)
+                    counts[cat.parent] = (counts.TryGetValue(cat.parent, out var p) ? p : 0) + 1;
+            }
+
+        // 빈 서브카테고리 제거
+        foreach (var key in new List<HanokAssetCategory>(_childCategories.Keys))
+        {
+            var subs = _childCategories[key];
+            subs.RemoveAll(s => !counts.ContainsKey(s));
+            if (subs.Count == 0)
+                _childCategories.Remove(key);
+        }
+
+        // 에셋도 서브도 없는 메인 카테고리 제거
+        _mainCategories.RemoveAll(m => !counts.ContainsKey(m) && !_childCategories.ContainsKey(m));
     }
 
     // ── JSON 매니페스트 기반 지연 로딩 (건축물완성형/부품형/공간소품/디지털휴먼) ──

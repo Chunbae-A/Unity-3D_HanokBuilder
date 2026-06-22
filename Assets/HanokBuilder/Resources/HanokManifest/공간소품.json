@@ -159,13 +159,13 @@
     },
     {
       "key": "CM_1-1-Gun Drum",
-      "display": "1-1-Gun Drum",
+      "display": "군고 1-1",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_1-1-Gun Drum"
     },
     {
       "key": "CM_1-2-Gun Drum",
-      "display": "1-2-Gun Drum",
+      "display": "군고 1-2",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_1-2-Gun Drum"
     },
@@ -351,1094 +351,1094 @@
     },
     {
       "key": "CM_Adze_01",
-      "display": "Adze_01",
-      "sub": "소품/기타",
+      "display": "자귀 1",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Adze_01"
     },
     {
       "key": "CM_Adze_02",
-      "display": "Adze_02",
-      "sub": "소품/기타",
+      "display": "자귀 2",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Adze_02"
     },
     {
       "key": "CM_Adze_03",
-      "display": "Adze_03",
-      "sub": "소품/기타",
+      "display": "자귀 3",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Adze_03"
     },
     {
       "key": "CM_Big Zither",
-      "display": "Big Zither",
-      "sub": "소품/기타",
+      "display": "가야금(대)",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Big Zither"
     },
     {
       "key": "CM_Box_01",
-      "display": "Box_01",
-      "sub": "소품/기타",
+      "display": "상자 1",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Box_01"
     },
     {
       "key": "CM_Box_02",
-      "display": "Box_02",
-      "sub": "소품/기타",
+      "display": "상자 2",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Box_02"
     },
     {
       "key": "CM_Box_03",
-      "display": "Box_03",
-      "sub": "소품/기타",
+      "display": "상자 3",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Box_03"
     },
     {
       "key": "CM_Cabinet_02",
-      "display": "Cabinet_02",
-      "sub": "소품/기타",
+      "display": "장롱",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Cabinet_02"
     },
     {
       "key": "CM_Chord",
-      "display": "Chord",
-      "sub": "소품/기타",
+      "display": "줄/현",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Chord"
     },
     {
       "key": "CM_Cylinder",
-      "display": "Cylinder",
-      "sub": "소품/기타",
+      "display": "원통",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Cylinder"
     },
     {
       "key": "CM_Dragon Drum 14",
-      "display": "Dragon Drum 14",
+      "display": "용고 14",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Dragon Drum 14"
     },
     {
       "key": "CM_Dressing_Stand",
-      "display": "Dressing_Stand",
-      "sub": "소품/기타",
+      "display": "경대",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Dressing_Stand"
     },
     {
       "key": "CM_Drum15",
-      "display": "Drum15",
+      "display": "북 15",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Drum15"
     },
     {
       "key": "CM_Gayageum",
-      "display": "Gayageum",
-      "sub": "소품/기타",
+      "display": "가야금",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Gayageum"
     },
     {
       "key": "CM_Goose_01",
-      "display": "Goose_01",
-      "sub": "소품/기타",
+      "display": "거위 1",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_Goose_01"
     },
     {
       "key": "CM_Goose_02",
-      "display": "Goose_02",
-      "sub": "소품/기타",
+      "display": "거위 2",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_Goose_02"
     },
     {
       "key": "CM_GyobangDrum",
-      "display": "GyobangDrum",
+      "display": "교방 북",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_GyobangDrum"
     },
     {
       "key": "CM_GyobangDrum2",
-      "display": "GyobangDrum2",
+      "display": "교방 북 2",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_GyobangDrum2"
     },
     {
       "key": "CM_Hammer_01",
-      "display": "Hammer_01",
-      "sub": "소품/기타",
+      "display": "망치 1",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Hammer_01"
     },
     {
       "key": "CM_Hammer_02",
-      "display": "Hammer_02",
-      "sub": "소품/기타",
+      "display": "망치 2",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Hammer_02"
     },
     {
       "key": "CM_Hammer_03",
-      "display": "Hammer_03",
-      "sub": "소품/기타",
+      "display": "망치 3",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Hammer_03"
     },
     {
       "key": "CM_Hammer_04",
-      "display": "Hammer_04",
-      "sub": "소품/기타",
+      "display": "망치 4",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Hammer_04"
     },
     {
       "key": "CM_Iron",
-      "display": "Iron",
-      "sub": "소품/기타",
+      "display": "다리미",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Iron"
     },
     {
       "key": "CM_Jar",
-      "display": "Jar",
-      "sub": "소품/기타",
+      "display": "항아리",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Jar"
     },
     {
       "key": "CM_JejuShamanicJanggu",
-      "display": "JejuShamanicJanggu",
-      "sub": "소품/기타",
+      "display": "제주 무속 장구",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_JejuShamanicJanggu"
     },
     {
       "key": "CM_Kettle",
-      "display": "Kettle",
-      "sub": "소품/기타",
+      "display": "주전자",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Kettle"
     },
     {
       "key": "CM_Korean harp",
-      "display": "Korean harp",
-      "sub": "소품/기타",
+      "display": "공후",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Korean harp"
     },
     {
       "key": "CM_Latch_01",
-      "display": "Latch_01",
-      "sub": "소품/기타",
+      "display": "빗장 1",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Latch_01"
     },
     {
       "key": "CM_Latch_02",
-      "display": "Latch_02",
-      "sub": "소품/기타",
+      "display": "빗장 2",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Latch_02"
     },
     {
       "key": "CM_Lattice_Window",
-      "display": "Lattice_Window",
-      "sub": "소품/기타",
+      "display": "격자창",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Lattice_Window"
     },
     {
       "key": "CM_Mill",
-      "display": "Mill",
-      "sub": "소품/기타",
+      "display": "맷돌",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Mill"
     },
     {
       "key": "CM_Moojang drum",
-      "display": "Moojang drum",
+      "display": "무장 북",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Moojang drum"
     },
     {
       "key": "CM_Plane_01",
-      "display": "Plane_01",
-      "sub": "소품/기타",
+      "display": "대패 1",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Plane_01"
     },
     {
       "key": "CM_Plane_02",
-      "display": "Plane_02",
-      "sub": "소품/기타",
+      "display": "대패 2",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Plane_02"
     },
     {
       "key": "CM_Plane_03",
-      "display": "Plane_03",
-      "sub": "소품/기타",
+      "display": "대패 3",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Plane_03"
     },
     {
       "key": "CM_Plane_04",
-      "display": "Plane_04",
-      "sub": "소품/기타",
+      "display": "대패 4",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Plane_04"
     },
     {
       "key": "CM_Porcelain",
-      "display": "Porcelain",
-      "sub": "소품/기타",
+      "display": "도자기",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain"
     },
     {
       "key": "CM_Porcelain_02",
-      "display": "Porcelain_02",
-      "sub": "소품/기타",
+      "display": "도자기 2",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_02"
     },
     {
       "key": "CM_Porcelain_03",
-      "display": "Porcelain_03",
-      "sub": "소품/기타",
+      "display": "도자기 3",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_03"
     },
     {
       "key": "CM_Porcelain_04",
-      "display": "Porcelain_04",
-      "sub": "소품/기타",
+      "display": "도자기 4",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_04"
     },
     {
       "key": "CM_Porcelain_06",
-      "display": "Porcelain_06",
-      "sub": "소품/기타",
+      "display": "도자기 6",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_06"
     },
     {
       "key": "CM_Porcelain_07",
-      "display": "Porcelain_07",
-      "sub": "소품/기타",
+      "display": "도자기 7",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_07"
     },
     {
       "key": "CM_Porcelain_08",
-      "display": "Porcelain_08",
-      "sub": "소품/기타",
+      "display": "도자기 8",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_08"
     },
     {
       "key": "CM_Porcelain_09",
-      "display": "Porcelain_09",
-      "sub": "소품/기타",
+      "display": "도자기 9",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_09"
     },
     {
       "key": "CM_Porcelain_10",
-      "display": "Porcelain_10",
-      "sub": "소품/기타",
+      "display": "도자기 10",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Porcelain_10"
     },
     {
       "key": "CM_Prop_10",
-      "display": "Prop_10",
+      "display": "소품 10",
       "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_Prop_10"
     },
     {
       "key": "CM_Props_10",
-      "display": "Props_10",
+      "display": "소품 세트 10",
       "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_Props_10"
     },
     {
       "key": "CM_Prorcelain_05",
-      "display": "Prorcelain_05",
-      "sub": "소품/기타",
+      "display": "도자기 5",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_Prorcelain_05"
     },
     {
       "key": "CM_RipSaw_02",
-      "display": "RipSaw_02",
-      "sub": "소품/기타",
+      "display": "톱 2",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_RipSaw_02"
     },
     {
       "key": "CM_SajangDrum",
-      "display": "SajangDrum",
+      "display": "사장 북",
       "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_SajangDrum"
     },
     {
       "key": "CM_Sickle",
-      "display": "Sickle",
-      "sub": "소품/기타",
+      "display": "낫",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Sickle"
     },
     {
       "key": "CM_SM_Amseog_01",
-      "display": "SM_Amseog_01",
-      "sub": "소품/기타",
+      "display": "암석 1",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Amseog_01"
     },
     {
       "key": "CM_SM_Amseog_02",
-      "display": "SM_Amseog_02",
-      "sub": "소품/기타",
+      "display": "암석 2",
+      "sub": "도자기/미술",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Amseog_02"
     },
     {
       "key": "CM_SM_AnkleBands_Male",
-      "display": "SM_AnkleBands_Male",
-      "sub": "소품/기타",
+      "display": "행전(남)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_AnkleBands_Male"
     },
     {
       "key": "CM_SM_Backpack_Male",
-      "display": "SM_Backpack_Male",
-      "sub": "소품/기타",
+      "display": "등짐(남)",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Backpack_Male"
     },
     {
       "key": "CM_SM_BaeghogiFlag",
-      "display": "SM_BaeghogiFlag",
+      "display": "백호기",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_BaeghogiFlag"
     },
     {
       "key": "CM_SM_BalchaeSaddle",
-      "display": "SM_BalchaeSaddle",
-      "sub": "소품/기타",
+      "display": "발채 안장",
+      "sub": "수레/운반",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_BalchaeSaddle"
     },
     {
       "key": "CM_SM_BanggatHat",
-      "display": "SM_BanggatHat",
+      "display": "방갓",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_BanggatHat"
     },
     {
       "key": "CM_SM_Basket",
-      "display": "SM_Basket",
-      "sub": "소품/기타",
+      "display": "바구니",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Basket"
     },
     {
       "key": "CM_SM_BulimangMuzzle",
-      "display": "SM_BulimangMuzzle",
-      "sub": "소품/기타",
+      "display": "부리망",
+      "sub": "무기/총통",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_BulimangMuzzle"
     },
     {
       "key": "CM_SM_Bush",
-      "display": "SM_Bush",
-      "sub": "소품/기타",
+      "display": "덤불",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Bush"
     },
     {
       "key": "CM_SM_Cannon",
-      "display": "SM_Cannon",
-      "sub": "소품/기타",
+      "display": "대포",
+      "sub": "무기/총통",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Cannon"
     },
     {
       "key": "CM_SM_CannonParts_001",
-      "display": "SM_CannonParts_001",
-      "sub": "소품/기타",
+      "display": "포차 부품 1",
+      "sub": "무기/총통",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_CannonParts_001"
     },
     {
       "key": "CM_SM_CannonParts_002",
-      "display": "SM_CannonParts_002",
-      "sub": "소품/기타",
+      "display": "포차 부품 2",
+      "sub": "무기/총통",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_CannonParts_002"
     },
     {
       "key": "CM_SM_CannonParts_003",
-      "display": "SM_CannonParts_003",
-      "sub": "소품/기타",
+      "display": "포차 부품 3",
+      "sub": "무기/총통",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_CannonParts_003"
     },
     {
       "key": "CM_SM_CarrierCushion",
-      "display": "SM_CarrierCushion",
-      "sub": "소품/기타",
+      "display": "짐받이 방석",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_CarrierCushion"
     },
     {
       "key": "CM_SM_CheonglyonggiFlag",
-      "display": "SM_CheonglyonggiFlag",
+      "display": "청룡기",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_CheonglyonggiFlag"
     },
     {
       "key": "CM_SM_ChestCover_Female",
-      "display": "SM_ChestCover_Female",
-      "sub": "소품/기타",
+      "display": "가슴가리개(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ChestCover_Female"
     },
     {
       "key": "CM_SM_ClothExcellency",
-      "display": "SM_ClothExcellency",
+      "display": "관료 의복",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothExcellency"
     },
     {
       "key": "CM_SM_ClothExcellency_Bot",
-      "display": "SM_ClothExcellency_Bot",
+      "display": "관료 의복 하의",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothExcellency_Bot"
     },
     {
       "key": "CM_SM_ClothExcellency_Hat",
-      "display": "SM_ClothExcellency_Hat",
+      "display": "관료 의복 모자",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothExcellency_Hat"
     },
     {
       "key": "CM_SM_ClothExcellency_Tobacco",
-      "display": "SM_ClothExcellency_Tobacco",
+      "display": "관료 담뱃대",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothExcellency_Tobacco"
     },
     {
       "key": "CM_SM_ClothExcellency_Top",
-      "display": "SM_ClothExcellency_Top",
+      "display": "관료 의복 상의",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothExcellency_Top"
     },
     {
       "key": "CM_SM_ClothWhite",
-      "display": "SM_ClothWhite",
+      "display": "흰색 민복",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothWhite"
     },
     {
       "key": "CM_SM_ClothWhite_Bot",
-      "display": "SM_ClothWhite_Bot",
+      "display": "흰색 민복 하의",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothWhite_Bot"
     },
     {
       "key": "CM_SM_ClothWhite_Hat",
-      "display": "SM_ClothWhite_Hat",
+      "display": "흰색 민복 모자",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothWhite_Hat"
     },
     {
       "key": "CM_SM_ClothWhite_Top",
-      "display": "SM_ClothWhite_Top",
+      "display": "흰색 민복 상의",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothWhite_Top"
     },
     {
       "key": "CM_SM_ClothYellow",
-      "display": "SM_ClothYellow",
+      "display": "황토 민복",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothYellow"
     },
     {
       "key": "CM_SM_ClothYellow_Bot",
-      "display": "SM_ClothYellow_Bot",
+      "display": "황토 민복 하의",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothYellow_Bot"
     },
     {
       "key": "CM_SM_ClothYellow_Hat",
-      "display": "SM_ClothYellow_Hat",
+      "display": "황토 민복 모자",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothYellow_Hat"
     },
     {
       "key": "CM_SM_ClothYellow_Top",
-      "display": "SM_ClothYellow_Top",
+      "display": "황토 민복 상의",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ClothYellow_Top"
     },
     {
       "key": "CM_SM_Cow",
-      "display": "SM_Cow",
+      "display": "소",
       "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Cow"
     },
     {
       "key": "CM_SM_CucurbitBucket",
-      "display": "SM_CucurbitBucket",
-      "sub": "소품/기타",
+      "display": "바가지",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_CucurbitBucket"
     },
     {
       "key": "CM_SM_DeungsagiFlag",
-      "display": "SM_DeungsagiFlag",
+      "display": "등사기",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_DeungsagiFlag"
     },
     {
       "key": "CM_SM_DosjaliMat",
-      "display": "SM_DosjaliMat",
-      "sub": "소품/기타",
+      "display": "도사리 멍석",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_DosjaliMat"
     },
     {
       "key": "CM_SM_DulegiFlag1",
-      "display": "SM_DulegiFlag1",
+      "display": "두레기 1",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_DulegiFlag1"
     },
     {
       "key": "CM_SM_DulegiFlag2",
-      "display": "SM_DulegiFlag2",
+      "display": "두레기 2",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_DulegiFlag2"
     },
     {
       "key": "CM_SM_DuteuleCushion",
-      "display": "SM_DuteuleCushion",
-      "sub": "소품/기타",
+      "display": "두테를 방석",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_DuteuleCushion"
     },
     {
       "key": "CM_SM_EggBag",
-      "display": "SM_EggBag",
-      "sub": "소품/기타",
+      "display": "달걀 바구니",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_EggBag"
     },
     {
       "key": "CM_SM_FineTree",
-      "display": "SM_FineTree",
-      "sub": "소품/기타",
+      "display": "소나무",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_FineTree"
     },
     {
       "key": "CM_SM_Flag_Wind_1",
-      "display": "SM_Flag_Wind_1",
+      "display": "풍기 1",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flag_Wind_1"
     },
     {
       "key": "CM_SM_Flag_Wind_2",
-      "display": "SM_Flag_Wind_2",
+      "display": "풍기 2",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flag_Wind_2"
     },
     {
       "key": "CM_SM_Flag_Wind_3",
-      "display": "SM_Flag_Wind_3",
+      "display": "풍기 3",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flag_Wind_3"
     },
     {
       "key": "CM_SM_Flag_Wind_4",
-      "display": "SM_Flag_Wind_4",
+      "display": "풍기 4",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flag_Wind_4"
     },
     {
       "key": "CM_SM_Flag_Wind_5",
-      "display": "SM_Flag_Wind_5",
+      "display": "풍기 5",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flag_Wind_5"
     },
     {
       "key": "CM_SM_Flag_Wind_6",
-      "display": "SM_Flag_Wind_6",
+      "display": "풍기 6",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flag_Wind_6"
     },
     {
       "key": "CM_SM_Flail",
-      "display": "SM_Flail",
-      "sub": "소품/기타",
+      "display": "도리깨",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Flail"
     },
     {
       "key": "CM_SM_FoodMesh",
-      "display": "SM_FoodMesh",
-      "sub": "소품/기타",
+      "display": "음식 덮개",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_FoodMesh"
     },
     {
       "key": "CM_SM_FrameCarrier",
-      "display": "SM_FrameCarrier",
-      "sub": "소품/기타",
+      "display": "지게",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_FrameCarrier"
     },
     {
       "key": "CM_SM_FrontSkirt_Female",
-      "display": "SM_FrontSkirt_Female",
-      "sub": "소품/기타",
+      "display": "앞치마(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_FrontSkirt_Female"
     },
     {
       "key": "CM_SM_GalaeRope",
-      "display": "SM_GalaeRope",
-      "sub": "소품/기타",
+      "display": "갈래 밧줄",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_GalaeRope"
     },
     {
       "key": "CM_SM_GalaeShovel",
-      "display": "SM_GalaeShovel",
-      "sub": "소품/기타",
+      "display": "갈래 삽",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_GalaeShovel"
     },
     {
       "key": "CM_SM_GalaeShovel_NoRope",
-      "display": "SM_GalaeShovel_NoRope",
-      "sub": "소품/기타",
+      "display": "갈래 삽(줄 없음)",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_GalaeShovel_NoRope"
     },
     {
       "key": "CM_SM_GilmaSaddle",
-      "display": "SM_GilmaSaddle",
-      "sub": "소품/기타",
+      "display": "길마 안장",
+      "sub": "수레/운반",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_GilmaSaddle"
     },
     {
       "key": "CM_SM_GomulaeRake",
-      "display": "SM_GomulaeRake",
-      "sub": "소품/기타",
+      "display": "고무래",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_GomulaeRake"
     },
     {
       "key": "CM_SM_Grass",
-      "display": "SM_Grass",
-      "sub": "소품/기타",
+      "display": "풀",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Grass"
     },
     {
       "key": "CM_SM_Hamper",
-      "display": "SM_Hamper",
-      "sub": "소품/기타",
+      "display": "광주리",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Hamper"
     },
     {
       "key": "CM_SM_Haystack",
-      "display": "SM_Haystack",
-      "sub": "소품/기타",
+      "display": "볏짚 더미",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Haystack"
     },
     {
       "key": "CM_SM_Headband_Male",
-      "display": "SM_Headband_Male",
-      "sub": "소품/기타",
+      "display": "머리띠(남)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Headband_Male"
     },
     {
       "key": "CM_SM_HyeonmugiFlag",
-      "display": "SM_HyeonmugiFlag",
+      "display": "현무기",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_HyeonmugiFlag"
     },
     {
       "key": "CM_SM_JaenggiPlow",
-      "display": "SM_JaenggiPlow",
-      "sub": "소품/기타",
+      "display": "쟁기",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_JaenggiPlow"
     },
     {
       "key": "CM_SM_Jeogori_Female",
-      "display": "SM_Jeogori_Female",
-      "sub": "소품/기타",
+      "display": "저고리(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Jeogori_Female"
     },
     {
       "key": "CM_SM_Jeogori_Male",
-      "display": "SM_Jeogori_Male",
-      "sub": "소품/기타",
+      "display": "저고리(남)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Jeogori_Male"
     },
     {
       "key": "CM_SM_JeolguThresher",
-      "display": "SM_JeolguThresher",
-      "sub": "소품/기타",
+      "display": "절구",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_JeolguThresher"
     },
     {
       "key": "CM_SM_JolongtaegiBag",
-      "display": "SM_JolongtaegiBag",
-      "sub": "소품/기타",
+      "display": "졸롱태기",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_JolongtaegiBag"
     },
     {
       "key": "CM_SM_JonggalaeShovel",
-      "display": "SM_JonggalaeShovel",
-      "sub": "소품/기타",
+      "display": "종갈래 삽",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_JonggalaeShovel"
     },
     {
       "key": "CM_SM_JujaggiFlag",
-      "display": "SM_JujaggiFlag",
+      "display": "주작기",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_JujaggiFlag"
     },
     {
       "key": "CM_SM_KoreanHandPlow",
-      "display": "SM_KoreanHandPlow",
-      "sub": "소품/기타",
+      "display": "손쟁기",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_KoreanHandPlow"
     },
     {
       "key": "CM_SM_LineFan",
-      "display": "SM_LineFan",
-      "sub": "의복/복식",
+      "display": "선풍",
+      "sub": "무기/총통",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_LineFan"
     },
     {
       "key": "CM_SM_MeHammer",
-      "display": "SM_MeHammer",
-      "sub": "소품/기타",
+      "display": "메",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_MeHammer"
     },
     {
       "key": "CM_SM_MeongseogMat",
-      "display": "SM_MeongseogMat",
-      "sub": "소품/기타",
+      "display": "멍석",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_MeongseogMat"
     },
     {
       "key": "CM_SM_MerchantCloth_Female",
-      "display": "SM_MerchantCloth_Female",
+      "display": "상인 의복(여)",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_MerchantCloth_Female"
     },
     {
       "key": "CM_SM_MerchantCloth_Male",
-      "display": "SM_MerchantCloth_Male",
+      "display": "상인 의복(남)",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_MerchantCloth_Male"
     },
     {
       "key": "CM_SM_MildaeMop",
-      "display": "SM_MildaeMop",
-      "sub": "소품/기타",
+      "display": "밀대",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_MildaeMop"
     },
     {
       "key": "CM_SM_Mortar",
-      "display": "SM_Mortar",
-      "sub": "소품/기타",
+      "display": "절구통",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Mortar"
     },
     {
       "key": "CM_SM_PanaebagLadle",
-      "display": "SM_PanaebagLadle",
-      "sub": "소품/기타",
+      "display": "파나배기 국자",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_PanaebagLadle"
     },
     {
       "key": "CM_SM_Pants_Female",
-      "display": "SM_Pants_Female",
-      "sub": "소품/기타",
+      "display": "바지(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Pants_Female"
     },
     {
       "key": "CM_SM_Pants_Male",
-      "display": "SM_Pants_Male",
-      "sub": "소품/기타",
+      "display": "바지(남)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Pants_Male"
     },
     {
       "key": "CM_SM_Pestle",
-      "display": "SM_Pestle",
-      "sub": "소품/기타",
+      "display": "절구공이",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Pestle"
     },
     {
       "key": "CM_SM_PullCar",
-      "display": "SM_PullCar",
-      "sub": "소품/기타",
+      "display": "손수레",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_PullCar"
     },
     {
       "key": "CM_SM_Rake",
-      "display": "SM_Rake",
-      "sub": "소품/기타",
+      "display": "갈퀴",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Rake"
     },
     {
       "key": "CM_SM_Red_Uniform",
-      "display": "SM_Red_Uniform",
-      "sub": "소품/기타",
+      "display": "붉은 제복",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Red_Uniform"
     },
     {
       "key": "CM_SM_Rice",
-      "display": "SM_Rice",
-      "sub": "소품/기타",
+      "display": "쌀",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Rice"
     },
     {
       "key": "CM_SM_RiceBale",
-      "display": "SM_RiceBale",
-      "sub": "소품/기타",
+      "display": "볏짚 단",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_RiceBale"
     },
     {
       "key": "CM_SM_RiceSeedlings",
-      "display": "SM_RiceSeedlings",
-      "sub": "소품/기타",
+      "display": "모내기 모",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_RiceSeedlings"
     },
     {
       "key": "CM_SM_Rope",
-      "display": "SM_Rope",
-      "sub": "소품/기타",
+      "display": "밧줄",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Rope"
     },
     {
       "key": "CM_SM_SackOfRice",
-      "display": "SM_SackOfRice",
-      "sub": "소품/기타",
+      "display": "쌀자루",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_SackOfRice"
     },
     {
       "key": "CM_SM_SamtaegiTray",
-      "display": "SM_SamtaegiTray",
-      "sub": "소품/기타",
+      "display": "삼태기",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_SamtaegiTray"
     },
     {
       "key": "CM_SM_Scale",
-      "display": "SM_Scale",
-      "sub": "소품/기타",
+      "display": "저울",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Scale"
     },
     {
       "key": "CM_SM_Scarecrow",
-      "display": "SM_Scarecrow",
-      "sub": "소품/기타",
+      "display": "허수아비",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Scarecrow"
     },
     {
       "key": "CM_SM_SheafOfRice",
-      "display": "SM_SheafOfRice",
-      "sub": "소품/기타",
+      "display": "벼 단",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_SheafOfRice"
     },
     {
       "key": "CM_SM_Shoes_Female",
-      "display": "SM_Shoes_Female",
-      "sub": "소품/기타",
+      "display": "신발(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Shoes_Female"
     },
     {
       "key": "CM_SM_Shoes_Male",
-      "display": "SM_Shoes_Male",
-      "sub": "소품/기타",
+      "display": "신발(남)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Shoes_Male"
     },
     {
       "key": "CM_SM_Sickle",
-      "display": "SM_Sickle",
-      "sub": "소품/기타",
+      "display": "낫",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Sickle"
     },
     {
       "key": "CM_SM_Skirt_Female",
-      "display": "SM_Skirt_Female",
-      "sub": "소품/기타",
+      "display": "치마(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Skirt_Female"
     },
     {
       "key": "CM_SM_SorghumBroom",
-      "display": "SM_SorghumBroom",
-      "sub": "소품/기타",
+      "display": "수수빗자루",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_SorghumBroom"
     },
     {
       "key": "CM_SM_SseolaeHarrow",
-      "display": "SM_SseolaeHarrow",
-      "sub": "소품/기타",
+      "display": "써레",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_SseolaeHarrow"
     },
     {
       "key": "CM_SM_StrawHat_Male",
-      "display": "SM_StrawHat_Male",
+      "display": "삿갓(남)",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_StrawHat_Male"
     },
     {
       "key": "CM_SM_StrawShoes_01",
-      "display": "SM_StrawShoes_01",
-      "sub": "소품/기타",
+      "display": "짚신 1",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_StrawShoes_01"
     },
     {
       "key": "CM_SM_StrawShoes_02",
-      "display": "SM_StrawShoes_02",
-      "sub": "소품/기타",
+      "display": "짚신 2",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_StrawShoes_02"
     },
     {
       "key": "CM_SM_Thresher",
-      "display": "SM_Thresher",
-      "sub": "소품/기타",
+      "display": "탈곡기",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Thresher"
     },
     {
       "key": "CM_SM_ThreshingFan",
-      "display": "SM_ThreshingFan",
-      "sub": "의복/복식",
+      "display": "키",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_ThreshingFan"
     },
     {
       "key": "CM_SM_Torch",
-      "display": "SM_Torch",
-      "sub": "소품/기타",
+      "display": "횃불",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Torch"
     },
     {
       "key": "CM_SM_TownFlag1",
-      "display": "SM_TownFlag1",
+      "display": "마을 깃발 1",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TownFlag1"
     },
     {
       "key": "CM_SM_TownFlag2",
-      "display": "SM_TownFlag2",
+      "display": "마을 깃발 2",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TownFlag2"
     },
     {
       "key": "CM_SM_TownFlag3",
-      "display": "SM_TownFlag3",
+      "display": "마을 깃발 3",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TownFlag3"
     },
     {
       "key": "CM_SM_TownFlag4",
-      "display": "SM_TownFlag4",
+      "display": "마을 깃발 4",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TownFlag4"
     },
     {
       "key": "CM_SM_TraditionalSocks_Female",
-      "display": "SM_TraditionalSocks_Female",
-      "sub": "소품/기타",
+      "display": "버선(여)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TraditionalSocks_Female"
     },
     {
       "key": "CM_SM_TraditionalSocks_male",
-      "display": "SM_TraditionalSocks_male",
-      "sub": "소품/기타",
+      "display": "버선(남)",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TraditionalSocks_male"
     },
     {
       "key": "CM_SM_Tray",
-      "display": "SM_Tray",
-      "sub": "소품/기타",
+      "display": "쟁반",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Tray"
     },
     {
       "key": "CM_SM_TtwaliPedestal",
-      "display": "SM_TtwaliPedestal",
-      "sub": "소품/기타",
+      "display": "뚜왈리 받침대",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TtwaliPedestal"
     },
     {
       "key": "CM_SM_TtwalitaeRope",
-      "display": "SM_TtwalitaeRope",
-      "sub": "소품/기타",
+      "display": "뚜왈리태 밧줄",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_TtwalitaeRope"
     },
     {
       "key": "CM_SM_UjangRaincoat",
-      "display": "SM_UjangRaincoat",
-      "sub": "소품/기타",
+      "display": "우장",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_UjangRaincoat"
     },
     {
       "key": "CM_SM_WIllowTree",
-      "display": "SM_WIllowTree",
-      "sub": "소품/기타",
+      "display": "버드나무",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_WIllowTree"
     },
     {
       "key": "CM_SM_Winnower",
-      "display": "SM_Winnower",
-      "sub": "소품/기타",
+      "display": "키",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Winnower"
     },
     {
       "key": "CM_SM_YeonggiFlag1",
-      "display": "SM_YeonggiFlag1",
+      "display": "영기 1",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_YeonggiFlag1"
     },
     {
       "key": "CM_SM_YeonggiFlag2",
-      "display": "SM_YeonggiFlag2",
+      "display": "영기 2",
       "sub": "깃발/현수막",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_YeonggiFlag2"
     },
     {
       "key": "CM_SM_YongduleLadle",
-      "display": "SM_YongduleLadle",
-      "sub": "소품/기타",
+      "display": "용두레 국자",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_YongduleLadle"
     },
     {
       "key": "CM_SM_YongduleLadle_Base",
-      "display": "SM_YongduleLadle_Base",
-      "sub": "소품/기타",
+      "display": "용두레 받침",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_YongduleLadle_Base"
     },
     {
       "key": "CM_SM_YongduleLadle_Ladle",
-      "display": "SM_YongduleLadle_Ladle",
-      "sub": "소품/기타",
+      "display": "용두레",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_YongduleLadle_Ladle"
     },
     {
       "key": "CM_SM_Zelkova_01",
-      "display": "SM_Zelkova_01",
-      "sub": "소품/기타",
+      "display": "느티나무 1",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Zelkova_01"
     },
     {
       "key": "CM_SM_Zelkova_02",
-      "display": "SM_Zelkova_02",
-      "sub": "소품/기타",
+      "display": "느티나무 2",
+      "sub": "자연/식물",
       "path": "HanokAssets/공간소품/Prefabs/CM_SM_Zelkova_02"
     },
     {
       "key": "CM_Spin_Drill",
-      "display": "Spin_Drill",
-      "sub": "소품/기타",
+      "display": "드릴",
+      "sub": "농기구",
       "path": "HanokAssets/공간소품/Prefabs/CM_Spin_Drill"
     },
     {
       "key": "CM_TangFlute",
-      "display": "TangFlute",
-      "sub": "소품/기타",
+      "display": "당적",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_TangFlute"
     },
     {
       "key": "CM_Tewak",
-      "display": "Tewak",
-      "sub": "소품/기타",
+      "display": "테왁",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Tewak"
     },
     {
       "key": "CM_Three_Tier_Box",
-      "display": "Three_Tier_Box",
-      "sub": "소품/기타",
+      "display": "삼단 함",
+      "sub": "도구/생활용품",
       "path": "HanokAssets/공간소품/Prefabs/CM_Three_Tier_Box"
     },
     {
       "key": "CM_TraditionalHat",
-      "display": "TraditionalHat",
+      "display": "전통 모자",
       "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_TraditionalHat"
     },
     {
       "key": "CM_Wooden Beating",
-      "display": "Wooden Beating",
-      "sub": "소품/기타",
+      "display": "목타",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Wooden Beating"
     },
     {
       "key": "CM_Woodenshoes_01",
-      "display": "Woodenshoes_01",
-      "sub": "소품/기타",
+      "display": "나막신 1",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_Woodenshoes_01"
     },
     {
       "key": "CM_Woodenshoes_02",
-      "display": "Woodenshoes_02",
-      "sub": "소품/기타",
+      "display": "나막신 2",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_Woodenshoes_02"
     },
     {
       "key": "CM_Wristlet_01",
-      "display": "Wristlet_01",
-      "sub": "소품/기타",
+      "display": "팔찌 1",
+      "sub": "의복/복식",
       "path": "HanokAssets/공간소품/Prefabs/CM_Wristlet_01"
     },
     {
       "key": "CM_Yogo",
-      "display": "Yogo",
-      "sub": "소품/기타",
+      "display": "요고",
+      "sub": "악기/음악",
       "path": "HanokAssets/공간소품/Prefabs/CM_Yogo"
     },
     {
@@ -1474,7 +1474,7 @@
     {
       "key": "CM_검바위마을기(TownFlag3)",
       "display": "검바위마을기(TownFlag3)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_검바위마을기(TownFlag3)"
     },
     {
@@ -1486,7 +1486,7 @@
     {
       "key": "CM_귀전리마을기(TownFlag2)",
       "display": "귀전리마을기(TownFlag2)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_귀전리마을기(TownFlag2)"
     },
     {
@@ -1510,7 +1510,7 @@
     {
       "key": "CM_남정골마을기(TownFlag1)",
       "display": "남정골마을기(TownFlag1)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_남정골마을기(TownFlag1)"
     },
     {
@@ -1534,7 +1534,7 @@
     {
       "key": "CM_대감옷(ClothExcellency)",
       "display": "대감옷(ClothExcellency)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_대감옷(ClothExcellency)"
     },
     {
@@ -1552,7 +1552,7 @@
     {
       "key": "CM_도수레마을기(TownFlag4)",
       "display": "도수레마을기(TownFlag4)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_도수레마을기(TownFlag4)"
     },
     {
@@ -1576,7 +1576,7 @@
     {
       "key": "CM_등사기(DeungsagiFlag)",
       "display": "등사기(DeungsagiFlag)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_등사기(DeungsagiFlag)"
     },
     {
@@ -1606,13 +1606,13 @@
     {
       "key": "CM_민복[백의](ClothWhite)",
       "display": "민복[백의](ClothWhite)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_민복[백의](ClothWhite)"
     },
     {
       "key": "CM_민복[황토의](ClothYellow)",
       "display": "민복[황토의](ClothYellow)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_민복[황토의](ClothYellow)"
     },
     {
@@ -1636,13 +1636,13 @@
     {
       "key": "CM_방갓(BanggatHat)",
       "display": "방갓(BanggatHat)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_방갓(BanggatHat)"
     },
     {
       "key": "CM_백호기(BaeghogiFlag)",
       "display": "백호기(BaeghogiFlag)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_백호기(BaeghogiFlag)"
     },
     {
@@ -1678,7 +1678,7 @@
     {
       "key": "CM_부뚜(ThreshingFan)",
       "display": "부뚜(ThreshingFan)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_부뚜(ThreshingFan)"
     },
     {
@@ -1732,7 +1732,7 @@
     {
       "key": "CM_아낙네복(ClothWomen)",
       "display": "아낙네복(ClothWomen)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_아낙네복(ClothWomen)"
     },
     {
@@ -1744,13 +1744,13 @@
     {
       "key": "CM_영기_1(YeonggiFlag1)",
       "display": "영기_1(YeonggiFlag1)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_영기_1(YeonggiFlag1)"
     },
     {
       "key": "CM_영기_2(YeonggiFlag2)",
       "display": "영기_2(YeonggiFlag2)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_영기_2(YeonggiFlag2)"
     },
     {
@@ -1810,13 +1810,13 @@
     {
       "key": "CM_주작기(JujaggiFlag)",
       "display": "주작기(JujaggiFlag)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_주작기(JujaggiFlag)"
     },
     {
       "key": "CM_줄부채(LineFan)",
       "display": "줄부채(LineFan)",
-      "sub": "의복/복식",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_줄부채(LineFan)"
     },
     {
@@ -1864,7 +1864,7 @@
     {
       "key": "CM_청룡기(CheonglyonggiFlag)",
       "display": "청룡기(CheonglyonggiFlag)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_청룡기(CheonglyonggiFlag)"
     },
     {
@@ -1894,7 +1894,7 @@
     {
       "key": "CM_현무기(HyeonmugiFlag)",
       "display": "현무기(HyeonmugiFlag)",
-      "sub": "깃발/현수막",
+      "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_현무기(HyeonmugiFlag)"
     },
     {
