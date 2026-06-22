@@ -1,0 +1,113 @@
+{
+  "category": "디지털휴먼",
+  "assets": [
+    {
+      "key": "CM_SM_Merchant_FeMale",
+      "display": "여성 상인",
+      "sub": "상인",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_SM_Merchant_FeMale"
+    },
+    {
+      "key": "CM_SM_Merchant_Male",
+      "display": "남성 상인",
+      "sub": "상인",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_SM_Merchant_Male"
+    },
+    {
+      "key": "CM_woman_phong",
+      "display": "여성 캐릭터",
+      "sub": "메타휴먼",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_woman_phong"
+    },
+    {
+      "key": "CM_곤방_전동작",
+      "display": "곤방 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_곤방_전동작"
+    },
+    {
+      "key": "CM_교전_전동작",
+      "display": "교전 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_교전_전동작"
+    },
+    {
+      "key": "CM_권법_전동작",
+      "display": "권법 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_권법_전동작"
+    },
+    {
+      "key": "CM_낭선_전동작",
+      "display": "낭선 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_낭선_전동작"
+    },
+    {
+      "key": "CM_당파_전동작",
+      "display": "당파 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_당파_전동작"
+    },
+    {
+      "key": "CM_등패_전동작",
+      "display": "등패 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_등패_전동작"
+    },
+    {
+      "key": "CM_메타휴먼_남_01",
+      "display": "메타휴먼 남성 1",
+      "sub": "메타휴먼",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_메타휴먼_남_01"
+    },
+    {
+      "key": "CM_메타휴먼_남_02",
+      "display": "메타휴먼 남성 2",
+      "sub": "메타휴먼",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_메타휴먼_남_02"
+    },
+    {
+      "key": "CM_메타휴먼_남_03",
+      "display": "메타휴먼 남성 3",
+      "sub": "메타휴먼",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_메타휴먼_남_03"
+    },
+    {
+      "key": "CM_메타휴먼_남_04",
+      "display": "메타휴먼 남성 4",
+      "sub": "메타휴먼",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_메타휴먼_남_04"
+    },
+    {
+      "key": "CM_쌍검_전동작",
+      "display": "쌍검 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_쌍검_전동작"
+    },
+    {
+      "key": "CM_쌍수도_전동작",
+      "display": "쌍수도 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_쌍수도_전동작"
+    },
+    {
+      "key": "CM_월도_전동작",
+      "display": "월도 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_월도_전동작"
+    },
+    {
+      "key": "CM_장창_전동작",
+      "display": "장창 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_장창_전동작"
+    },
+    {
+      "key": "CM_협도_전동작",
+      "display": "협도 무예",
+      "sub": "무예",
+      "path": "HanokAssets/디지털휴먼/Prefabs/CM_협도_전동작"
+    }
+  ]
+}

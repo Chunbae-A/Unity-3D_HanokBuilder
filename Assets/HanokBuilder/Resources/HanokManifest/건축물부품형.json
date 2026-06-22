@@ -1,0 +1,4019 @@
+{
+  "category": "건축물부품형",
+  "assets": [
+    {
+      "key": "CM_SM_B_ArchDoor_001",
+      "display": "아치 문 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_ArchDoor_001"
+    },
+    {
+      "key": "CM_SM_B_ArchDoor_001_p",
+      "display": "아치 문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_ArchDoor_001_p"
+    },
+    {
+      "key": "CM_SM_B_ArchDoor_002",
+      "display": "아치 문 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_ArchDoor_002"
+    },
+    {
+      "key": "CM_SM_B_ArchDoor_002_p",
+      "display": "아치 문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_ArchDoor_002_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_012",
+      "display": "문루 12",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_012"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_012_p",
+      "display": "문루",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_012_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Column",
+      "display": "문루 기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Column"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Column_p",
+      "display": "문루 기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Column_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Crossbeam",
+      "display": "문루 대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Crossbeam"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Crossbeam_p",
+      "display": "문루 대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Crossbeam_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_HipRafter",
+      "display": "문루 추녀",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_HipRafter"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_HipRafter_p",
+      "display": "문루 추녀",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_HipRafter_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Lintel_001",
+      "display": "문루 인방 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Lintel_001"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Lintel_001_p",
+      "display": "문루 인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Lintel_001_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Lintel_002",
+      "display": "문루 인방 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Lintel_002"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Lintel_002_p",
+      "display": "문루 인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Lintel_002_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Rafter",
+      "display": "문루 서까래",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Rafter"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Rafter_p",
+      "display": "문루 서까래",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Rafter_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Roof_001",
+      "display": "문루 지붕 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Roof_001"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Roof_001_p",
+      "display": "문루 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Roof_001_p"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Roof_002",
+      "display": "문루 지붕 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Roof_002"
+    },
+    {
+      "key": "CM_SM_B_GateHouse_Roof_002_p",
+      "display": "문루 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_GateHouse_Roof_002_p"
+    },
+    {
+      "key": "CM_SM_B_MetalDoor_001",
+      "display": "철문 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_MetalDoor_001"
+    },
+    {
+      "key": "CM_SM_B_MetalDoor_001_p",
+      "display": "철문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_MetalDoor_001_p"
+    },
+    {
+      "key": "CM_SM_B_MetalDoor_002",
+      "display": "철문 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_MetalDoor_002"
+    },
+    {
+      "key": "CM_SM_B_MetalDoor_002_p",
+      "display": "철문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_MetalDoor_002_p"
+    },
+    {
+      "key": "CM_SM_B_SmallArch",
+      "display": "작은 아치",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_SmallArch"
+    },
+    {
+      "key": "CM_SM_B_SmallArch_p",
+      "display": "작은 아치",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_B_SmallArch_p"
+    },
+    {
+      "key": "CM_SM_BarbicanArch_001",
+      "display": "바비칸 아치 01",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanArch_001"
+    },
+    {
+      "key": "CM_SM_BarbicanArch_001_p",
+      "display": "바비칸 아치",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanArch_001_p"
+    },
+    {
+      "key": "CM_SM_BarbicanArch_002",
+      "display": "바비칸 아치 02",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanArch_002"
+    },
+    {
+      "key": "CM_SM_BarbicanArch_002_p",
+      "display": "바비칸 아치",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanArch_002_p"
+    },
+    {
+      "key": "CM_SM_BarbicanDoorBase",
+      "display": "바비칸 문",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanDoorBase"
+    },
+    {
+      "key": "CM_SM_BarbicanDoorBase_p",
+      "display": "바비칸 문",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanDoorBase_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_001",
+      "display": "바비칸 바닥 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_001"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_001_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_001_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_002",
+      "display": "바비칸 바닥 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_002"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_002_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_002_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_003",
+      "display": "바비칸 바닥 03",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_003"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_003_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_003_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_004",
+      "display": "바비칸 바닥 04",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_004"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_004_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_004_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_005",
+      "display": "바비칸 바닥 05",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_005"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_005_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_005_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_006",
+      "display": "바비칸 바닥 06",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_006"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_006_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_006_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_007",
+      "display": "바비칸 바닥 07",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_007"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_007_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_007_p"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_008",
+      "display": "바비칸 바닥 08",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_008"
+    },
+    {
+      "key": "CM_SM_BarbicanFloor_008_p",
+      "display": "바비칸 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanFloor_008_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_001",
+      "display": "바비칸 여장 01",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_001"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_001_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_001_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_002",
+      "display": "바비칸 여장 02",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_002"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_002_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_002_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_003",
+      "display": "바비칸 여장 03",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_003"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_003_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_003_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_004",
+      "display": "바비칸 여장 04",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_004"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_004_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_004_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_005",
+      "display": "바비칸 여장 05",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_005"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_005_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_005_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_006",
+      "display": "바비칸 여장 06",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_006"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_006_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_006_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_007",
+      "display": "바비칸 여장 07",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_007"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_007_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_007_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_008",
+      "display": "바비칸 여장 08",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_008"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_008_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_008_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_009",
+      "display": "바비칸 여장 09",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_009"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_009_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_009_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_010",
+      "display": "바비칸 여장 10",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_010"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_010_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_010_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_011",
+      "display": "바비칸 여장 11",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_011"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_011_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_011_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_012",
+      "display": "바비칸 여장 12",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_012"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_012_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_012_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_013",
+      "display": "바비칸 여장 13",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_013"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_013_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_013_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_014",
+      "display": "바비칸 여장 14",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_014"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_014_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_014_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_015",
+      "display": "바비칸 여장 15",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_015"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_015_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_015_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_016_1",
+      "display": "바비칸 여장 01",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_016_1"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_016_1_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_016_1_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_017",
+      "display": "바비칸 여장 17",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_017"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_017_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_017_p"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_16",
+      "display": "바비칸 여장 16",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_16"
+    },
+    {
+      "key": "CM_SM_BarbicanParapet_16_p",
+      "display": "바비칸 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanParapet_16_p"
+    },
+    {
+      "key": "CM_SM_BarbicanRoofboard",
+      "display": "바비칸 개판",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanRoofboard"
+    },
+    {
+      "key": "CM_SM_BarbicanRoofboard_002_p",
+      "display": "바비칸 개판",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanRoofboard_002_p"
+    },
+    {
+      "key": "CM_SM_BarbicanStair",
+      "display": "바비칸 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanStair"
+    },
+    {
+      "key": "CM_SM_BarbicanStair_p",
+      "display": "바비칸 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanStair_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_001",
+      "display": "바비칸 성벽 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_001"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_001_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_001_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_002",
+      "display": "바비칸 성벽 02",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_002"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_002_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_002_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_003",
+      "display": "바비칸 성벽 03",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_003"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_003_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_003_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_004",
+      "display": "바비칸 성벽 04",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_004"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_004_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_004_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_005",
+      "display": "바비칸 성벽 05",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_005"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_005_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_005_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_006",
+      "display": "바비칸 성벽 06",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_006"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_006_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_006_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_007",
+      "display": "바비칸 성벽 07",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_007"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_007_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_007_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_008",
+      "display": "바비칸 성벽 08",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_008"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_008_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_008_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_009",
+      "display": "바비칸 성벽 09",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_009"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_009_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_009_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_010",
+      "display": "바비칸 성벽 10",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_010"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_010_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_010_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_011",
+      "display": "바비칸 성벽 11",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_011"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_011_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_011_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_012",
+      "display": "바비칸 성벽 12",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_012"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_012_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_012_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_013",
+      "display": "바비칸 성벽 13",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_013"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_013_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_013_p"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_014",
+      "display": "바비칸 성벽 14",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_014"
+    },
+    {
+      "key": "CM_SM_BarbicanWall_014_p",
+      "display": "바비칸 성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BarbicanWall_014_p"
+    },
+    {
+      "key": "CM_SM_Bastion_001",
+      "display": "치성 01",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Bastion_001"
+    },
+    {
+      "key": "CM_SM_Bastion_001_p",
+      "display": "치성",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Bastion_001_p"
+    },
+    {
+      "key": "CM_SM_Bastion_Parapet",
+      "display": "치성 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Bastion_Parapet"
+    },
+    {
+      "key": "CM_SM_Bastion_Parapet_p",
+      "display": "치성 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Bastion_Parapet_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_001",
+      "display": "보 받침 01",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_001"
+    },
+    {
+      "key": "CM_SM_BeamSupport_001_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_001_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_002",
+      "display": "보 받침 02",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_002"
+    },
+    {
+      "key": "CM_SM_BeamSupport_002_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_002_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_003",
+      "display": "보 받침 03",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_003"
+    },
+    {
+      "key": "CM_SM_BeamSupport_003_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_003_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_004",
+      "display": "보 받침 04",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_004"
+    },
+    {
+      "key": "CM_SM_BeamSupport_004_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_004_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_005",
+      "display": "보 받침 05",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_005"
+    },
+    {
+      "key": "CM_SM_BeamSupport_005_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_005_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_006",
+      "display": "보 받침 06",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_006"
+    },
+    {
+      "key": "CM_SM_BeamSupport_006_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_006_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_007",
+      "display": "보 받침 07",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_007"
+    },
+    {
+      "key": "CM_SM_BeamSupport_007_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_007_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_008",
+      "display": "보 받침 08",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_008"
+    },
+    {
+      "key": "CM_SM_BeamSupport_008_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_008_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_009",
+      "display": "보 받침 09",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_009"
+    },
+    {
+      "key": "CM_SM_BeamSupport_009_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_009_p"
+    },
+    {
+      "key": "CM_SM_BeamSupport_010",
+      "display": "보 받침 10",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_010"
+    },
+    {
+      "key": "CM_SM_BeamSupport_010_p",
+      "display": "보 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BeamSupport_010_p"
+    },
+    {
+      "key": "CM_SM_BracketSupport_001",
+      "display": "포작 받침 01",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_001"
+    },
+    {
+      "key": "CM_SM_BracketSupport_001_p",
+      "display": "포작 받침",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_001_p"
+    },
+    {
+      "key": "CM_SM_BracketSupport_002",
+      "display": "포작 받침 02",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_002"
+    },
+    {
+      "key": "CM_SM_BracketSupport_002_p",
+      "display": "포작 받침",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_002_p"
+    },
+    {
+      "key": "CM_SM_BracketSupport_003",
+      "display": "포작 받침 03",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_003"
+    },
+    {
+      "key": "CM_SM_BracketSupport_003_p",
+      "display": "포작 받침",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_003_p"
+    },
+    {
+      "key": "CM_SM_BracketSupport_004",
+      "display": "포작 받침 04",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_004"
+    },
+    {
+      "key": "CM_SM_BracketSupport_004_p",
+      "display": "포작 받침",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_BracketSupport_004_p"
+    },
+    {
+      "key": "CM_SM_Byeolju_Roof",
+      "display": "별주 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Byeolju_Roof"
+    },
+    {
+      "key": "CM_SM_Byeolju_SmallGateRoof",
+      "display": "별주 소문 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Byeolju_SmallGateRoof"
+    },
+    {
+      "key": "CM_SM_Ceiling",
+      "display": "천장",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ceiling"
+    },
+    {
+      "key": "CM_SM_Ceiling_p",
+      "display": "천장",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ceiling_p"
+    },
+    {
+      "key": "CM_SM_Column_001",
+      "display": "기둥 01",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_001"
+    },
+    {
+      "key": "CM_SM_Column_001_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_001_p"
+    },
+    {
+      "key": "CM_SM_Column_002",
+      "display": "기둥 02",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_002"
+    },
+    {
+      "key": "CM_SM_Column_002_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_002_p"
+    },
+    {
+      "key": "CM_SM_Column_003",
+      "display": "기둥 03",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_003"
+    },
+    {
+      "key": "CM_SM_Column_003_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_003_p"
+    },
+    {
+      "key": "CM_SM_Column_004",
+      "display": "기둥 04",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_004"
+    },
+    {
+      "key": "CM_SM_Column_004_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_004_p"
+    },
+    {
+      "key": "CM_SM_Column_005",
+      "display": "기둥 05",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_005"
+    },
+    {
+      "key": "CM_SM_Column_005_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_005_p"
+    },
+    {
+      "key": "CM_SM_Column_006",
+      "display": "기둥 06",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_006"
+    },
+    {
+      "key": "CM_SM_Column_006_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_006_p"
+    },
+    {
+      "key": "CM_SM_Column_007",
+      "display": "기둥 07",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_007"
+    },
+    {
+      "key": "CM_SM_Column_007_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_007_p"
+    },
+    {
+      "key": "CM_SM_Column_008",
+      "display": "기둥 08",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_008"
+    },
+    {
+      "key": "CM_SM_Column_008_p",
+      "display": "기둥",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Column_008_p"
+    },
+    {
+      "key": "CM_SM_ColumnTopSupport",
+      "display": "기둥 상부 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ColumnTopSupport"
+    },
+    {
+      "key": "CM_SM_ColumnTopSupport_p",
+      "display": "기둥 상부 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ColumnTopSupport_p"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_001",
+      "display": "다포 01",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_001"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_001_p",
+      "display": "다포",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_001_p"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_002",
+      "display": "다포 02",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_002"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_002_p",
+      "display": "다포",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_002_p"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_003",
+      "display": "다포 03",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_003"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_003_p",
+      "display": "다포",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_003_p"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_004",
+      "display": "다포 04",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_004"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_004_p",
+      "display": "다포",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_004_p"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_005",
+      "display": "다포 05",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_005"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_005_p",
+      "display": "다포",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_005_p"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_006",
+      "display": "다포 06",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_006"
+    },
+    {
+      "key": "CM_SM_ComplexBracket_006_p",
+      "display": "다포",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_ComplexBracket_006_p"
+    },
+    {
+      "key": "CM_SM_Crossbeam_001",
+      "display": "대들보 01",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_001"
+    },
+    {
+      "key": "CM_SM_Crossbeam_001_p",
+      "display": "대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_001_p"
+    },
+    {
+      "key": "CM_SM_Crossbeam_002",
+      "display": "대들보 02",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_002"
+    },
+    {
+      "key": "CM_SM_Crossbeam_002_p",
+      "display": "대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_002_p"
+    },
+    {
+      "key": "CM_SM_Crossbeam_003",
+      "display": "대들보 03",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_003"
+    },
+    {
+      "key": "CM_SM_Crossbeam_003_p",
+      "display": "대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_003_p"
+    },
+    {
+      "key": "CM_SM_Crossbeam_004",
+      "display": "대들보 04",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_004"
+    },
+    {
+      "key": "CM_SM_Crossbeam_004_p",
+      "display": "대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_004_p"
+    },
+    {
+      "key": "CM_SM_Crossbeam_005",
+      "display": "대들보 05",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_005"
+    },
+    {
+      "key": "CM_SM_Crossbeam_005_p",
+      "display": "대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_005_p"
+    },
+    {
+      "key": "CM_SM_Crossbeam_006",
+      "display": "대들보 06",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_006"
+    },
+    {
+      "key": "CM_SM_Crossbeam_006_p",
+      "display": "대들보",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Crossbeam_006_p"
+    },
+    {
+      "key": "CM_SM_CW",
+      "display": "성곽 벽체",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW"
+    },
+    {
+      "key": "CM_SM_CW_Floor",
+      "display": "성곽 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Floor"
+    },
+    {
+      "key": "CM_SM_CW_Floor_p",
+      "display": "성곽 바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Floor_p"
+    },
+    {
+      "key": "CM_SM_CW_p",
+      "display": "성곽 벽체",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_p"
+    },
+    {
+      "key": "CM_SM_CW_Parapet",
+      "display": "성곽 여장",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Parapet"
+    },
+    {
+      "key": "CM_SM_CW_Parapet_p",
+      "display": "성곽 여장",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Parapet_p"
+    },
+    {
+      "key": "CM_SM_CW_Stair_001",
+      "display": "성곽 계단 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Stair_001"
+    },
+    {
+      "key": "CM_SM_CW_Stair_001_p",
+      "display": "성곽 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Stair_001_p"
+    },
+    {
+      "key": "CM_SM_CW_Stair_002",
+      "display": "성곽 계단 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Stair_002"
+    },
+    {
+      "key": "CM_SM_CW_Stair_002_p",
+      "display": "성곽 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Stair_002_p"
+    },
+    {
+      "key": "CM_SM_CW_Stone",
+      "display": "성곽 석재",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Stone"
+    },
+    {
+      "key": "CM_SM_CW_Stone_p",
+      "display": "성곽 석재",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_CW_Stone_p"
+    },
+    {
+      "key": "CM_SM_DoorBase",
+      "display": "문짝",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_DoorBase"
+    },
+    {
+      "key": "CM_SM_DoorBase_p",
+      "display": "문짝",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_DoorBase_p"
+    },
+    {
+      "key": "CM_SM_DoorStoper",
+      "display": "문멈춤쇠",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_DoorStoper"
+    },
+    {
+      "key": "CM_SM_DoorStoper_p",
+      "display": "문멈춤쇠",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_DoorStoper_p"
+    },
+    {
+      "key": "CM_SM_FlatLintel_001",
+      "display": "평인방 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_001"
+    },
+    {
+      "key": "CM_SM_FlatLintel_001_p",
+      "display": "평인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_001_p"
+    },
+    {
+      "key": "CM_SM_FlatLintel_002",
+      "display": "평인방 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_002"
+    },
+    {
+      "key": "CM_SM_FlatLintel_002_p",
+      "display": "평인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_002_p"
+    },
+    {
+      "key": "CM_SM_FlatLintel_003",
+      "display": "평인방 03",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_003"
+    },
+    {
+      "key": "CM_SM_FlatLintel_003_p",
+      "display": "평인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_003_p"
+    },
+    {
+      "key": "CM_SM_FlatLintel_004",
+      "display": "평인방 04",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_004"
+    },
+    {
+      "key": "CM_SM_FlatLintel_004_p",
+      "display": "평인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_004_p"
+    },
+    {
+      "key": "CM_SM_FlatLintel_005",
+      "display": "평인방 05",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_005"
+    },
+    {
+      "key": "CM_SM_FlatLintel_005_p",
+      "display": "평인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_005_p"
+    },
+    {
+      "key": "CM_SM_FlatLintel_006",
+      "display": "평인방 06",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_006"
+    },
+    {
+      "key": "CM_SM_FlatLintel_006_p",
+      "display": "평인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FlatLintel_006_p"
+    },
+    {
+      "key": "CM_SM_Floor_001",
+      "display": "바닥 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_001"
+    },
+    {
+      "key": "CM_SM_Floor_001_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_001_p"
+    },
+    {
+      "key": "CM_SM_Floor_002",
+      "display": "바닥 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_002"
+    },
+    {
+      "key": "CM_SM_Floor_002_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_002_p"
+    },
+    {
+      "key": "CM_SM_Floor_003",
+      "display": "바닥 03",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_003"
+    },
+    {
+      "key": "CM_SM_Floor_003_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_003_p"
+    },
+    {
+      "key": "CM_SM_Floor_004",
+      "display": "바닥 04",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_004"
+    },
+    {
+      "key": "CM_SM_Floor_004_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_004_p"
+    },
+    {
+      "key": "CM_SM_Floor_005",
+      "display": "바닥 05",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_005"
+    },
+    {
+      "key": "CM_SM_Floor_005_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_005_p"
+    },
+    {
+      "key": "CM_SM_Floor_006",
+      "display": "바닥 06",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_006"
+    },
+    {
+      "key": "CM_SM_Floor_006_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_006_p"
+    },
+    {
+      "key": "CM_SM_Floor_007",
+      "display": "바닥 07",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_007"
+    },
+    {
+      "key": "CM_SM_Floor_007_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_007_p"
+    },
+    {
+      "key": "CM_SM_Floor_008",
+      "display": "바닥 08",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_008"
+    },
+    {
+      "key": "CM_SM_Floor_008_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_008_p"
+    },
+    {
+      "key": "CM_SM_Floor_009",
+      "display": "바닥 09",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_009"
+    },
+    {
+      "key": "CM_SM_Floor_009_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_009_p"
+    },
+    {
+      "key": "CM_SM_Floor_010",
+      "display": "바닥 10",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_010"
+    },
+    {
+      "key": "CM_SM_Floor_010_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_010_p"
+    },
+    {
+      "key": "CM_SM_Floor_011",
+      "display": "바닥 11",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_011"
+    },
+    {
+      "key": "CM_SM_Floor_011_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_011_p"
+    },
+    {
+      "key": "CM_SM_Floor_012",
+      "display": "바닥 12",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_012"
+    },
+    {
+      "key": "CM_SM_Floor_012_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_012_p"
+    },
+    {
+      "key": "CM_SM_Floor_013",
+      "display": "바닥 13",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_013"
+    },
+    {
+      "key": "CM_SM_Floor_013_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_013_p"
+    },
+    {
+      "key": "CM_SM_Floor_014",
+      "display": "바닥 14",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_014"
+    },
+    {
+      "key": "CM_SM_Floor_014_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_014_p"
+    },
+    {
+      "key": "CM_SM_Floor_015",
+      "display": "바닥 15",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_015"
+    },
+    {
+      "key": "CM_SM_Floor_015_p",
+      "display": "바닥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Floor_015_p"
+    },
+    {
+      "key": "CM_SM_Fortification",
+      "display": "성곽",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Fortification"
+    },
+    {
+      "key": "CM_SM_Fortification_p",
+      "display": "성곽",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Fortification_p"
+    },
+    {
+      "key": "CM_SM_FortificationArch",
+      "display": "성벽 아치",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FortificationArch"
+    },
+    {
+      "key": "CM_SM_FortificationArch_p",
+      "display": "성벽 아치",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FortificationArch_p"
+    },
+    {
+      "key": "CM_SM_FortificationWall",
+      "display": "성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FortificationWall"
+    },
+    {
+      "key": "CM_SM_FortificationWall_p",
+      "display": "성벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_FortificationWall_p"
+    },
+    {
+      "key": "CM_SM_G_MetalDoor_001",
+      "display": "철대문 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_MetalDoor_001"
+    },
+    {
+      "key": "CM_SM_G_MetalDoor_001_p",
+      "display": "철대문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_MetalDoor_001_p"
+    },
+    {
+      "key": "CM_SM_G_MetalDoor_002",
+      "display": "철대문 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_MetalDoor_002"
+    },
+    {
+      "key": "CM_SM_G_MetalDoor_002_p",
+      "display": "철대문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_MetalDoor_002_p"
+    },
+    {
+      "key": "CM_SM_G_RoofBoard_001_p",
+      "display": "대문 개판",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_RoofBoard_001_p"
+    },
+    {
+      "key": "CM_SM_G_RoofBoard_002",
+      "display": "대문 개판 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_RoofBoard_002"
+    },
+    {
+      "key": "CM_SM_G_Stair_001",
+      "display": "석조 계단 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_001"
+    },
+    {
+      "key": "CM_SM_G_Stair_001_p",
+      "display": "석조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_001_p"
+    },
+    {
+      "key": "CM_SM_G_Stair_002",
+      "display": "석조 계단 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_002"
+    },
+    {
+      "key": "CM_SM_G_Stair_002_p",
+      "display": "석조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_002_p"
+    },
+    {
+      "key": "CM_SM_G_Stair_003",
+      "display": "석조 계단 03",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_003"
+    },
+    {
+      "key": "CM_SM_G_Stair_003_p",
+      "display": "석조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_003_p"
+    },
+    {
+      "key": "CM_SM_G_Stair_004",
+      "display": "석조 계단 04",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_004"
+    },
+    {
+      "key": "CM_SM_G_Stair_004_p",
+      "display": "석조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_004_p"
+    },
+    {
+      "key": "CM_SM_G_Stair_Newel_001",
+      "display": "계단 난간 기둥 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_Newel_001"
+    },
+    {
+      "key": "CM_SM_G_Stair_Newel_001_p",
+      "display": "계단 난간 기둥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_Newel_001_p"
+    },
+    {
+      "key": "CM_SM_G_Stair_Newel_002",
+      "display": "계단 난간 기둥 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_Newel_002"
+    },
+    {
+      "key": "CM_SM_G_Stair_Newel_002_p",
+      "display": "계단 난간 기둥",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_G_Stair_Newel_002_p"
+    },
+    {
+      "key": "CM_SM_Gargoyle",
+      "display": "잡상",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Gargoyle"
+    },
+    {
+      "key": "CM_SM_Gargoyle_p",
+      "display": "잡상",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Gargoyle_p"
+    },
+    {
+      "key": "CM_SM_GateGuardPost",
+      "display": "성문 초소",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_p",
+      "display": "성문 초소",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_p"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Parapet_001",
+      "display": "성문 초소 여장 01",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Parapet_001"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Parapet_001_p",
+      "display": "성문 초소 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Parapet_001_p"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Parapet_002",
+      "display": "성문 초소 여장 02",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Parapet_002"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Parapet_002_p",
+      "display": "성문 초소 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Parapet_002_p"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Parapet_003",
+      "display": "성문 초소 여장 03",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Parapet_003"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Parapet_003_p",
+      "display": "성문 초소 여장",
+      "sub": "성곽/치성",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Parapet_003_p"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Stair",
+      "display": "성문 초소 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Stair"
+    },
+    {
+      "key": "CM_SM_GateGuardPost_Stair_p",
+      "display": "성문 초소 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GateGuardPost_Stair_p"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_001",
+      "display": "문루 여장 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_001"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_001_p",
+      "display": "문루 여장",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_001_p"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_002",
+      "display": "문루 여장 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_002"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_002_p",
+      "display": "문루 여장",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_002_p"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_003",
+      "display": "문루 여장 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_003"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_003_p",
+      "display": "문루 여장",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_003_p"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_004",
+      "display": "문루 여장 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_004"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_004_p",
+      "display": "문루 여장",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_004_p"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_005",
+      "display": "문루 여장 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_005"
+    },
+    {
+      "key": "CM_SM_GH_Parapet_005_p",
+      "display": "문루 여장",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_GH_Parapet_005_p"
+    },
+    {
+      "key": "CM_SM_Heartwood_001",
+      "display": "심주 01",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_001"
+    },
+    {
+      "key": "CM_SM_Heartwood_001_p",
+      "display": "심주",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_001_p"
+    },
+    {
+      "key": "CM_SM_Heartwood_002",
+      "display": "심주 02",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_002"
+    },
+    {
+      "key": "CM_SM_Heartwood_002_p",
+      "display": "심주",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_002_p"
+    },
+    {
+      "key": "CM_SM_Heartwood_003",
+      "display": "심주 03",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_003"
+    },
+    {
+      "key": "CM_SM_Heartwood_003_p",
+      "display": "심주",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_003_p"
+    },
+    {
+      "key": "CM_SM_Heartwood_004",
+      "display": "심주 04",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_004"
+    },
+    {
+      "key": "CM_SM_Heartwood_004_p",
+      "display": "심주",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Heartwood_004_p"
+    },
+    {
+      "key": "CM_SM_Hedgerows",
+      "display": "생울타리",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hedgerows"
+    },
+    {
+      "key": "CM_SM_Hedgerows_Arch",
+      "display": "생울타리 아치",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hedgerows_Arch"
+    },
+    {
+      "key": "CM_SM_HipRafter_001",
+      "display": "추녀 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_001"
+    },
+    {
+      "key": "CM_SM_HipRafter_001_p",
+      "display": "추녀",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_001_p"
+    },
+    {
+      "key": "CM_SM_HipRafter_002",
+      "display": "추녀 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_002"
+    },
+    {
+      "key": "CM_SM_HipRafter_002_p",
+      "display": "추녀",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_002_p"
+    },
+    {
+      "key": "CM_SM_HipRafter_003",
+      "display": "추녀 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_003"
+    },
+    {
+      "key": "CM_SM_HipRafter_003_p",
+      "display": "추녀",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_003_p"
+    },
+    {
+      "key": "CM_SM_HipRafter_004",
+      "display": "추녀 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_004"
+    },
+    {
+      "key": "CM_SM_HipRafter_004_p",
+      "display": "추녀",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_HipRafter_004_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_001",
+      "display": "화반 01",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_001"
+    },
+    {
+      "key": "CM_SM_Hwaban_001_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_001_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_002",
+      "display": "화반 02",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_002"
+    },
+    {
+      "key": "CM_SM_Hwaban_002_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_002_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_003",
+      "display": "화반 03",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_003"
+    },
+    {
+      "key": "CM_SM_Hwaban_003_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_003_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_004",
+      "display": "화반 04",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_004"
+    },
+    {
+      "key": "CM_SM_Hwaban_004_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_004_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_005",
+      "display": "화반 05",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_005"
+    },
+    {
+      "key": "CM_SM_Hwaban_005_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_005_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_006",
+      "display": "화반 06",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_006"
+    },
+    {
+      "key": "CM_SM_Hwaban_006_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_006_p"
+    },
+    {
+      "key": "CM_SM_Hwaban_007",
+      "display": "화반 07",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_007"
+    },
+    {
+      "key": "CM_SM_Hwaban_007_p",
+      "display": "화반",
+      "sub": "포작/화반",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Hwaban_007_p"
+    },
+    {
+      "key": "CM_SM_Lintel_001",
+      "display": "인방 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_001"
+    },
+    {
+      "key": "CM_SM_Lintel_001_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_001_p"
+    },
+    {
+      "key": "CM_SM_Lintel_002",
+      "display": "인방 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_002"
+    },
+    {
+      "key": "CM_SM_Lintel_002_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_002_p"
+    },
+    {
+      "key": "CM_SM_Lintel_003",
+      "display": "인방 03",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_003"
+    },
+    {
+      "key": "CM_SM_Lintel_003_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_003_p"
+    },
+    {
+      "key": "CM_SM_Lintel_004",
+      "display": "인방 04",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_004"
+    },
+    {
+      "key": "CM_SM_Lintel_004_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_004_p"
+    },
+    {
+      "key": "CM_SM_Lintel_005",
+      "display": "인방 05",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_005"
+    },
+    {
+      "key": "CM_SM_Lintel_005_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_005_p"
+    },
+    {
+      "key": "CM_SM_Lintel_006",
+      "display": "인방 06",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_006"
+    },
+    {
+      "key": "CM_SM_Lintel_006_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_006_p"
+    },
+    {
+      "key": "CM_SM_Lintel_007",
+      "display": "인방 07",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_007"
+    },
+    {
+      "key": "CM_SM_Lintel_007_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_007_p"
+    },
+    {
+      "key": "CM_SM_Lintel_008",
+      "display": "인방 08",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_008"
+    },
+    {
+      "key": "CM_SM_Lintel_008_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_008_p"
+    },
+    {
+      "key": "CM_SM_Lintel_009",
+      "display": "인방 09",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_009"
+    },
+    {
+      "key": "CM_SM_Lintel_009_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_009_p"
+    },
+    {
+      "key": "CM_SM_Lintel_010",
+      "display": "인방 10",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_010"
+    },
+    {
+      "key": "CM_SM_Lintel_010_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_010_p"
+    },
+    {
+      "key": "CM_SM_Lintel_011",
+      "display": "인방 11",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_011"
+    },
+    {
+      "key": "CM_SM_Lintel_011_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_011_p"
+    },
+    {
+      "key": "CM_SM_Lintel_012",
+      "display": "인방 12",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_012"
+    },
+    {
+      "key": "CM_SM_Lintel_012_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_012_p"
+    },
+    {
+      "key": "CM_SM_Lintel_013",
+      "display": "인방 13",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_013"
+    },
+    {
+      "key": "CM_SM_Lintel_013_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_013_p"
+    },
+    {
+      "key": "CM_SM_Lintel_014",
+      "display": "인방 14",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_014"
+    },
+    {
+      "key": "CM_SM_Lintel_014_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_014_p"
+    },
+    {
+      "key": "CM_SM_Lintel_015",
+      "display": "인방 15",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_015"
+    },
+    {
+      "key": "CM_SM_Lintel_015_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_015_p"
+    },
+    {
+      "key": "CM_SM_Lintel_016",
+      "display": "인방 16",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_016"
+    },
+    {
+      "key": "CM_SM_Lintel_016_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_016_p"
+    },
+    {
+      "key": "CM_SM_Lintel_017",
+      "display": "인방 17",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_017"
+    },
+    {
+      "key": "CM_SM_Lintel_017_p",
+      "display": "인방",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Lintel_017_p"
+    },
+    {
+      "key": "CM_SM_Note_Janganmun",
+      "display": "장안문 설명판",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Note_Janganmun"
+    },
+    {
+      "key": "CM_SM_Note_Paldalmun_p",
+      "display": "팔달문 설명판",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Note_Paldalmun_p"
+    },
+    {
+      "key": "CM_SM_Pedestal_001",
+      "display": "주춧돌 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_001"
+    },
+    {
+      "key": "CM_SM_Pedestal_001_p",
+      "display": "주춧돌",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_001_p"
+    },
+    {
+      "key": "CM_SM_Pedestal_002",
+      "display": "주춧돌 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_002"
+    },
+    {
+      "key": "CM_SM_Pedestal_002_p",
+      "display": "주춧돌",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_002_p"
+    },
+    {
+      "key": "CM_SM_Pedestal_003",
+      "display": "주춧돌 03",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_003"
+    },
+    {
+      "key": "CM_SM_Pedestal_003_p",
+      "display": "주춧돌",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_003_p"
+    },
+    {
+      "key": "CM_SM_Pedestal_004",
+      "display": "주춧돌 04",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_004"
+    },
+    {
+      "key": "CM_SM_Pedestal_004_p",
+      "display": "주춧돌",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Pedestal_004_p"
+    },
+    {
+      "key": "CM_SM_Purlin_001",
+      "display": "도리 01",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_001"
+    },
+    {
+      "key": "CM_SM_Purlin_001_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_001_p"
+    },
+    {
+      "key": "CM_SM_Purlin_002",
+      "display": "도리 02",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_002"
+    },
+    {
+      "key": "CM_SM_Purlin_002_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_002_p"
+    },
+    {
+      "key": "CM_SM_Purlin_003",
+      "display": "도리 03",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_003"
+    },
+    {
+      "key": "CM_SM_Purlin_003_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_003_p"
+    },
+    {
+      "key": "CM_SM_Purlin_004",
+      "display": "도리 04",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_004"
+    },
+    {
+      "key": "CM_SM_Purlin_004_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_004_p"
+    },
+    {
+      "key": "CM_SM_Purlin_005",
+      "display": "도리 05",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_005"
+    },
+    {
+      "key": "CM_SM_Purlin_005_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_005_p"
+    },
+    {
+      "key": "CM_SM_Purlin_006",
+      "display": "도리 06",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_006"
+    },
+    {
+      "key": "CM_SM_Purlin_006_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_006_p"
+    },
+    {
+      "key": "CM_SM_Purlin_007",
+      "display": "도리 07",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_007"
+    },
+    {
+      "key": "CM_SM_Purlin_007_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_007_p"
+    },
+    {
+      "key": "CM_SM_Purlin_008",
+      "display": "도리 08",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_008"
+    },
+    {
+      "key": "CM_SM_Purlin_008_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_008_p"
+    },
+    {
+      "key": "CM_SM_Purlin_009",
+      "display": "도리 09",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_009"
+    },
+    {
+      "key": "CM_SM_Purlin_009_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_009_p"
+    },
+    {
+      "key": "CM_SM_Purlin_10",
+      "display": "도리 10",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_10"
+    },
+    {
+      "key": "CM_SM_Purlin_10_p",
+      "display": "도리",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Purlin_10_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_001",
+      "display": "도리 받침 01",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_001"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_001_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_001_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_002",
+      "display": "도리 받침 02",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_002"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_002_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_002_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_003",
+      "display": "도리 받침 03",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_003"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_003_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_003_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_004",
+      "display": "도리 받침 04",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_004"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_004_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_004_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_005",
+      "display": "도리 받침 05",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_005"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_005_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_005_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_006",
+      "display": "도리 받침 06",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_006"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_006_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_006_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_007",
+      "display": "도리 받침 07",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_007"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_007_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_007_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_008",
+      "display": "도리 받침 08",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_008"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_008_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_008_p"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_009",
+      "display": "도리 받침 09",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_009"
+    },
+    {
+      "key": "CM_SM_PurlinSupport_009_p",
+      "display": "도리 받침",
+      "sub": "기둥/보",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_PurlinSupport_009_p"
+    },
+    {
+      "key": "CM_SM_R_R_GateModular_1",
+      "display": "성문 모듈 01",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_R_GateModular_1"
+    },
+    {
+      "key": "CM_SM_R_R_GateModular_2",
+      "display": "성문 모듈 02",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_R_GateModular_2"
+    },
+    {
+      "key": "CM_SM_R_R_GateModular_3",
+      "display": "성문 모듈 03",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_R_GateModular_3"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_1",
+      "display": "귀서까래 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_1"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_10",
+      "display": "귀서까래 10",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_10"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_11",
+      "display": "귀서까래 11",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_11"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_12",
+      "display": "귀서까래 12",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_12"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_13",
+      "display": "귀서까래 13",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_13"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_14",
+      "display": "귀서까래 14",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_14"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_15",
+      "display": "귀서까래 15",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_15"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_16",
+      "display": "귀서까래 16",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_16"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_17",
+      "display": "귀서까래 17",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_17"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_18",
+      "display": "귀서까래 18",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_18"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_19",
+      "display": "귀서까래 19",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_19"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_2",
+      "display": "귀서까래 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_2"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_20",
+      "display": "귀서까래 20",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_20"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_21",
+      "display": "귀서까래 21",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_21"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_22",
+      "display": "귀서까래 22",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_22"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_3",
+      "display": "귀서까래 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_3"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_4",
+      "display": "귀서까래 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_4"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_5",
+      "display": "귀서까래 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_5"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_6",
+      "display": "귀서까래 06",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_6"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_7",
+      "display": "귀서까래 07",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_7"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_8",
+      "display": "귀서까래 08",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_8"
+    },
+    {
+      "key": "CM_SM_R_RoofCorner_9",
+      "display": "귀서까래 09",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCorner_9"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_1",
+      "display": "귀서까래(절단) 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_1"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_2",
+      "display": "귀서까래(절단) 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_2"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_3",
+      "display": "귀서까래(절단) 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_3"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_4",
+      "display": "귀서까래(절단) 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_4"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_5",
+      "display": "귀서까래(절단) 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_5"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_6",
+      "display": "귀서까래(절단) 06",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_6"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_7",
+      "display": "귀서까래(절단) 07",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_7"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_8",
+      "display": "귀서까래(절단) 08",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_8"
+    },
+    {
+      "key": "CM_SM_R_RoofCornerCut_9",
+      "display": "귀서까래(절단) 09",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofCornerCut_9"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_1",
+      "display": "외목도리 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_1"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_10",
+      "display": "외목도리 10",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_10"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_11",
+      "display": "외목도리 11",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_11"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_12",
+      "display": "외목도리 12",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_12"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_13",
+      "display": "외목도리 13",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_13"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_14",
+      "display": "외목도리 14",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_14"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_15",
+      "display": "외목도리 15",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_15"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_16",
+      "display": "외목도리 16",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_16"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_17",
+      "display": "외목도리 17",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_17"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_18",
+      "display": "외목도리 18",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_18"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_19",
+      "display": "외목도리 19",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_19"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_2",
+      "display": "외목도리 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_2"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_20",
+      "display": "외목도리 20",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_20"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_21",
+      "display": "외목도리 21",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_21"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_22",
+      "display": "외목도리 22",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_22"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_23",
+      "display": "외목도리 23",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_23"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_24",
+      "display": "외목도리 24",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_24"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_25",
+      "display": "외목도리 25",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_25"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_3",
+      "display": "외목도리 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_3"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_4",
+      "display": "외목도리 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_4"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_5",
+      "display": "외목도리 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_5"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_6",
+      "display": "외목도리 06",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_6"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_7",
+      "display": "외목도리 07",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_7"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_8",
+      "display": "외목도리 08",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_8"
+    },
+    {
+      "key": "CM_SM_R_RoofOuter_9",
+      "display": "외목도리 09",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_RoofOuter_9"
+    },
+    {
+      "key": "CM_SM_R_Seoricheong",
+      "display": "서리청",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Seoricheong"
+    },
+    {
+      "key": "CM_SM_R_Sign_1",
+      "display": "현판 01",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_1"
+    },
+    {
+      "key": "CM_SM_R_Sign_2",
+      "display": "현판 02",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_2"
+    },
+    {
+      "key": "CM_SM_R_Sign_3",
+      "display": "현판 03",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_3"
+    },
+    {
+      "key": "CM_SM_R_Sign_4",
+      "display": "현판 04",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_4"
+    },
+    {
+      "key": "CM_SM_R_Sign_5",
+      "display": "현판 05",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_5"
+    },
+    {
+      "key": "CM_SM_R_Sign_BH",
+      "display": "현판(BH)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_BH"
+    },
+    {
+      "key": "CM_SM_R_Sign_DB",
+      "display": "현판(DB)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_DB"
+    },
+    {
+      "key": "CM_SM_R_Sign_DH",
+      "display": "현판(DH)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_DH"
+    },
+    {
+      "key": "CM_SM_R_Sign_EH",
+      "display": "현판(EH)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_EH"
+    },
+    {
+      "key": "CM_SM_R_Sign_GH",
+      "display": "현판(GH)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_GH"
+    },
+    {
+      "key": "CM_SM_R_Sign_GJ",
+      "display": "현판(GJ)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_GJ"
+    },
+    {
+      "key": "CM_SM_R_Sign_GO",
+      "display": "현판(GO)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_GO"
+    },
+    {
+      "key": "CM_SM_R_Sign_GS",
+      "display": "현판(GS)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_GS"
+    },
+    {
+      "key": "CM_SM_R_Sign_GY",
+      "display": "현판(GY)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_GY"
+    },
+    {
+      "key": "CM_SM_R_Sign_HC",
+      "display": "현판(HC)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_HC"
+    },
+    {
+      "key": "CM_SM_R_Sign_JB",
+      "display": "현판(JB)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_JB"
+    },
+    {
+      "key": "CM_SM_R_Sign_JY",
+      "display": "현판(JY)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_JY"
+    },
+    {
+      "key": "CM_SM_R_Sign_OR",
+      "display": "현판(OR)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_OR"
+    },
+    {
+      "key": "CM_SM_R_Sign_SS",
+      "display": "현판(SS)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_SS"
+    },
+    {
+      "key": "CM_SM_R_Sign_YB",
+      "display": "현판(YB)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_YB"
+    },
+    {
+      "key": "CM_SM_R_Sign_YH",
+      "display": "현판(YH)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_YH"
+    },
+    {
+      "key": "CM_SM_R_Sign_YY",
+      "display": "현판(YY)",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sign_YY"
+    },
+    {
+      "key": "CM_SM_R_Sinpungru",
+      "display": "신풍루",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Sinpungru"
+    },
+    {
+      "key": "CM_SM_R_Unhangag_Iancheong",
+      "display": "운한각·이안청",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Unhangag_Iancheong"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek",
+      "display": "유여택 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek1",
+      "display": "R_Yuyotaek1",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek1"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek10",
+      "display": "R_Yuyotaek10",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek10"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek11",
+      "display": "R_Yuyotaek11",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek11"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek2",
+      "display": "R_Yuyotaek2",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek2"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek3",
+      "display": "R_Yuyotaek3",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek3"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek4",
+      "display": "R_Yuyotaek4",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek4"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek5",
+      "display": "R_Yuyotaek5",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek5"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek6",
+      "display": "R_Yuyotaek6",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek6"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek7",
+      "display": "R_Yuyotaek7",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek7"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek8",
+      "display": "R_Yuyotaek8",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek8"
+    },
+    {
+      "key": "CM_SM_R_Yuyotaek9",
+      "display": "R_Yuyotaek9",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_R_Yuyotaek9"
+    },
+    {
+      "key": "CM_SM_Rafter_001",
+      "display": "서까래 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_001"
+    },
+    {
+      "key": "CM_SM_Rafter_001_p",
+      "display": "서까래",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_001_p"
+    },
+    {
+      "key": "CM_SM_Rafter_002",
+      "display": "서까래 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_002"
+    },
+    {
+      "key": "CM_SM_Rafter_002_p",
+      "display": "서까래",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_002_p"
+    },
+    {
+      "key": "CM_SM_Rafter_003",
+      "display": "서까래 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_003"
+    },
+    {
+      "key": "CM_SM_Rafter_003_p",
+      "display": "서까래",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_003_p"
+    },
+    {
+      "key": "CM_SM_Rafter_004",
+      "display": "서까래 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_004"
+    },
+    {
+      "key": "CM_SM_Rafter_004_p",
+      "display": "서까래",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Rafter_004_p"
+    },
+    {
+      "key": "CM_SM_RafterExtension_001",
+      "display": "평고대 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_001"
+    },
+    {
+      "key": "CM_SM_RafterExtension_001_p",
+      "display": "평고대",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_001_p"
+    },
+    {
+      "key": "CM_SM_RafterExtension_002",
+      "display": "평고대 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_002"
+    },
+    {
+      "key": "CM_SM_RafterExtension_002_p",
+      "display": "평고대",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_002_p"
+    },
+    {
+      "key": "CM_SM_RafterExtension_003",
+      "display": "평고대 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_003"
+    },
+    {
+      "key": "CM_SM_RafterExtension_003_p",
+      "display": "평고대",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_003_p"
+    },
+    {
+      "key": "CM_SM_RafterExtension_004",
+      "display": "평고대 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_004"
+    },
+    {
+      "key": "CM_SM_RafterExtension_004_p",
+      "display": "평고대",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RafterExtension_004_p"
+    },
+    {
+      "key": "CM_SM_RammedEarth_001",
+      "display": "다짐흙 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_001"
+    },
+    {
+      "key": "CM_SM_RammedEarth_001_p",
+      "display": "다짐흙",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_001_p"
+    },
+    {
+      "key": "CM_SM_RammedEarth_002",
+      "display": "다짐흙 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_002"
+    },
+    {
+      "key": "CM_SM_RammedEarth_002_p",
+      "display": "다짐흙",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_002_p"
+    },
+    {
+      "key": "CM_SM_RammedEarth_003",
+      "display": "다짐흙 03",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_003"
+    },
+    {
+      "key": "CM_SM_RammedEarth_003_p",
+      "display": "다짐흙",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_003_p"
+    },
+    {
+      "key": "CM_SM_RammedEarth_004",
+      "display": "다짐흙 04",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_004"
+    },
+    {
+      "key": "CM_SM_RammedEarth_004_p",
+      "display": "다짐흙",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RammedEarth_004_p"
+    },
+    {
+      "key": "CM_SM_Ridge_001",
+      "display": "용마루 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_001"
+    },
+    {
+      "key": "CM_SM_Ridge_001_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_001_p"
+    },
+    {
+      "key": "CM_SM_Ridge_002",
+      "display": "용마루 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_002"
+    },
+    {
+      "key": "CM_SM_Ridge_002_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_002_p"
+    },
+    {
+      "key": "CM_SM_Ridge_003",
+      "display": "용마루 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_003"
+    },
+    {
+      "key": "CM_SM_Ridge_003_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_003_p"
+    },
+    {
+      "key": "CM_SM_Ridge_004",
+      "display": "용마루 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_004"
+    },
+    {
+      "key": "CM_SM_Ridge_004_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_004_p"
+    },
+    {
+      "key": "CM_SM_Ridge_005",
+      "display": "용마루 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_005"
+    },
+    {
+      "key": "CM_SM_Ridge_005_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_005_p"
+    },
+    {
+      "key": "CM_SM_Ridge_006",
+      "display": "용마루 06",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_006"
+    },
+    {
+      "key": "CM_SM_Ridge_006_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_006_p"
+    },
+    {
+      "key": "CM_SM_Ridge_008",
+      "display": "용마루 08",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_008"
+    },
+    {
+      "key": "CM_SM_Ridge_008_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_008_p"
+    },
+    {
+      "key": "CM_SM_Ridge_009",
+      "display": "용마루 09",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_009"
+    },
+    {
+      "key": "CM_SM_Ridge_009_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_009_p"
+    },
+    {
+      "key": "CM_SM_Ridge_010",
+      "display": "용마루 10",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_010"
+    },
+    {
+      "key": "CM_SM_Ridge_010_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_010_p"
+    },
+    {
+      "key": "CM_SM_Ridge_011",
+      "display": "용마루 11",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_011"
+    },
+    {
+      "key": "CM_SM_Ridge_011_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_011_p"
+    },
+    {
+      "key": "CM_SM_Ridge_012",
+      "display": "용마루 12",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_012"
+    },
+    {
+      "key": "CM_SM_Ridge_012_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_012_p"
+    },
+    {
+      "key": "CM_SM_Ridge_013",
+      "display": "용마루 13",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_013"
+    },
+    {
+      "key": "CM_SM_Ridge_013_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_013_p"
+    },
+    {
+      "key": "CM_SM_Ridge_014",
+      "display": "용마루 14",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_014"
+    },
+    {
+      "key": "CM_SM_Ridge_014_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_014_p"
+    },
+    {
+      "key": "CM_SM_Ridge_07",
+      "display": "용마루 07",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_07"
+    },
+    {
+      "key": "CM_SM_Ridge_07_p",
+      "display": "용마루",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Ridge_07_p"
+    },
+    {
+      "key": "CM_SM_Roof_001",
+      "display": "지붕 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_001"
+    },
+    {
+      "key": "CM_SM_Roof_001_p",
+      "display": "지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_001_p"
+    },
+    {
+      "key": "CM_SM_Roof_002",
+      "display": "지붕 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_002"
+    },
+    {
+      "key": "CM_SM_Roof_002_p",
+      "display": "지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_002_p"
+    },
+    {
+      "key": "CM_SM_Roof_003",
+      "display": "지붕 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_003"
+    },
+    {
+      "key": "CM_SM_Roof_003_p",
+      "display": "지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_003_p"
+    },
+    {
+      "key": "CM_SM_Roof_004",
+      "display": "지붕 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_004"
+    },
+    {
+      "key": "CM_SM_Roof_004_p",
+      "display": "지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Roof_004_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_001",
+      "display": "개판/산자 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_001"
+    },
+    {
+      "key": "CM_SM_RoofBoard_001_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_001_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_002",
+      "display": "개판/산자 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_002"
+    },
+    {
+      "key": "CM_SM_RoofBoard_002_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_002_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_003",
+      "display": "개판/산자 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_003"
+    },
+    {
+      "key": "CM_SM_RoofBoard_003_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_003_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_004",
+      "display": "개판/산자 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_004"
+    },
+    {
+      "key": "CM_SM_RoofBoard_004_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_004_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_005",
+      "display": "개판/산자 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_005"
+    },
+    {
+      "key": "CM_SM_RoofBoard_005_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_005_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_006",
+      "display": "개판/산자 06",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_006"
+    },
+    {
+      "key": "CM_SM_RoofBoard_006_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_006_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_007",
+      "display": "개판/산자 07",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_007"
+    },
+    {
+      "key": "CM_SM_RoofBoard_007_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_007_p"
+    },
+    {
+      "key": "CM_SM_RoofBoard_008",
+      "display": "개판/산자 08",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_008"
+    },
+    {
+      "key": "CM_SM_RoofBoard_008_p",
+      "display": "개판/산자",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofBoard_008_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_001",
+      "display": "잡상 01",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_001"
+    },
+    {
+      "key": "CM_SM_RoofStatue_001_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_001_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_002",
+      "display": "잡상 02",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_002"
+    },
+    {
+      "key": "CM_SM_RoofStatue_002_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_002_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_003",
+      "display": "잡상 03",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_003"
+    },
+    {
+      "key": "CM_SM_RoofStatue_003_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_003_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_004",
+      "display": "잡상 04",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_004"
+    },
+    {
+      "key": "CM_SM_RoofStatue_004_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_004_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_005",
+      "display": "잡상 05",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_005"
+    },
+    {
+      "key": "CM_SM_RoofStatue_005_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_005_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_006",
+      "display": "잡상 06",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_006"
+    },
+    {
+      "key": "CM_SM_RoofStatue_006_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_006_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_007",
+      "display": "잡상 07",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_007"
+    },
+    {
+      "key": "CM_SM_RoofStatue_007_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_007_p"
+    },
+    {
+      "key": "CM_SM_RoofStatue_008",
+      "display": "잡상 08",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_008"
+    },
+    {
+      "key": "CM_SM_RoofStatue_008_p",
+      "display": "잡상",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_RoofStatue_008_p"
+    },
+    {
+      "key": "CM_SM_S_Circle_1",
+      "display": "원형 구조물 01",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Circle_1"
+    },
+    {
+      "key": "CM_SM_S_Circle_2",
+      "display": "원형 구조물 02",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Circle_2"
+    },
+    {
+      "key": "CM_SM_S_Octagonal",
+      "display": "팔각 구조물",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Octagonal"
+    },
+    {
+      "key": "CM_SM_S_Square_1",
+      "display": "사각 구조물 01",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Square_1"
+    },
+    {
+      "key": "CM_SM_S_Square_2",
+      "display": "사각 구조물 02",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Square_2"
+    },
+    {
+      "key": "CM_SM_S_Square_3",
+      "display": "사각 구조물 03",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Square_3"
+    },
+    {
+      "key": "CM_SM_S_Square_4",
+      "display": "사각 구조물 04",
+      "sub": "장식",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_S_Square_4"
+    },
+    {
+      "key": "CM_SM_SideDoor_001",
+      "display": "협문 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_SideDoor_001"
+    },
+    {
+      "key": "CM_SM_SideDoor_001_p",
+      "display": "협문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_SideDoor_001_p"
+    },
+    {
+      "key": "CM_SM_SideDoor_002",
+      "display": "협문 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_SideDoor_002"
+    },
+    {
+      "key": "CM_SM_SideDoor_002_p",
+      "display": "협문",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_SideDoor_002_p"
+    },
+    {
+      "key": "CM_SM_SideDoor_Frame",
+      "display": "협문틀",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_SideDoor_Frame"
+    },
+    {
+      "key": "CM_SM_SideDoor_Frame_p",
+      "display": "협문틀",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_SideDoor_Frame_p"
+    },
+    {
+      "key": "CM_SM_Signboard_Janganmun",
+      "display": "장안문 현판",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Signboard_Janganmun"
+    },
+    {
+      "key": "CM_SM_Signboard_Paldalmun_p",
+      "display": "팔달문 현판",
+      "sub": "문루/간판",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Signboard_Paldalmun_p"
+    },
+    {
+      "key": "CM_SM_Stair_1",
+      "display": "계단 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Stair_1"
+    },
+    {
+      "key": "CM_SM_StoneStair",
+      "display": "석조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_StoneStair"
+    },
+    {
+      "key": "CM_SM_StraightStronewall_1",
+      "display": "직선 돌담 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_StraightStronewall_1"
+    },
+    {
+      "key": "CM_SM_StraightStronewall_2",
+      "display": "직선 돌담 02",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_StraightStronewall_2"
+    },
+    {
+      "key": "CM_SM_Uhagwan_CenterRoof",
+      "display": "우하관 중앙 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Uhagwan_CenterRoof"
+    },
+    {
+      "key": "CM_SM_Uhagwan_LeftRoof",
+      "display": "우하관 좌측 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Uhagwan_LeftRoof"
+    },
+    {
+      "key": "CM_SM_Uhagwan_RightRoof",
+      "display": "우하관 우측 지붕",
+      "sub": "지붕",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Uhagwan_RightRoof"
+    },
+    {
+      "key": "CM_SM_W_Foundation_1",
+      "display": "기초벽 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Foundation_1"
+    },
+    {
+      "key": "CM_SM_W_Foundation_2",
+      "display": "기초벽 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Foundation_2"
+    },
+    {
+      "key": "CM_SM_W_Foundation_3",
+      "display": "기초벽 03",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Foundation_3"
+    },
+    {
+      "key": "CM_SM_W_Foundation_4",
+      "display": "기초벽 04",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Foundation_4"
+    },
+    {
+      "key": "CM_SM_W_Intwhite",
+      "display": "내부 흰 벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Intwhite"
+    },
+    {
+      "key": "CM_SM_W_Magenta_1",
+      "display": "자홍 벽 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Magenta_1"
+    },
+    {
+      "key": "CM_SM_W_Mountain",
+      "display": "산 배경",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Mountain"
+    },
+    {
+      "key": "CM_SM_W_Mountain_p",
+      "display": "산 배경",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Mountain_p"
+    },
+    {
+      "key": "CM_SM_W_Orange_1",
+      "display": "주황 벽 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Orange_1"
+    },
+    {
+      "key": "CM_SM_W_Orange_2",
+      "display": "주황 벽 02",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Orange_2"
+    },
+    {
+      "key": "CM_SM_W_Pink01",
+      "display": "W_Pink01",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Pink01"
+    },
+    {
+      "key": "CM_SM_W_Pink02",
+      "display": "W_Pink02",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Pink02"
+    },
+    {
+      "key": "CM_SM_W_Pink03",
+      "display": "W_Pink03",
+      "sub": "기타",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Pink03"
+    },
+    {
+      "key": "CM_SM_W_Pink_4",
+      "display": "분홍 벽 04",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Pink_4"
+    },
+    {
+      "key": "CM_SM_W_Stone_1",
+      "display": "돌담 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_1"
+    },
+    {
+      "key": "CM_SM_W_Stone_1sides",
+      "display": "돌담",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_1sides"
+    },
+    {
+      "key": "CM_SM_W_Stone_2",
+      "display": "돌담 02",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_2"
+    },
+    {
+      "key": "CM_SM_W_Stone_3",
+      "display": "돌담 03",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_3"
+    },
+    {
+      "key": "CM_SM_W_Stone_4",
+      "display": "돌담 04",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_4"
+    },
+    {
+      "key": "CM_SM_W_Stone_5",
+      "display": "돌담 05",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_5"
+    },
+    {
+      "key": "CM_SM_W_Stone_6",
+      "display": "돌담 06",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Stone_6"
+    },
+    {
+      "key": "CM_SM_W_White",
+      "display": "흰 벽",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_White"
+    },
+    {
+      "key": "CM_SM_W_WideBrick",
+      "display": "넓은 벽돌",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_WideBrick"
+    },
+    {
+      "key": "CM_SM_W_Wood_1",
+      "display": "목조 벽 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Wood_1"
+    },
+    {
+      "key": "CM_SM_W_Wood_2",
+      "display": "목조 벽 02",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_W_Wood_2"
+    },
+    {
+      "key": "CM_SM_WI_Wood_1",
+      "display": "목재 인테리어 01",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WI_Wood_1"
+    },
+    {
+      "key": "CM_SM_WI_Wood_2",
+      "display": "목재 인테리어 02",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WI_Wood_2"
+    },
+    {
+      "key": "CM_SM_WI_Wood_3",
+      "display": "목재 인테리어 03",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WI_Wood_3"
+    },
+    {
+      "key": "CM_SM_WI_Wood_4",
+      "display": "목재 인테리어 04",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WI_Wood_4"
+    },
+    {
+      "key": "CM_SM_WI_Wood_5",
+      "display": "목재 인테리어 05",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WI_Wood_5"
+    },
+    {
+      "key": "CM_SM_WI_Wood_6",
+      "display": "목재 인테리어 06",
+      "sub": "벽체",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WI_Wood_6"
+    },
+    {
+      "key": "CM_SM_Window_001",
+      "display": "창 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_001"
+    },
+    {
+      "key": "CM_SM_Window_001_p",
+      "display": "창",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_001_p"
+    },
+    {
+      "key": "CM_SM_Window_002",
+      "display": "창 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_002"
+    },
+    {
+      "key": "CM_SM_Window_002_p",
+      "display": "창",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_002_p"
+    },
+    {
+      "key": "CM_SM_Window_Frame_001",
+      "display": "창문틀 01",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_Frame_001"
+    },
+    {
+      "key": "CM_SM_Window_Frame_001_p",
+      "display": "창문틀",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_Frame_001_p"
+    },
+    {
+      "key": "CM_SM_Window_Frame_002",
+      "display": "창문틀 02",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_Frame_002"
+    },
+    {
+      "key": "CM_SM_Window_Frame_002_p",
+      "display": "창문틀",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_Frame_002_p"
+    },
+    {
+      "key": "CM_SM_Window_Frame_003",
+      "display": "창문틀 03",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_Frame_003"
+    },
+    {
+      "key": "CM_SM_Window_Frame_003_p",
+      "display": "창문틀",
+      "sub": "인방/창호",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_Window_Frame_003_p"
+    },
+    {
+      "key": "CM_SM_WoodStair_001",
+      "display": "목조 계단 01",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WoodStair_001"
+    },
+    {
+      "key": "CM_SM_WoodStair_001_p",
+      "display": "목조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WoodStair_001_p"
+    },
+    {
+      "key": "CM_SM_WoodStair_002",
+      "display": "목조 계단 02",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WoodStair_002"
+    },
+    {
+      "key": "CM_SM_WoodStair_002_p",
+      "display": "목조 계단",
+      "sub": "기단/계단",
+      "path": "HanokAssets/건축물부품형/Prefabs/CM_SM_WoodStair_002_p"
+    }
+  ]
+}

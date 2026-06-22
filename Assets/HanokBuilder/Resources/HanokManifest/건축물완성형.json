@@ -1,0 +1,515 @@
+{
+  "category": "건축물완성형",
+  "assets": [
+    {
+      "key": "CM_1 Gwandeokjeong",
+      "display": "관덕정",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_1 Gwandeokjeong"
+    },
+    {
+      "key": "CM_10_Yeongjuhyupdang",
+      "display": "영주협당",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_10_Yeongjuhyupdang"
+    },
+    {
+      "key": "CM_12 Gyullimdang",
+      "display": "귤림당",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_12 Gyullimdang"
+    },
+    {
+      "key": "CM_14 Mang-gyeongru",
+      "display": "망경루",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_14 Mang-gyeongru"
+    },
+    {
+      "key": "CM_15 Yeonhuigak",
+      "display": "연희각",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_15 Yeonhuigak"
+    },
+    {
+      "key": "CM_20 Wooryeondang",
+      "display": "우련당",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_20 Wooryeondang"
+    },
+    {
+      "key": "CM_23_Chungdaemun",
+      "display": "충대문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_23_Chungdaemun"
+    },
+    {
+      "key": "CM_27 Honghwagak",
+      "display": "홍화각",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_27 Honghwagak"
+    },
+    {
+      "key": "CM_5 Oedaemun",
+      "display": "외대문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_5 Oedaemun"
+    },
+    {
+      "key": "CM_Agricultural_Equipment_Exhibition_Hall",
+      "display": "농기구 전시관",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Agricultural_Equipment_Exhibition_Hall"
+    },
+    {
+      "key": "CM_Anchae",
+      "display": "안채",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Anchae"
+    },
+    {
+      "key": "CM_Changwon_Maru",
+      "display": "창원 마루",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Changwon_Maru"
+    },
+    {
+      "key": "CM_Folk_Education_Hall",
+      "display": "민속교육관",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Folk_Education_Hall"
+    },
+    {
+      "key": "CM_Gristmill",
+      "display": "물레방아",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Gristmill"
+    },
+    {
+      "key": "CM_house",
+      "display": "한옥",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_house"
+    },
+    {
+      "key": "CM_house2 ",
+      "display": "한옥 2",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_house2 "
+    },
+    {
+      "key": "CM_Hyogyeongmun(back gate)",
+      "display": "효경문(후문)",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Hyogyeongmun(back gate)"
+    },
+    {
+      "key": "CM_Left",
+      "display": "좌측 건물",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Left"
+    },
+    {
+      "key": "CM_Left_freeze",
+      "display": "좌측 건물(고정)",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Left_freeze"
+    },
+    {
+      "key": "CM_Left_Modular",
+      "display": "좌측 모듈",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Left_Modular"
+    },
+    {
+      "key": "CM_Main_Gate",
+      "display": "정문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Main_Gate"
+    },
+    {
+      "key": "CM_Middle_Gate",
+      "display": "중문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Middle_Gate"
+    },
+    {
+      "key": "CM_Multipurpose_Hall",
+      "display": "다목적 홀",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Multipurpose_Hall"
+    },
+    {
+      "key": "CM_Octagonal_Pavilion",
+      "display": "팔각정",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Octagonal_Pavilion"
+    },
+    {
+      "key": "CM_Pavilion",
+      "display": "정자",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Pavilion"
+    },
+    {
+      "key": "CM_Right",
+      "display": "우측 건물",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Right"
+    },
+    {
+      "key": "CM_Right_Modular",
+      "display": "우측 모듈",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Right_Modular"
+    },
+    {
+      "key": "CM_Sarangchae",
+      "display": "사랑채",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Sarangchae"
+    },
+    {
+      "key": "CM_SM_Bijangcheong",
+      "display": "비장청",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Bijangcheong"
+    },
+    {
+      "key": "CM_SM_Binhuimun",
+      "display": "빈희문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Binhuimun"
+    },
+    {
+      "key": "CM_SM_Bokgunyeong",
+      "display": "복군영",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Bokgunyeong"
+    },
+    {
+      "key": "CM_SM_Boknaedang",
+      "display": "복내당",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Boknaedang"
+    },
+    {
+      "key": "CM_SM_Bongsudang",
+      "display": "봉수당",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Bongsudang"
+    },
+    {
+      "key": "CM_SM_Bueok",
+      "display": "부엌",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Bueok"
+    },
+    {
+      "key": "CM_SM_Dabogmun",
+      "display": "다복문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Dabogmun"
+    },
+    {
+      "key": "CM_SM_Deughanmun",
+      "display": "득한문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Deughanmun"
+    },
+    {
+      "key": "CM_SM_Deugjungjeong",
+      "display": "득중정",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Deugjungjeong"
+    },
+    {
+      "key": "CM_SM_Gaeomun",
+      "display": "개오문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Gaeomun"
+    },
+    {
+      "key": "CM_SM_Geonjangmun",
+      "display": "건장문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Geonjangmun"
+    },
+    {
+      "key": "CM_SM_Gicheungheon",
+      "display": "기천헌",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Gicheungheon"
+    },
+    {
+      "key": "CM_SM_Gonglang",
+      "display": "공랑",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Gonglang"
+    },
+    {
+      "key": "CM_SM_Guyeomun",
+      "display": "구여문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Guyeomun"
+    },
+    {
+      "key": "CM_SM_Gyeonghwamun",
+      "display": "경화문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Gyeonghwamun"
+    },
+    {
+      "key": "CM_SM_Gyeongryugwan",
+      "display": "경류관",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Gyeongryugwan"
+    },
+    {
+      "key": "CM_SM_Gyeongseonmun",
+      "display": "경선문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Gyeongseonmun"
+    },
+    {
+      "key": "CM_SM_Heogan",
+      "display": "홰간",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Heogan"
+    },
+    {
+      "key": "CM_SM_Hyangchunmun",
+      "display": "향춘문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Hyangchunmun"
+    },
+    {
+      "key": "CM_SM_Janganmun",
+      "display": "장안문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Janganmun"
+    },
+    {
+      "key": "CM_SM_Jangbogmun",
+      "display": "장복문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jangbogmun"
+    },
+    {
+      "key": "CM_SM_Jeonsacheong",
+      "display": "전사청",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jeonsacheong"
+    },
+    {
+      "key": "CM_SM_Jibsacheong_1",
+      "display": "집사청 1",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jibsacheong_1"
+    },
+    {
+      "key": "CM_SM_Jibsacheong_2",
+      "display": "집사청 2",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jibsacheong_2"
+    },
+    {
+      "key": "CM_SM_Jibsacheong_Gate_1",
+      "display": "집사청 문 1",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jibsacheong_Gate_1"
+    },
+    {
+      "key": "CM_SM_Jibsacheong_Gate_2",
+      "display": "집사청 문 2",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jibsacheong_Gate_2"
+    },
+    {
+      "key": "CM_SM_Jungyagmun",
+      "display": "중약문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jungyagmun"
+    },
+    {
+      "key": "CM_SM_Jungyangmun",
+      "display": "중양문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jungyangmun"
+    },
+    {
+      "key": "CM_SM_Jwaikmun",
+      "display": "좌익문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Jwaikmun"
+    },
+    {
+      "key": "CM_SM_LargeGate",
+      "display": "대문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_LargeGate"
+    },
+    {
+      "key": "CM_SM_Malang",
+      "display": "마랑",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Malang"
+    },
+    {
+      "key": "CM_SM_Maru",
+      "display": "마루",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Maru"
+    },
+    {
+      "key": "CM_SM_Mirohanjeong",
+      "display": "미로한정",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Mirohanjeong"
+    },
+    {
+      "key": "CM_SM_Naeposa",
+      "display": "내포사",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Naeposa"
+    },
+    {
+      "key": "CM_SM_Naesamun",
+      "display": "내삼문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Naesamun"
+    },
+    {
+      "key": "CM_SM_Namgunyeong",
+      "display": "남군영",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Namgunyeong"
+    },
+    {
+      "key": "CM_SM_Namnakhyeon",
+      "display": "남락헌",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Namnakhyeon"
+    },
+    {
+      "key": "CM_SM_Nanlomun",
+      "display": "난로문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Nanlomun"
+    },
+    {
+      "key": "CM_SM_Nusanggo",
+      "display": "누상고",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Nusanggo"
+    },
+    {
+      "key": "CM_SM_Oejeongriamun",
+      "display": "외정리아문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Oejeongriamun"
+    },
+    {
+      "key": "CM_SM_Oijeongriso",
+      "display": "외정리소",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Oijeongriso"
+    },
+    {
+      "key": "CM_SM_Oisamun",
+      "display": "외삼문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Oisamun"
+    },
+    {
+      "key": "CM_SM_Ondol",
+      "display": "온돌방",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Ondol"
+    },
+    {
+      "key": "CM_SM_Paldalmun",
+      "display": "팔달문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Paldalmun"
+    },
+    {
+      "key": "CM_SM_Punghuadang",
+      "display": "풍화당",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Punghuadang"
+    },
+    {
+      "key": "CM_SM_RoyalWell",
+      "display": "어정",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_RoyalWell"
+    },
+    {
+      "key": "CM_SM_Samsumun",
+      "display": "삼수문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Samsumun"
+    },
+    {
+      "key": "CM_SM_Seoricheong",
+      "display": "서리청",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Seoricheong"
+    },
+    {
+      "key": "CM_SM_Sinpungru",
+      "display": "신풍루",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Sinpungru"
+    },
+    {
+      "key": "CM_SM_SmallGate",
+      "display": "소문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_SmallGate"
+    },
+    {
+      "key": "CM_SM_Uhwagan",
+      "display": "우화관",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Uhwagan"
+    },
+    {
+      "key": "CM_SM_Unhwagak_Iancheong",
+      "display": "운한각 이안청",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Unhwagak_Iancheong"
+    },
+    {
+      "key": "CM_SM_Yeonhwimun",
+      "display": "연휘문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Yeonhwimun"
+    },
+    {
+      "key": "CM_SM_Yubogmun",
+      "display": "유복문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Yubogmun"
+    },
+    {
+      "key": "CM_SM_Yuyeomun",
+      "display": "유여문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Yuyeomun"
+    },
+    {
+      "key": "CM_SM_Yuyeotaek",
+      "display": "유여택",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_SM_Yuyeotaek"
+    },
+    {
+      "key": "CM_Small_Gate",
+      "display": "협문",
+      "sub": "",
+      "path": "HanokAssets/건축물완성형/Prefabs/CM_Small_Gate"
+    }
+  ]
+}

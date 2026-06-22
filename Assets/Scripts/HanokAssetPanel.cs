@@ -16,11 +16,25 @@ public partial class HanokUIManager
     // prefab 한 개 + 그 prefab에 태깅된 카테고리 목록을 묶어 보관
     class HanokAssetEntry
     {
-        public GameObject prefab;
+        // 즉시 로드된 프리팹 (일반 에셋) 또는 null (지연 로딩 에셋)
+        GameObject _prefab;
+        public string prefabPath;   // 지연 로딩용 Resources 경로
+
+        public GameObject prefab
+        {
+            get
+            {
+                if (_prefab == null && !string.IsNullOrEmpty(prefabPath))
+                    _prefab = Resources.Load<GameObject>(prefabPath);
+                return _prefab;
+            }
+            set => _prefab = value;
+        }
+
         public string assetKey;
         public HanokAssetCategory[] categories;
-        public string displayName;   // HanokAssetInfo에서 가져온 한글 표시명 (없으면 prefab 이름)
-        public string[] searchTags;  // HanokAssetInfo의 추가 검색어/동의어
+        public string displayName;
+        public string[] searchTags;
         public bool isCultureAsset;
 
         public HanokAssetEntry(
@@ -31,7 +45,7 @@ public partial class HanokUIManager
             string[] searchTags,
             bool isCultureAsset)
         {
-            this.prefab = prefab;
+            _prefab = prefab;
             this.assetKey = assetKey;
             this.categories = categories;
             this.displayName = displayName;
@@ -115,6 +129,9 @@ public partial class HanokUIManager
         var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
         foreach (var prefab in raw)
         {
+            // CM_ 프리팹은 JSON 매니페스트로 지연 로딩 — bulk load에서 제외
+            if (prefab.name.StartsWith("CM_")) continue;
+
             assetInfoByKey.TryGetValue(prefab.name, out var info);
             string displayName = (info != null && !string.IsNullOrEmpty(info.displayName))
                 ? info.displayName : prefab.name;
@@ -122,12 +139,12 @@ public partial class HanokUIManager
 
             var assetTags = prefab.GetComponent<HanokAssetTags>();
             if (assetTags == null || assetTags.categories == null || assetTags.categories.Length == 0)
-                continue; // 카테고리 태그 없는 원본 FBX/프리팹 — 라이브러리 중복 표시 방지
+                continue;
 
-            // 카테고리 태그 있는 정식 에셋
             _assetEntries.Add(new HanokAssetEntry(prefab, prefab.name, assetTags.categories, displayName, searchTags, false));
         }
 
+        LoadCultureFolderManifests();
         LoadCultureMetaverseAssets(assetInfoByKey, addedPrefabs);
 
         _assetEntries.Sort((a, b) =>
@@ -252,6 +269,73 @@ public partial class HanokUIManager
         if (!children.Contains(category))
             children.Add(category);
     }
+
+    // ── JSON 매니페스트 기반 지연 로딩 (건축물완성형/부품형/공간소품/디지털휴먼) ──
+    void LoadCultureFolderManifests()
+    {
+        string[] manifests = { "건축물완성형", "건축물부품형", "공간소품", "디지털휴먼" };
+        foreach (var name in manifests)
+        {
+            var ta = Resources.Load<TextAsset>($"HanokManifest/{name}");
+            if (ta == null) { Debug.LogWarning($"[HanokBuilder] 매니페스트 없음: HanokManifest/{name}.json — python Tools/generate_culture_manifests.py 실행하세요"); continue; }
+
+            ManifestJson root;
+            try { root = JsonUtility.FromJson<ManifestJson>(ta.text); }
+            catch (System.Exception e) { Debug.LogError($"[HanokBuilder] 매니페스트 파싱 오류 {name}: {e.Message}"); continue; }
+
+            // 메인 카테고리 SO (CultureAssetImporter가 만든 .asset)
+            var mainCatSO = Resources.Load<HanokAssetCategory>($"HanokCategories/Category_{GetCatKey(name)}");
+            if (mainCatSO == null) mainCatSO = MakeRuntimeCat(name, name, null, 8000 + System.Array.IndexOf(manifests, name) * 10);
+
+            // 서브카테고리 런타임 캐시
+            var subCatCache = new Dictionary<string, HanokAssetCategory>();
+
+            foreach (var asset in root.assets)
+            {
+                var cats = new List<HanokAssetCategory> { mainCatSO };
+
+                if (!string.IsNullOrEmpty(asset.sub))
+                {
+                    if (!subCatCache.TryGetValue(asset.sub, out var subCat))
+                    {
+                        subCat = MakeRuntimeCat(asset.sub, asset.sub, mainCatSO, mainCatSO.order + subCatCache.Count + 1);
+                        subCatCache[asset.sub] = subCat;
+                    }
+                    cats.Add(subCat);
+                }
+
+                var entry = new HanokAssetEntry(null, asset.key, cats.ToArray(), asset.display, System.Array.Empty<string>(), true)
+                {
+                    prefabPath = asset.path
+                };
+                _assetEntries.Add(entry);
+            }
+
+            Debug.Log($"[HanokBuilder] 매니페스트 로드: {name} {root.assets.Length}개");
+        }
+    }
+
+    static string GetCatKey(string folderName) => folderName switch
+    {
+        "건축물완성형" => "Complete",
+        "건축물부품형" => "Parts",
+        "공간소품"     => "Props",
+        "디지털휴먼"   => "DigitalHuman",
+        _              => folderName
+    };
+
+    HanokAssetCategory MakeRuntimeCat(string key, string label, HanokAssetCategory parent, int order)
+    {
+        var cat = ScriptableObject.CreateInstance<HanokAssetCategory>();
+        cat.hideFlags = HideFlags.HideAndDontSave;
+        cat.key = key; cat.label = label; cat.parent = parent; cat.order = order;
+        cat.name = "Runtime_" + key;
+        AddRuntimeCategory(cat);
+        return cat;
+    }
+
+    [System.Serializable] class ManifestJson  { public string category; public ManifestAsset[] assets; }
+    [System.Serializable] class ManifestAsset { public string key, display, sub, path; }
 
     void LoadCultureMetaverseAssets(
         Dictionary<string, HanokAssetInfo> assetInfoByKey,
@@ -771,7 +855,9 @@ public partial class HanokUIManager
                 if (pi < filtered.Count)
                 {
                     var entry = filtered[pi];
+                    // 지연 로딩 — 이 시점에 Resources.Load 실행 (그리드에 보이는 것만 로드)
                     var prefab = entry.prefab;
+                    if (prefab == null) continue;
                     var rawImg = MakeGridCell(row.transform, entry.displayName, () => Spawn(prefab));
                     EnqueueThumbnail(prefab, rawImg);
                 }
@@ -815,7 +901,7 @@ public partial class HanokUIManager
     // 검색어가 prefab 이름, 한글 표시명, 검색 태그(동의어) 중 하나에라도 포함되면 매치
     bool MatchesSearch(HanokAssetEntry asset)
     {
-        if (asset.prefab.name.IndexOf(_searchQuery, System.StringComparison.OrdinalIgnoreCase) >= 0)
+        if (asset.assetKey.IndexOf(_searchQuery, System.StringComparison.OrdinalIgnoreCase) >= 0)
             return true;
 
         if (asset.displayName.IndexOf(_searchQuery, System.StringComparison.OrdinalIgnoreCase) >= 0)
