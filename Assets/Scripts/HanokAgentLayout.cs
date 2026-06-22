@@ -58,13 +58,15 @@ public partial class HanokUIManager
 
         foreach (var e in _assetEntries)
         {
+            if (string.IsNullOrEmpty(e.assetKey)) continue;
+
             bool isComplete = false, isNatural = false;
             foreach (var c in e.categories)
             {
-                if (c.key == "Complete") isComplete = true;
-                if (c.key == "Natural")  isNatural  = true;
+                if (c.key == "건축물완성형") isComplete = true;
+                if (c.key == "자연/식물")   isNatural  = true;
             }
-            string line = $"{e.prefab.name}: {e.displayName}";
+            string line = $"{e.assetKey}: {e.displayName}";
             if (isComplete) buildings.Add(line);
             if (isNatural)  naturals.Add(line);
         }
@@ -219,14 +221,15 @@ public partial class HanokUIManager
         float cz   = Mathf.Clamp(inp.z, -maxR, maxR);
 
         var entry = _assetEntries.Find(
-            e => e.prefab.name == inp.assetKey || e.assetKey == inp.assetKey);
+            e => e.assetKey == inp.assetKey || (e.prefab != null && e.prefab.name == inp.assetKey));
         if (entry == null)
             return ($"카탈로그에 없는 에셋: {inp.assetKey}", false);
 
         var obj = SpawnAt(entry, new Vector3(cx, 0f, cz));
         if (obj == null) return ("스폰 실패", false);
 
-        obj.transform.eulerAngles = new Vector3(0f, inp.rotY, 0f);
+        var euler = obj.transform.eulerAngles;
+        obj.transform.eulerAngles = new Vector3(euler.x, inp.rotY, euler.z);
         PlaceOnFloor(obj);
 
         // Renderer bounds 기반 겹침 감지

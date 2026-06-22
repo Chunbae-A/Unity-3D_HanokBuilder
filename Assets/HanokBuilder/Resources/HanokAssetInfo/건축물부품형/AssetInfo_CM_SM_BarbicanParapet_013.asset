@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3777889287a05ea4ea7bb6e48a8530f6, type: 3}
+  m_Name: AssetInfo_CM_SM_BarbicanParapet_013
+  m_EditorClassIdentifier: Assembly-CSharp::HanokAssetInfo
+  assetKey: CM_SM_BarbicanParapet_013
+  displayName: SM_BarbicanParapet_013
+  tags:
+  - "\uAC74\uCD95\uBB3C"
+  - "\uBD80\uD488"
+  - "\uBD80\uD488\uD615"
+  - "\uD55C\uC625"

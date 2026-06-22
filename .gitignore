@@ -138,9 +138,19 @@ Assets/HanokBuilder/Resources/HanokAssets/**/*.jpg
 Assets/HanokBuilder/Resources/HanokAssets/**/*.jpeg
 Assets/HanokBuilder/Resources/HanokAssets/**/*.psd
 Assets/HanokBuilder/Resources/HanokAssets/**/*.tga
+Assets/HanokBuilder/Resources/HanokAssets/**/*.tif
 Assets/HanokBuilder/Resources/HanokAssets/**/*.tiff
 Assets/HanokBuilder/Resources/HanokAssets/**/*.hdr
 Assets/HanokBuilder/Resources/HanokAssets/**/*.exr
+Assets/HanokBuilder/Resources/HanokAssets/**/*.ZTL
+Assets/HanokBuilder/Resources/HanokAssets/**/*.tx
+Assets/HanokBuilder/Resources/HanokAssets/**/Temp/
+Assets/HanokBuilder/Resources/HanokAssets/**/UserSettings/
+Assets/HanokBuilder/Resources/HanokAssets/**/.vsconfig
+Assets/HanokBuilder/Resources/HanokAssets/**/Library/
+
+# DriveAssetSync 런타임 파일
+Tools/DriveAssetSync/sync_progress.json
 
 # HanokBuilder — Claude API key (local-only, do not commit)
 Assets/HanokBuilder/Resources/ClaudeApiConfig.asset

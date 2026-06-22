@@ -53,7 +53,35 @@ public partial class HanokUIManager
         "\"x\":{\"type\":\"number\"}," +
         "\"z\":{\"type\":\"number\"}," +
         "\"rot_y\":{\"type\":\"number\"}" +
-        "},\"required\":[\"asset_key\",\"x\",\"z\",\"rot_y\"],\"additionalProperties\":false}}" +
+        "},\"required\":[\"asset_key\",\"x\",\"z\",\"rot_y\"],\"additionalProperties\":false}}," +
+
+        "{\"name\":\"scale_object\"," +
+        "\"description\":\"오브젝트의 크기를 배율로 조정합니다. 1.0=원본 크기. '반으로 줄여'→0.5, '두 배로 키워'→2.0\"," +
+        "\"input_schema\":{\"type\":\"object\",\"properties\":{" +
+        "\"id\":{\"type\":\"string\",\"description\":\"씬 상태의 id 값\"}," +
+        "\"scale\":{\"type\":\"number\",\"description\":\"균등 스케일 배율 (0.1~5.0)\"}" +
+        "},\"required\":[\"id\",\"scale\"],\"additionalProperties\":false}}," +
+
+        "{\"name\":\"move_relative\"," +
+        "\"description\":\"오브젝트를 현재 위치에서 상대적으로 이동합니다. '동쪽으로 5m'→dx=5, '뒤로 3m'→dz=-3\"," +
+        "\"input_schema\":{\"type\":\"object\",\"properties\":{" +
+        "\"id\":{\"type\":\"string\",\"description\":\"씬 상태의 id 값\"}," +
+        "\"dx\":{\"type\":\"number\",\"description\":\"X축 이동량(m). 동(+)/서(-)\"}," +
+        "\"dz\":{\"type\":\"number\",\"description\":\"Z축 이동량(m). 북(+)/남(-)\"}" +
+        "},\"required\":[\"id\",\"dx\",\"dz\"],\"additionalProperties\":false}}," +
+
+        "{\"name\":\"duplicate_object\"," +
+        "\"description\":\"씬의 오브젝트를 복사해 근처에 새로 배치합니다.\"," +
+        "\"input_schema\":{\"type\":\"object\",\"properties\":{" +
+        "\"id\":{\"type\":\"string\",\"description\":\"복사할 오브젝트 id\"}," +
+        "\"dx\":{\"type\":\"number\",\"description\":\"원본 대비 X 오프셋\"}," +
+        "\"dz\":{\"type\":\"number\",\"description\":\"원본 대비 Z 오프셋\"}" +
+        "},\"required\":[\"id\",\"dx\",\"dz\"],\"additionalProperties\":false}}," +
+
+        "{\"name\":\"clear_scene\"," +
+        "\"description\":\"씬의 배치된 오브젝트를 모두 제거합니다. '다 지워', '초기화'에 사용.\"," +
+        "\"input_schema\":{\"type\":\"object\",\"properties\":{}," +
+        "\"additionalProperties\":false}}" +
 
         "]";
 
@@ -74,7 +102,8 @@ public partial class HanokUIManager
             sb.Append($"\"id\":\"{m.gameObject.GetInstanceID()}\",");
             sb.Append($"\"asset_key\":{SceneJsonStr(m.assetKey)},");
             sb.Append($"\"display_name\":{SceneJsonStr(m.displayName)},");
-            sb.Append($"\"x\":{p.x:F2},\"z\":{p.z:F2},\"rot_y\":{rotY:F1}");
+            float scale = t.localScale.x;
+            sb.Append($"\"x\":{p.x:F2},\"z\":{p.z:F2},\"rot_y\":{rotY:F1},\"scale\":{scale:F2}");
             sb.Append("}");
             if (i < metas.Length - 1) sb.Append(",");
         }
@@ -87,7 +116,8 @@ public partial class HanokUIManager
     {
         var sb = new StringBuilder();
         foreach (var e in _assetEntries)
-            sb.AppendLine($"{e.prefab.name}: {e.displayName}");
+            if (!string.IsNullOrEmpty(e.assetKey))
+                sb.AppendLine($"{e.assetKey}: {e.displayName}");
         return sb.ToString();
     }
 
@@ -241,15 +271,66 @@ public partial class HanokUIManager
                 float  x        = SceneParseFloat(inputJson, "x");
                 float  z        = SceneParseFloat(inputJson, "z");
                 float  rotY     = SceneParseFloat(inputJson, "rot_y");
-                var entry = _assetEntries.Find(e => e.prefab.name == assetKey || e.assetKey == assetKey);
+                var entry = _assetEntries.Find(e => e.assetKey == assetKey || (e.prefab != null && e.prefab.name == assetKey));
                 if (entry == null) return $"오류: assetKey={assetKey} 카탈로그에 없음";
                 var obj = SpawnAt(entry, new Vector3(x, 0f, z));
                 if (obj == null) return "오류: 생성 실패";
-                obj.transform.eulerAngles = new Vector3(0f, rotY, 0f);
+                var spawnEuler = obj.transform.eulerAngles;
+                obj.transform.eulerAngles = new Vector3(spawnEuler.x, rotY, spawnEuler.z);
                 PlaceOnFloor(obj);
                 // 같은 요청 내에서 바로 참조할 수 있도록 캐시에 추가
                 _sceneObjCache?.TryAdd(obj.GetInstanceID(), obj);
                 return $"배치 완료: {entry.displayName} id={obj.GetInstanceID()} at ({x:F1},{z:F1})";
+            }
+            case "scale_object":
+            {
+                string id    = SceneParseStr(inputJson, "id");
+                float  scale = SceneParseFloat(inputJson, "scale");
+                scale = Mathf.Clamp(scale, 0.1f, 5f);
+                var obj = FindById(id);
+                if (obj == null) return $"오류: id={id} 오브젝트를 찾을 수 없음";
+                obj.transform.localScale = Vector3.one * scale;
+                return $"크기 조정 완료: {obj.name} → scale={scale:F2}";
+            }
+            case "move_relative":
+            {
+                string id = SceneParseStr(inputJson, "id");
+                float  dx = SceneParseFloat(inputJson, "dx");
+                float  dz = SceneParseFloat(inputJson, "dz");
+                var obj = FindById(id);
+                if (obj == null) return $"오류: id={id} 오브젝트를 찾을 수 없음";
+                var pos = obj.transform.position;
+                obj.transform.position = new Vector3(pos.x + dx, pos.y, pos.z + dz);
+                PlaceOnFloor(obj);
+                return $"상대이동 완료: {obj.name} → ({obj.transform.position.x:F1}, {obj.transform.position.z:F1})";
+            }
+            case "duplicate_object":
+            {
+                string id = SceneParseStr(inputJson, "id");
+                float  dx = SceneParseFloat(inputJson, "dx");
+                float  dz = SceneParseFloat(inputJson, "dz");
+                var src = FindById(id);
+                if (src == null) return $"오류: id={id} 오브젝트를 찾을 수 없음";
+                var meta = src.GetComponent<HanokPlacedAssetMetadata>();
+                if (meta == null) return "오류: 메타데이터 없음";
+                var entry = _assetEntries.Find(e => e.assetKey == meta.assetKey || (e.prefab != null && e.prefab.name == meta.assetKey));
+                if (entry == null) return $"오류: assetKey={meta.assetKey} 카탈로그에 없음";
+                var srcPos = src.transform.position;
+                var copy = SpawnAt(entry, new Vector3(srcPos.x + dx, 0f, srcPos.z + dz));
+                if (copy == null) return "오류: 복사 실패";
+                copy.transform.eulerAngles = src.transform.eulerAngles;
+                copy.transform.localScale  = src.transform.localScale;
+                PlaceOnFloor(copy);
+                _sceneObjCache?.TryAdd(copy.GetInstanceID(), copy);
+                return $"복사 완료: {meta.displayName} id={copy.GetInstanceID()} at ({copy.transform.position.x:F1},{copy.transform.position.z:F1})";
+            }
+            case "clear_scene":
+            {
+                var metas = Object.FindObjectsOfType<HanokPlacedAssetMetadata>();
+                int count = metas.Length;
+                foreach (var m in metas) Object.Destroy(m.gameObject);
+                _sceneObjCache = null;
+                return $"씬 초기화 완료: {count}개 오브젝트 제거";
             }
             default:
                 return $"알 수 없는 툴: {toolName}";
