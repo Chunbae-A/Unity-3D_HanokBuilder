@@ -544,7 +544,12 @@ public partial class HanokUIManager
         foreach (var entry in _assetEntries)
         {
             if (string.IsNullOrEmpty(entry.assetKey)) continue;
+            string mainCat = (entry.categories != null && entry.categories.Length > 0)
+                ? entry.categories[0].key : "";
+            string subCat = (entry.categories != null && entry.categories.Length > 1)
+                ? entry.categories[1].key : "";
             sb.Append(entry.assetKey).Append('|').Append(entry.displayName).Append('|');
+            sb.Append(mainCat).Append('|').Append(subCat).Append('|');
             sb.Append(string.Join(",", entry.searchTags));
             sb.Append('\n');
         }
@@ -578,8 +583,10 @@ public partial class HanokUIManager
         }
 
         string instruction =
-            "너는 문화포털 메타버스 에셋 추천 도우미야. 아래 카탈로그(assetKey|표시명|태그) 안의 항목 중에서만 골라야 해.\n" +
-            "사용자의 설명에 가장 잘 맞는 추가 에셋을 최대 30개 추천해. assetKey는 카탈로그의 값을 정확히 복사해야 해.\n\n" +
+            "너는 문화포털 메타버스 에셋 추천 도우미야. 아래 카탈로그(assetKey|표시명|대분류|소분류|태그) 안의 항목 중에서만 골라야 해.\n" +
+            "대분류: 건축물완성형=완성된 한옥 건물, 건축물부품형=건물 부품, 공간소품=소품/자연물, 디지털휴먼=캐릭터\n" +
+            "사용자가 '건물'을 요청하면 대분류=건축물완성형 항목 위주로, '자연물/식물'이면 소분류=자연/식물 위주로 추천해.\n" +
+            "사용자의 설명에 가장 잘 맞는 에셋을 최대 30개 추천해. assetKey는 카탈로그의 값을 정확히 복사해야 해.\n\n" +
             "카탈로그:\n" + BuildAICatalog() +
             "\n사용자 요청: " + userPrompt;
 
