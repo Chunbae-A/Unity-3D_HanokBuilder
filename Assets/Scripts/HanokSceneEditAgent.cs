@@ -87,7 +87,11 @@ public partial class HanokUIManager
     {
         var sb = new StringBuilder();
         foreach (var e in _assetEntries)
-            sb.AppendLine($"{e.prefab.name}: {e.displayName}");
+        {
+            var p = e.prefab;
+            if (p == null) continue;
+            sb.AppendLine($"{p.name}: {e.displayName}");
+        }
         return sb.ToString();
     }
 
@@ -241,7 +245,7 @@ public partial class HanokUIManager
                 float  x        = SceneParseFloat(inputJson, "x");
                 float  z        = SceneParseFloat(inputJson, "z");
                 float  rotY     = SceneParseFloat(inputJson, "rot_y");
-                var entry = _assetEntries.Find(e => e.prefab.name == assetKey || e.assetKey == assetKey);
+                var entry = _assetEntries.Find(e => e.assetKey == assetKey || (e.prefab != null && e.prefab.name == assetKey));
                 if (entry == null) return $"오류: assetKey={assetKey} 카탈로그에 없음";
                 var obj = SpawnAt(entry, new Vector3(x, 0f, z));
                 if (obj == null) return "오류: 생성 실패";

@@ -62,10 +62,6 @@ public partial class HanokUIManager
 
     const string LABEL_ALL = "전체";
 
-    // JSON 매니페스트로 관리하는 4개 폴더 — LoadCategoryDefinitions에서 SO 로딩 제외
-    static readonly HashSet<string> MANIFEST_CAT_KEYS =
-        new HashSet<string> { "Complete", "Parts", "Props", "DigitalHuman" };
-
     // 썸네일 촬영 시 Y축 회전 보정이 필요한 에셋 (FBX 방향 불일치)
     static readonly Dictionary<string, int> THUMB_ROT = new Dictionary<string, int>
     {
@@ -179,33 +175,10 @@ public partial class HanokUIManager
         // 카테고리 SO 먼저 초기화 (에셋 분류에 필요)
         LoadCategoryDefinitions();
 
-        // 에셋별 한글 표시명 + 검색 태그 (HanokAssetInfo SO, assetKey == prefab 이름으로 매칭)
-        var assetInfoByKey = new Dictionary<string, HanokAssetInfo>();
-        foreach (var info in Resources.LoadAll<HanokAssetInfo>(ASSETINFO_PATH))
-            if (!string.IsNullOrEmpty(info.assetKey))
-                assetInfoByKey[info.assetKey] = info;
-
         _assetEntries.Clear();
         _aiCatalog = null;
         _selectedMain = null;
         _selectedSub = null;
-        var raw = Resources.LoadAll<GameObject>(ASSET_PATH);
-        foreach (var prefab in raw)
-        {
-            // CM_ 프리팹은 JSON 매니페스트로 지연 로딩 — bulk load에서 제외
-            if (prefab.name.StartsWith("CM_")) continue;
-
-            assetInfoByKey.TryGetValue(prefab.name, out var info);
-            string displayName = (info != null && !string.IsNullOrEmpty(info.displayName))
-                ? info.displayName : prefab.name;
-            string[] searchTags = (info?.tags) ?? System.Array.Empty<string>();
-
-            var assetTags = prefab.GetComponent<HanokAssetTags>();
-            if (assetTags == null || assetTags.categories == null || assetTags.categories.Length == 0)
-                continue;
-
-            _assetEntries.Add(new HanokAssetEntry(prefab, prefab.name, assetTags.categories, displayName, searchTags, false));
-        }
 
         LoadCultureFolderManifests();
 
@@ -230,9 +203,6 @@ public partial class HanokUIManager
         var raw = Resources.LoadAll<HanokAssetCategory>(CATEGORY_PATH);
         foreach (var cat in raw)
         {
-            // 4개 문화 폴더 카테고리는 JSON 매니페스트가 전담 — SO 파일 있어도 여기선 무시
-            if (MANIFEST_CAT_KEYS.Contains(cat.key)) continue;
-
             if (cat.parent == null)
             {
                 _mainCategories.Add(cat);
@@ -341,15 +311,6 @@ public partial class HanokUIManager
             Debug.Log($"[HanokBuilder] 매니페스트 로드: {name} {root.assets.Length}개");
         }
     }
-
-    static string GetCatKey(string folderName) => folderName switch
-    {
-        "건축물완성형" => "Complete",
-        "건축물부품형" => "Parts",
-        "공간소품"     => "Props",
-        "디지털휴먼"   => "DigitalHuman",
-        _              => folderName
-    };
 
     HanokAssetCategory MakeRuntimeCat(string key, string label, HanokAssetCategory parent, int order)
     {

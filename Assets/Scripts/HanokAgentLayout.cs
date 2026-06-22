@@ -222,7 +222,7 @@ public partial class HanokUIManager
         float cz   = Mathf.Clamp(inp.z, -maxR, maxR);
 
         var entry = _assetEntries.Find(
-            e => e.prefab.name == inp.assetKey || e.assetKey == inp.assetKey);
+            e => e.assetKey == inp.assetKey || (e.prefab != null && e.prefab.name == inp.assetKey));
         if (entry == null)
             return ($"카탈로그에 없는 에셋: {inp.assetKey}", false);
 

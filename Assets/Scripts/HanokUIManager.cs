@@ -117,7 +117,6 @@ public partial class HanokUIManager : MonoBehaviour
 
     const string ASSET_PATH     = "HanokAssets";
     const string CATEGORY_PATH  = "HanokCategories";
-    const string ASSETINFO_PATH = "HanokAssetInfo";
     const string KOREAN_FONT_WARMUP = "가나다라마바사아자차카타파하한글한옥배치편집모듈라이브러리검색위치회전크기삭제복제선택해제문화해설";
     const int    THUMB_LAYER = 30;
 
