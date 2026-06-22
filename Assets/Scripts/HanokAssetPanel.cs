@@ -114,7 +114,8 @@ public partial class HanokUIManager
             return;
         }
 
-        BuildCategoryTabs(assetContent);
+        // 카테고리 SO 먼저 초기화 (에셋 분류에 필요)
+        LoadCategoryDefinitions();
 
         // 에셋별 한글 표시명 + 검색 태그 (HanokAssetInfo SO, assetKey == prefab 이름으로 매칭)
         var assetInfoByKey = new Dictionary<string, HanokAssetInfo>();
@@ -150,7 +151,9 @@ public partial class HanokUIManager
         _assetEntries.Sort((a, b) =>
             string.Compare(a.displayName, b.displayName, System.StringComparison.OrdinalIgnoreCase));
 
+        // 에셋 없는 카테고리 제거 후 탭 UI 구성 (버튼만 생성 — 메모리 무관)
         PruneEmptyCategories();
+        BuildCategoryTabs(assetContent);
 
         Debug.Log($"[HanokBuilder] {_assetEntries.Count} assets loaded (HanokAssets 폴더 내 전체)");
         RefreshAssetList();
@@ -636,8 +639,6 @@ public partial class HanokUIManager
     // 로드된 카테고리 SO들로 "전체" + 메인 필터 행을 동적 생성하고, 서브 필터 그리드 자리를 마련
     void BuildCategoryTabs(Transform parent)
     {
-        LoadCategoryDefinitions();
-
         _mainFilterGO = BuildFilterRow(parent, "MainFilters", 36f);
         _mainFilterCats = new HanokAssetCategory[_mainCategories.Count + 1];
         _mainCategories.CopyTo(_mainFilterCats, 1);
