@@ -275,7 +275,8 @@ public partial class HanokUIManager
                 if (entry == null) return $"오류: assetKey={assetKey} 카탈로그에 없음";
                 var obj = SpawnAt(entry, new Vector3(x, 0f, z));
                 if (obj == null) return "오류: 생성 실패";
-                obj.transform.eulerAngles = new Vector3(0f, rotY, 0f);
+                var spawnEuler = obj.transform.eulerAngles;
+                obj.transform.eulerAngles = new Vector3(spawnEuler.x, rotY, spawnEuler.z);
                 PlaceOnFloor(obj);
                 // 같은 요청 내에서 바로 참조할 수 있도록 캐시에 추가
                 _sceneObjCache?.TryAdd(obj.GetInstanceID(), obj);

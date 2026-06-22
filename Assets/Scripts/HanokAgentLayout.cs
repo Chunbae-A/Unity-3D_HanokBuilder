@@ -228,7 +228,8 @@ public partial class HanokUIManager
         var obj = SpawnAt(entry, new Vector3(cx, 0f, cz));
         if (obj == null) return ("스폰 실패", false);
 
-        obj.transform.eulerAngles = new Vector3(0f, inp.rotY, 0f);
+        var euler = obj.transform.eulerAngles;
+        obj.transform.eulerAngles = new Vector3(euler.x, inp.rotY, euler.z);
         PlaceOnFloor(obj);
 
         // Renderer bounds 기반 겹침 감지
