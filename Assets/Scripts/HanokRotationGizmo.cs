@@ -67,9 +67,15 @@ public class HanokRotationGizmo : MonoBehaviour
         _root = new GameObject("_HanokRotGizmo");
         _root.transform.SetParent(transform, false);
 
-        // URP Unlit shader — renderQueue 4000 으로 항상 위에 렌더링
-        var shader = Shader.Find("Universal Render Pipeline/Unlit")
-                  ?? Shader.Find("Unlit/Color");
+        var baseMat = Resources.Load<Material>("HanokGizmoUnlit");
+        Shader shader;
+        if (baseMat != null)
+            shader = baseMat.shader;
+        else
+        {
+            shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) shader = Shader.Find("Unlit/Color");
+        }
         Color[] cols = { C_X, C_Y, C_Z };
 
         for (int i = 0; i < 3; i++)
@@ -79,7 +85,7 @@ public class HanokRotationGizmo : MonoBehaviour
             var lr = go.AddComponent<LineRenderer>();
 
             _mats[i] = new Material(shader) { color = cols[i] };
-            _mats[i].renderQueue = 4000; // 씬 위에 항상 렌더링
+            _mats[i].renderQueue = 4000;
 
             lr.material             = _mats[i];
             lr.useWorldSpace        = true;

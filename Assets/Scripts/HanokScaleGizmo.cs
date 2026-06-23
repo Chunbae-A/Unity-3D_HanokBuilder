@@ -70,8 +70,15 @@ public class HanokScaleGizmo : MonoBehaviour
         _root = new GameObject("_HanokScaleGizmo");
         _root.transform.SetParent(transform, false);
 
-        var shader = Shader.Find("Universal Render Pipeline/Unlit")
-                  ?? Shader.Find("Unlit/Color");
+        var baseMat = Resources.Load<Material>("HanokGizmoUnlit");
+        Shader shader;
+        if (baseMat != null)
+            shader = baseMat.shader;
+        else
+        {
+            shader = Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) shader = Shader.Find("Unlit/Color");
+        }
         Color[] cols = { C_X, C_Y, C_Z, C_W };
 
         for (int i = 0; i < 4; i++)
