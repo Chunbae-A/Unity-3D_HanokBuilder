@@ -204,7 +204,7 @@ public partial class HanokUIManager
         fArrowImg.color = TEXT_HDR;
         fArrowImg.raycastTarget = false;
 
-        var t = MakeLabel(hdr, "부재 정보", 13, TEXT_HDR, bold: true);
+        var t = MakeLabel(hdr, "에셋 조작", 13, TEXT_HDR, bold: true);
         Embolden(t);
         var tRT = t.GetComponent<RectTransform>();
         tRT.anchorMin = new Vector2(0, 0.45f); tRT.anchorMax = Vector2.one;
