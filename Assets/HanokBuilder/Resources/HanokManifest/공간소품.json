@@ -968,24 +968,6 @@
       "path": "HanokAssets/공간소품/Prefabs/CM_동기"
     },
     {
-      "key": "CM_메(MeHammer)",
-      "display": "메(MeHammer)",
-      "sub": "소품/기타",
-      "path": "HanokAssets/공간소품/Prefabs/CM_메(MeHammer)"
-    },
-    {
-      "key": "CM_벼(Rice)",
-      "display": "벼(Rice)",
-      "sub": "소품/기타",
-      "path": "HanokAssets/공간소품/Prefabs/CM_벼(Rice)"
-    },
-    {
-      "key": "CM_섬(Sack)",
-      "display": "섬(Sack)",
-      "sub": "소품/기타",
-      "path": "HanokAssets/공간소품/Prefabs/CM_섬(Sack)"
-    },
-    {
       "key": "CM_창원의집-촛대",
       "display": "창원의집-촛대",
       "sub": "소품/기타",
@@ -1002,12 +984,6 @@
       "display": "춘앵전",
       "sub": "소품/기타",
       "path": "HanokAssets/공간소품/Prefabs/CM_춘앵전"
-    },
-    {
-      "key": "CM_키(Winnower)",
-      "display": "키(Winnower)",
-      "sub": "소품/기타",
-      "path": "HanokAssets/공간소품/Prefabs/CM_키(Winnower)"
     }
   ]
 }
