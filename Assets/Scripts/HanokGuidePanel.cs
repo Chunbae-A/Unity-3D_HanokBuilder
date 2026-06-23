@@ -101,7 +101,7 @@ public partial class HanokUIManager
         // [−] 접기 버튼
         MakeHeaderBtn(hdrGO.transform, "−", 22f, OnCollapseClicked);
         // [✕] 완전 닫기 버튼
-        MakeHeaderBtn(hdrGO.transform, "✕", 22f, OnGuideCloseClicked);
+        MakeHeaderBtn(hdrGO.transform, "×", 22f, OnGuideCloseClicked);
 
         // ── 구분선 ────────────────────────────────────────
         var divGO = new GameObject("Div");
@@ -197,6 +197,7 @@ public partial class HanokUIManager
         btn.colors = cs;
         btn.onClick.AddListener(cb);
         var lbl = (TextMeshProUGUI)MakeLabel(go.transform, label, 9f, new Color(1, 1, 1, 0.65f));
+        KorFont(lbl);
         var lrt = lbl.GetComponent<RectTransform>();
         lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
         lrt.offsetMin = lrt.offsetMax = Vector2.zero;

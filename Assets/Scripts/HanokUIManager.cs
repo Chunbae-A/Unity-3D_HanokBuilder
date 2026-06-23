@@ -760,13 +760,13 @@ public partial class HanokUIManager : MonoBehaviour
     {
         if (infoNameText == null) return;
         bool has = selectedObject != null;
-        infoNameText.text  = has ? GetPlacedAssetDisplayName(selectedObject) : "부재를 선택하세요";
+        infoNameText.text  = has ? GetPlacedAssetDisplayName(selectedObject) : "에셋을 선택하세요";
         infoNameText.color = has ? TEXT_H : TEXT_HINT;
     }
 
     string GetPlacedAssetDisplayName(GameObject obj)
     {
-        if (obj == null) return "부재를 선택하세요";
+        if (obj == null) return "에셋을 선택하세요";
 
         var metadata = obj.GetComponent<HanokPlacedAssetMetadata>();
         if (metadata != null && !string.IsNullOrWhiteSpace(metadata.displayName))

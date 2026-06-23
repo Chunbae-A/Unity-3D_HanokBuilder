@@ -72,7 +72,7 @@ public partial class HanokUIManager
         hdrImg.type = Image.Type.Sliced;
         hdrImg.color = HDR_BG;
 
-        var title = MakeLabel(hdr, "모듈 라이브러리", 13, TEXT_HDR, bold: true);
+        var title = MakeLabel(hdr, "에셋 라이브러리", 13, TEXT_HDR, bold: true);
         Embolden(title);
         AddTextHalo(title);
         var tRT = title.GetComponent<RectTransform>();

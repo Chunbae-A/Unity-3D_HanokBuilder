@@ -124,6 +124,7 @@ public partial class HanokUIManager
         { "CM_SM_SmallGate",                       90 },
         { "CM_SM_Seoricheong",                     90 },
         { "CM_SM_Nusanggo",                        90 },
+        { "CM_SM_Dabogmun",                        90 },
         { "CM_Small_Gate",                        180 },
     };
 
