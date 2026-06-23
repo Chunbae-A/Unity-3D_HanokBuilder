@@ -908,6 +908,16 @@ public partial class HanokUIManager : MonoBehaviour
         SyncGizmo();
     }
 
+    public void MultiplyScale(float factor)
+    {
+        if (!selectedObject) return;
+        float current = selectedObject.transform.localScale.x;
+        float next = Mathf.Max(0.001f, current * factor);
+        selectedObject.transform.localScale = Vector3.one * next;
+        if (scaleF != null) scaleF.SetTextWithoutNotify(next.ToString("F2"));
+        SyncGizmo();
+    }
+
     public void Duplicate()
     {
         if (!selectedObject) return;
