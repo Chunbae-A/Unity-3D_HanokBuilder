@@ -73,8 +73,7 @@ public partial class HanokUIManager
         var gearBtn = gearGO.AddComponent<Button>();
         gearBtn.targetGraphic = gearImg;
         gearBtn.onClick.AddListener(ShowApiKeyPanel);
-        var gearLbl = (TextMeshProUGUI)MakeLabel(gearGO.transform, "⚙", 12, TEXT_MAIN, bold: false);
-        KorFont(gearLbl);
+        var gearLbl = (TextMeshProUGUI)MakeLabel(gearGO.transform, "KEY", 7, TEXT_MAIN, bold: true);
         var gearLblRT = gearLbl.GetComponent<RectTransform>();
         gearLblRT.anchorMin = Vector2.zero; gearLblRT.anchorMax = Vector2.one;
         gearLblRT.offsetMin = gearLblRT.offsetMax = Vector2.zero;
