@@ -2,18 +2,6 @@
   "category": "디지털휴먼",
   "assets": [
     {
-      "key": "CM_SM_Merchant_FeMale",
-      "display": "여성 상인",
-      "sub": "상인",
-      "path": "HanokAssets/디지털휴먼/Prefabs/CM_SM_Merchant_FeMale"
-    },
-    {
-      "key": "CM_SM_Merchant_Male",
-      "display": "남성 상인",
-      "sub": "상인",
-      "path": "HanokAssets/디지털휴먼/Prefabs/CM_SM_Merchant_Male"
-    },
-    {
       "key": "CM_woman_phong",
       "display": "여성 캐릭터",
       "sub": "메타휴먼",
