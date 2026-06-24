@@ -9,9 +9,8 @@
 
 <h1 align="center">HanokBuilder — Unity Source</h1>
 
-<p align="center">
-  한국 전통 건축 공간 3D 제작 도구 · Unity 6 소스 레포지토리
-</p>
+<img width="2560" height="1440" alt="main" src="https://github.com/user-attachments/assets/f7afad5a-d9d5-4d93-bc1e-00a457194806" />
+
 
 <p align="center">
   <a href="https://chunbae-a.github.io/HanokBuilder-guide/"><strong>사용자 가이드 →</strong></a>
@@ -22,7 +21,7 @@
 </p>
 
 > **사용 방법은 [사용자 가이드](https://chunbae-a.github.io/HanokBuilder-guide/)를 참고하세요.**
-> 이 문서는 코드 구조, 개발 환경 세팅, 빌드, 기술 이슈 해결에 집중합니다.
+
 
 ---
 
