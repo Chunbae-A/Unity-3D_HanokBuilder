@@ -60,7 +60,11 @@ public partial class HanokUIManager
 
         _aiInputField = MakeAIInputField(barRT);
         _aiInputField.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1;
-        _aiInputField.onSubmit.AddListener(_ => OnAIPromptSubmit());
+        _aiInputField.onEndEdit.AddListener(_ => {
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb != null && (kb.enterKey.isPressed || kb.numpadEnterKey.isPressed))
+                OnAIPromptSubmit();
+        });
 
         // ⚙ API 키 설정 버튼
         var gearGO = new GameObject("ApiKeyBtn");
@@ -73,7 +77,7 @@ public partial class HanokUIManager
         var gearBtn = gearGO.AddComponent<Button>();
         gearBtn.targetGraphic = gearImg;
         gearBtn.onClick.AddListener(ShowApiKeyPanel);
-        var gearLbl = (TextMeshProUGUI)MakeLabel(gearGO.transform, "⚙", 12, TEXT_MAIN, bold: false);
+        var gearLbl = (TextMeshProUGUI)MakeLabel(gearGO.transform, "KEY", 7, TEXT_MAIN, bold: true);
         var gearLblRT = gearLbl.GetComponent<RectTransform>();
         gearLblRT.anchorMin = Vector2.zero; gearLblRT.anchorMax = Vector2.one;
         gearLblRT.offsetMin = gearLblRT.offsetMax = Vector2.zero;

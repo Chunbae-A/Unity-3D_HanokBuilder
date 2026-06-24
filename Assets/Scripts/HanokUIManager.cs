@@ -760,13 +760,13 @@ public partial class HanokUIManager : MonoBehaviour
     {
         if (infoNameText == null) return;
         bool has = selectedObject != null;
-        infoNameText.text  = has ? GetPlacedAssetDisplayName(selectedObject) : "부재를 선택하세요";
+        infoNameText.text  = has ? GetPlacedAssetDisplayName(selectedObject) : "에셋을 선택하세요";
         infoNameText.color = has ? TEXT_H : TEXT_HINT;
     }
 
     string GetPlacedAssetDisplayName(GameObject obj)
     {
-        if (obj == null) return "부재를 선택하세요";
+        if (obj == null) return "에셋을 선택하세요";
 
         var metadata = obj.GetComponent<HanokPlacedAssetMetadata>();
         if (metadata != null && !string.IsNullOrWhiteSpace(metadata.displayName))
@@ -905,6 +905,16 @@ public partial class HanokUIManager : MonoBehaviour
         if (!selectedObject) return;
         selectedObject.transform.localScale = Vector3.one * s;
         scaleF?.SetTextWithoutNotify(s.ToString("F2"));
+        SyncGizmo();
+    }
+
+    public void MultiplyScale(float factor)
+    {
+        if (!selectedObject) return;
+        float current = selectedObject.transform.localScale.x;
+        float next = Mathf.Max(0.001f, current * factor);
+        selectedObject.transform.localScale = Vector3.one * next;
+        if (scaleF != null) scaleF.SetTextWithoutNotify(next.ToString("F2"));
         SyncGizmo();
     }
 

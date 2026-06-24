@@ -101,7 +101,7 @@ public partial class HanokUIManager
         // [−] 접기 버튼
         MakeHeaderBtn(hdrGO.transform, "−", 22f, OnCollapseClicked);
         // [✕] 완전 닫기 버튼
-        MakeHeaderBtn(hdrGO.transform, "✕", 22f, OnGuideCloseClicked);
+        MakeHeaderBtn(hdrGO.transform, "×", 22f, OnGuideCloseClicked);
 
         // ── 구분선 ────────────────────────────────────────
         var divGO = new GameObject("Div");
@@ -197,6 +197,7 @@ public partial class HanokUIManager
         btn.colors = cs;
         btn.onClick.AddListener(cb);
         var lbl = (TextMeshProUGUI)MakeLabel(go.transform, label, 9f, new Color(1, 1, 1, 0.65f));
+        KorFont(lbl);
         var lrt = lbl.GetComponent<RectTransform>();
         lrt.anchorMin = Vector2.zero; lrt.anchorMax = Vector2.one;
         lrt.offsetMin = lrt.offsetMax = Vector2.zero;
@@ -244,8 +245,8 @@ public partial class HanokUIManager
     void OnGuideCloseClicked()
     {
         SetGuideState(GuideState.Hidden);
-        // X를 누른 에셋은 이 선택 동안 다시 자동표시 안 함
-        _lastGuidedAssetKey = _lastGuidedAssetKey + "__closed";
+        if (selectedObject != null && selectedObject.GetComponent<HanokGuideClosedMarker>() == null)
+            selectedObject.AddComponent<HanokGuideClosedMarker>();
     }
 
     void HideGuideBubble()
@@ -338,9 +339,10 @@ public partial class HanokUIManager
         string assetKey = !string.IsNullOrEmpty(meta?.assetKey)
             ? meta.assetKey : CleanPlacedObjectName(obj.name);
 
-        // 같은 에셋 재클릭 — X로 닫았거나 이미 처리 중이면 무시
-        if (assetKey == _lastGuidedAssetKey ||
-            assetKey + "__closed" == _lastGuidedAssetKey) return;
+        // X로 닫은 오브젝트는 영구 무시
+        if (obj.GetComponent<HanokGuideClosedMarker>() != null) return;
+        // 현재 표시 중인 같은 에셋 재클릭 무시
+        if (assetKey == _lastGuidedAssetKey) return;
 
         string displayName = !string.IsNullOrEmpty(meta?.displayName)
             ? meta.displayName : assetKey;
@@ -432,3 +434,5 @@ public partial class HanokUIManager
         SetGuideState(GuideState.Hidden);
     }
 }
+
+public class HanokGuideClosedMarker : MonoBehaviour { }

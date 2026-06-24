@@ -43,7 +43,7 @@ public partial class HanokUIManager
         ntRT.anchorMin = Vector2.zero; ntRT.anchorMax = new Vector2(1, 0.58f);
         ntRT.offsetMin = new Vector2(14, 5); ntRT.offsetMax = new Vector2(-8, 0);
         infoNameText = nt.AddComponent<TextMeshProUGUI>();
-        infoNameText.text = "부재를 선택하세요";
+        infoNameText.text = "에셋을 선택하세요";
         infoNameText.fontSize = 12.5f;
         infoNameText.fontStyle = FontStyles.Bold;
         infoNameText.color = TEXT_HINT;
@@ -83,10 +83,10 @@ public partial class HanokUIManager
         RegisterEditPanelTabOrder(posX, posY, posZ, rotX, rotY, rotZ, scaleF);
         Spacer(content, 4);
         ActionRow(content, 28,
-            (" 0.5× ", () => SetScale(0.5f), BTN_GHOST,  TEXT_MAIN),
-            (" 1× ",   () => SetScale(1f),   BTN_ACTIVE, TEXT_ON_ACCENT),
-            (" 2× ",   () => SetScale(2f),   BTN_GHOST,  TEXT_MAIN),
-            (" 3× ",   () => SetScale(3f),   BTN_GHOST,  TEXT_MAIN));
+            (" 0.5× ", () => MultiplyScale(0.5f), BTN_GHOST,  TEXT_MAIN),
+            (" 1× ",   () => SetScale(1f),        BTN_ACTIVE, TEXT_ON_ACCENT),
+            (" 2× ",   () => MultiplyScale(2f),   BTN_GHOST,  TEXT_MAIN),
+            (" 3× ",   () => MultiplyScale(3f),   BTN_GHOST,  TEXT_MAIN));
 
         // ── 액션 버튼 ──────────────────────────────────────
         Spacer(content, 16);
