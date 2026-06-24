@@ -250,17 +250,3 @@ https://drive.google.com/drive/folders/1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9
 | 건축물부품형 | Assets/HanokBuilder/Resources/HanokAssets/건축물부품형/ |
 | 디지털휴먼   | Assets/HanokBuilder/Resources/HanokAssets/디지털휴먼/ |
 | 공간소품     | Assets/HanokBuilder/Resources/HanokAssets/공간소품/ |
-
----
-
-## 트러블슈팅
-
-| 증상 | 원인 | 해결 |
-|---|---|---|
-| `credentials.json 없음` 오류 | OAuth 클라이언트 ID 파일 없음 | Google Cloud Console에서 생성 후 `Tools/CultureAssetDownloader/`에 저장 |
-| Drive 다운로드 중단 후 재시작 | 정상 동작 | `download_progress.json`이 이어받기를 자동 처리 |
-| `sync_progress.json` 기반 스킵 | 이미 다운로드 완료 | `--reset` 플래그로 초기화 후 재실행 |
-| Prefab이 Unity에서 핑크색 | URP Material 변환 미실행 | Unity 에디터 단계 [2] Render Pipeline Converter 실행 |
-| 에셋 목록 미표시 | `HanokManifest/*.json` 미생성 | `pipeline.py --phase2` 실행 후 Unity에서 Reload Culture Manifests |
-| GUID 오류로 Prefab 참조 깨짐 | FBX 재임포트 후 GUID 변경 | `fix_cm_prefab_guids.py` 실행 (Unity 닫은 상태에서) |
-| 한글 텍스처 경로 인덱싱 실패 | Unity AssetDatabase 제한 | `move_korean_fbm_textures.py` 실행 |

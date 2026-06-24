@@ -36,7 +36,6 @@
 - [에셋 파이프라인 도구](#에셋-파이프라인-도구)
 - [AI 연동 구조](#ai-연동-구조)
 - [빌드](#빌드)
-- [알려진 기술 이슈 & 해결책](#알려진-기술-이슈--해결책)
 - [데이터 출처](#데이터-출처)
 - [관련 레포지토리](#관련-레포지토리)
 
@@ -286,21 +285,6 @@ File → Build Settings
 ```
 
 빌드 완료 후 `index.html` + `Build/` 폴더를 웹 서버 또는 GitHub Pages에 업로드합니다.
-
----
-
-## 알려진 기술 이슈 & 해결책
-
-| # | 이슈 | 원인 | 해결책 |
-| --- | --- | --- | --- |
-| 1 | `TextAlignmentOptions.MidlineCenter` 컴파일 오류 | Unity 6 TMP에서 해당 열거형 제거 | `TextAlignmentOptions.Center` 로 교체 |
-| 2 | `Image` + `TextMeshProUGUI` 동일 오브젝트 부착 불가 | 둘 다 `Graphic` 상속 — 충돌 | 텍스트를 자식 GameObject에 분리 |
-| 3 | `UnityEngine.Input` vs New Input System 충돌 | 구형 API 혼용 | `Mouse.current.leftButton.wasPressedThisFrame` 으로 통일 |
-| 4 | 에셋 목록 미표시 | Prefab 미변환 또는 Resources 경로 오류 | Prefab 변환 후 `HanokAssets/` 경로 확인 |
-| 5 | 에셋 배치 후 화면에 미표시 | 카메라 Z값 이상 이동 | Camera Position `(0, 5, -10)` · Rotation `(20, 0, 0)` 재설정 |
-| 6 | 오브젝트 클릭 선택 안 됨 | Collider가 자식에만 존재, 루트에 `SelectableAsset` 없음 | `AttachSelectable()` 으로 전체 계층 일괄 부착 |
-| 7 | 회전 기즈모 링 크기 이상 | FBX cm 스케일로 bounds 100× 오인식 | 카메라 거리 기반 폴백 크기 적용 + `Scale Factor = 0.01` |
-| 8 | `ContentSizeFitter` 첫 프레임 레이아웃 미계산 | `VerticalLayoutGroup` 초기화 타이밍 | `LayoutRebuilder.ForceRebuildLayoutImmediate` 코루틴 강제 갱신 |
 
 ---
 
