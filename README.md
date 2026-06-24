@@ -33,6 +33,7 @@
 - [코드 구조](#코드-구조)
 - [개발 환경 세팅](#개발-환경-세팅)
 - [에셋 추가 워크플로](#에셋-추가-워크플로)
+- [에셋 파이프라인 도구](#에셋-파이프라인-도구)
 - [AI 연동 구조](#ai-연동-구조)
 - [빌드](#빌드)
 - [알려진 기술 이슈 & 해결책](#알려진-기술-이슈--해결책)
@@ -168,6 +169,29 @@ Unity Hub → `Open` → 클론 폴더 → Unity 6000.3.16f1로 열기
 
 ## 에셋 추가 워크플로
 
+### 자동화 파이프라인 (권장)
+
+대량 에셋은 아래 파이프라인으로 일괄 처리합니다. 자세한 내용은 **[Tools/GUIDE.md](Tools/GUIDE.md)** 를 참고하세요.
+
+```
+문화포털 → Drive → 로컬 → Unity Prefab
+```
+
+```bash
+# 1. 문화포털 에셋 → Drive 업로드 (최초 또는 업데이트 시)
+python Tools/CultureAssetDownloader/culture_asset_downloader.py
+
+# 2. Drive → 로컬 동기화 + 후처리
+python Tools/pipeline.py
+
+# 3. Unity 에디터에서 3단계 실행 (GUIDE.md 참고)
+
+# 4. Prefab 생성 후 매니페스트 생성 + GUID 복구
+python Tools/pipeline.py --phase2
+```
+
+### 수동 추가 (단일 FBX)
+
 ```
 1. FBX를 Unity Project 창으로 드래그 임포트
 
@@ -188,6 +212,28 @@ Unity Hub → `Open` → 클론 폴더 → Unity 6000.3.16f1로 열기
 
 `Resources.LoadAll<GameObject>("HanokAssets")` 로 로드됩니다.
 Prefab 루트 및 모든 자식 Collider에 `SelectableAsset` 이 `AttachSelectable()` 으로 자동 부착됩니다.
+
+---
+
+## 에셋 파이프라인 도구
+
+`Tools/` 폴더에는 문화포털 에셋을 자동으로 수집·정리·변환하는 Python 스크립트가 있습니다.
+
+| 도구 | 역할 |
+| --- | --- |
+| `pipeline.py` | 통합 실행기 — Phase 1·2를 순서대로 일괄 실행 |
+| `CultureAssetDownloader/culture_asset_downloader.py` | 문화포털 → Google Drive 스트리밍 업로드 |
+| `DriveAssetSync/drive_asset_sync.py` | Google Drive → 로컬 HanokAssets 동기화 |
+| `cleanup_hanokassets.py` | 불필요 파일 제거 + 중복 텍스처 통합 |
+| `move_korean_fbm_textures.py` | 한글·괄호 포함 `.fbm` 텍스처 → SharedTextures |
+| `generate_culture_manifests.py` | Prefabs 스캔 → `HanokManifest/*.json` 생성 |
+| `fix_cm_prefab_guids.py` | CM_ Prefab Variant GUID 복구 |
+
+에셋 원본(FBX)은 아래 Google Drive 폴더에 저장됩니다.
+
+> **에셋 Drive:** [Google Drive — HanokBuilder Assets](https://drive.google.com/drive/folders/1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9)
+
+전체 사용법은 **[Tools/GUIDE.md](Tools/GUIDE.md)** 를 참고하세요.
 
 ---
 
@@ -269,7 +315,10 @@ File → Build Settings
 | 디지털 휴먼 데이터 | 한국문화정보원 | 문화포털 메타버스데이터랩 |
 | 공간소품 3D 오브젝트 | 한국문화정보원 | 문화포털 메타버스데이터랩 |
 
-원본 FBX · 텍스처 파일은 Git LFS로 코드와 분리 관리합니다.
+원본 FBX · 텍스처 파일은 Git LFS 대신 Google Drive에서 관리합니다.
+
+> **에셋 Drive:** [Google Drive — HanokBuilder Assets](https://drive.google.com/drive/folders/1J92prWdMR6HYr7WAaeIN-gsvgldHGNh9)
+
 에셋 식별자(`assetKey`), 한글 표시명, 카테고리, 검색 태그로 재구조화해 `HanokAssetTags.cs`에서 관리합니다.
 
 ---
