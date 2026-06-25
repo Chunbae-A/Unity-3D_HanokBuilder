@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Unity-6000.3.16f1-000000?style=flat-square&logo=unity&logoColor=white" alt="Unity">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20WebGL%20(미배포)-E44D26?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/Platform-Windows%2064--bit-E44D26?style=flat-square" alt="Platform">
   <img src="https://img.shields.io/badge/AI-Claude%20Haiku-6B5B95?style=flat-square" alt="Claude Haiku">
   <img src="https://img.shields.io/badge/Render-URP-3C4A5E?style=flat-square" alt="URP">
   <img src="https://img.shields.io/badge/Input-New%20Input%20System-0070CC?style=flat-square" alt="Input System">
@@ -15,8 +15,6 @@
 
 <p align="center">
   <a href="https://chunbae-a.github.io/HanokBuilder-guide/"><strong>사용자 가이드 →</strong></a>
-  &nbsp;·&nbsp;
-  <s>WebGL 체험</s> <em>(미배포 — 준비 중)</em>
   &nbsp;·&nbsp;
   <a href="https://drive.google.com/drive/folders/1gCTwTNuJAuEa3ueKQiMCqAYTLsg8wmWK?usp=drive_link"><strong>Windows 다운로드 →</strong></a>
 </p>
@@ -53,7 +51,7 @@
 | 폰트 | NotoSansKR SDF (TextMesh Pro) |
 | 에셋 로드 | `Resources.LoadAll` — `HanokBuilder/Resources/HanokAssets/` |
 | 직렬화 | Newtonsoft.Json (`Newtonsoft.Json.dll`) |
-| 플랫폼 | Windows 64-bit · ~~WebGL~~ *(미배포 — 준비 중)* |
+| 플랫폼 | Windows 64-bit |
 
 ---
 
@@ -273,18 +271,6 @@ File → Build Settings
   Target    : Windows  |  Architecture : x86_64
 → Build
 ```
-
-### WebGL *(미배포 — 준비 중)*
-
-> 현재 WebGL 빌드는 배포되지 않았습니다. 완료 시 이 섹션이 업데이트됩니다.
-
-```
-File → Build Settings
-  Platform : WebGL
-→ Switch Platform → Build
-```
-
-빌드 완료 후 `index.html` + `Build/` 폴더를 웹 서버 또는 GitHub Pages에 업로드합니다.
 
 ---
 
